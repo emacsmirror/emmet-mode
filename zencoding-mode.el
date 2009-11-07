@@ -1,40 +1,49 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Demos
+;;; zencoding-mode.el --- Unfold CSS-selector-like expressions to markup
 
-;; (transform (car (expr "a>b>c+d+e")))
-;; => <a><b><c></c><d></d><e></e></b></a>
+;; Copyright (C) 2009, Chris Done
 
-;; (transform (car (expr "html>head+(body>p)")))
-;; => <html><head></head><body><p></p></body></html>
+;; Author: Chris Done <chrisdone@gmail.com>
+;; Keywords: convenience
 
-;; (transform (car (expr "html>head+(body>p+(ul>li))")))
-;; => [indentation added with xml-mode]
-;; <html>
-;;   <head>
-;;   </head>
-;;   <body>
-;;     <p>
-;;     </p>
-;;     <ul>
-;;       <li>
-;;       </li>
-;;     </ul>
-;;   </body>
-;; </html>
+;; This file is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
 
-;; (transform (car (expr "body.sub-page>div#news.content.a+div#news.content.a")))
-;; => [indentation added with xml-mode]
-;; <body class="sub-page">
-;;   <div id="news" class="content a">
-;;   </div>
-;;   <div id="news" class="content a">
-;;   </div>
-;; </body>
+;; This file is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
 
-;; (transform (car (expr "a#q.x>b#q.x*2")))
-;; => <a id="q" class="x"><b id="q" class="x"></b><b id="q" class="x"></b></a>
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING.  If not, write to
+;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+;; Boston, MA 02110-1301, USA.
+
+;;; Commentary:
+
+;; Unfold CSS-selector-like expressions to markup. Intended to be used
+;; with sgml-like languages; xml, html, xhtml, xsl, etc.
+
+;; Copy zencoding-mode.el to your load-path and add to your .emacs:
+
+;;    (require 'zencoding-mode)
+
+;; Example setup:
+
+;;    (add-to-list 'load-path "~/Emacs/zencoding/")
+;;    (require 'zencoding-mode)
+;;    (add-hook 'sgml-mode-hook 'zencoding-mode) ;; Auto-start on any markup modes
+
+;; Enable the minor mode with M-x zencoding-mode.
 
 ;; See ``Test cases'' section for a complete set of expression types.
+
+;; If you are hacking on this project, eval (zencoding-test-cases) to
+;; ensure that your changes have not broken anything. Feel free to add
+;; new test cases if you add new features.
+
+;;; Code:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic parsing macros and utilities
@@ -286,6 +295,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Test-cases
+
 (defun zencoding-test-cases ()
   (let ((tests '(;; Tags
                  ("a"                      "<a></a>")
@@ -349,3 +359,40 @@
                                    actual)))))
             tests)
     (concat (number-to-string (length tests)) " tests performed. All OK.")))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Zencoding minor mode
+
+(defun zencoding-expand-line ()
+  "Replace the current line's zencode expression with the corresponding expansion."
+  (interactive)
+  (let* ((line-start (line-beginning-position)) 
+         (line
+          (buffer-substring-no-properties line-start (line-end-position)))
+         (match (zencoding-regex "\\([ \t]*\\)\\(.+\\)" line '(0 1 2)))
+         (indentation (elt match 1))
+         (expr (elt match 2)))
+    (if expr 
+          (let* ((markup (zencoding-transform (car (zencoding-expr expr))))
+                 (markup-filled (replace-regexp-in-string "><" ">\n<" markup)))
+            (message (concat "Expanded: " expr))
+            (save-excursion
+              (delete-region line-start (line-end-position))
+              (insert markup-filled)
+              (indent-region line-start (+ line-start (length markup-filled))))))))
+
+(defvar zencoding-mode-keymap nil
+  "Keymap for zencode minor mode.")
+
+(if zencoding-mode-keymap
+    nil
+  (progn
+    (setq zencoding-mode-keymap (make-sparse-keymap))
+    (define-key zencoding-mode-keymap (kbd "<C-return>") 'zencoding-expand-line)))
+
+(define-minor-mode zencoding-mode "Minor mode to assist writing markup."
+  :lighter " Zen"
+  :keymap zencoding-mode-keymap)
+
+(provide 'zencoding-mode)
