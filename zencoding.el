@@ -211,7 +211,9 @@
 (defun zencoding-identifier (input)
   "Parse an identifier expression, e.g. #foo"
   (zencoding-parse "#" 1 "#"
-                   (zencoding-run zencoding-name `((identifier . ,expr) . ,input))))
+                   (zencoding-run zencoding-name
+                                  `((identifier . ,expr) . ,input)
+                                  it)))
 
 (defun zencoding-classes (input)
   "Parse many classes."
