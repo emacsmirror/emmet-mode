@@ -42,12 +42,12 @@
 (defmacro zencoding-aif (test-form then-form &rest else-forms)
   "Anaphoric if. Temporary variable `it' is the result of test-form."
   `(let ((it ,test-form))
-     (if it ,then-form ,@else-forms)))
+     (if it ,then-form ,@(or else-forms '(it)))))
 
 (defmacro zencoding-pif (test-form then-form &rest else-forms)
   "Parser anaphoric if. Temporary variable `it' is the result of test-form."
   `(let ((it ,test-form))
-     (if (not (eq 'error (car it))) ,then-form ,@else-forms)))
+     (if (not (eq 'error (car it))) ,then-form ,@(or else-forms '(it)))))
 
 (defmacro zencoding-parse (regex nums label &rest body)
   "Parse according to a regex and update the `input' variable."
@@ -63,7 +63,7 @@
                   (let ((input (cdr it))
                         (expr (car it)))
                     ,then-form)
-                  ,@else-forms))
+                  ,@(or else-forms '(it))))
 
 (defmacro zencoding-por (parser1 parser2 then-form &rest else-forms)
   "OR two parsers. Try one parser, if it fails try the next."
@@ -114,12 +114,44 @@
   (zencoding-run zencoding-tagname
                  (let ((result it) 
                        (tagname (cdr expr)))
-                   (zencoding-run zencoding-identifier
-                                  (zencoding-tag-classes
-                                   `(tag ,tagname ((id ,(cddr expr)))) input)
-                                  (zencoding-tag-classes `(tag ,tagname ()) input)))
+                   (zencoding-pif (zencoding-run zencoding-identifier
+                                                 (zencoding-tag-classes
+                                                  `(tag ,tagname ((id ,(cddr expr)))) input)
+                                                 (zencoding-tag-classes `(tag ,tagname ()) input))
+                                  (let ((expr-and-input it) (expr (car it)) (input (cdr it)))
+                                    (zencoding-pif (zencoding-tag-props expr input)
+                                                   it
+                                                   expr-and-input))))
                  '(error "expected tagname")))
- 
+
+(defun zencoding-tag-props (tag input)
+  (zencoding-run zencoding-props
+                 (let ((tagname (cadr tag))
+                       (existing-props (caddr tag))
+                       (props (cdr expr)))
+                   `((tag ,tagname 
+                          ,(append existing-props props))
+                     . ,input))))
+
+(defun zencoding-props (input)
+  "Parse many props."
+    (zencoding-run zencoding-prop
+                   (zencoding-pif (zencoding-props input)
+                                  `((props . ,(cons expr (cdar it))) . ,(cdr it))
+                                  `((props . ,(list expr)) . ,input))))
+
+(defun zencoding-prop (input)
+  (zencoding-parse 
+   " " 1 "space"
+   (zencoding-run
+    zencoding-name
+    (let ((name (cdr expr)))
+      (zencoding-parse "=\\([^\\,\\+\\>\\ )]*\\)" 2 
+                       "=property value"
+                       (let ((value (elt it 1))
+                             (input (elt it 2)))
+                         `((,(read name) ,value) . ,input)))))))
+
 (defun zencoding-tag-classes (tag input)
   (zencoding-run zencoding-classes
                  (let ((tagname (cadr tag)) 
@@ -212,8 +244,7 @@
   "Parse an identifier expression, e.g. #foo"
   (zencoding-parse "#" 1 "#"
                    (zencoding-run zencoding-name
-                                  `((identifier . ,expr) . ,input)
-                                  it)))
+                                  `((identifier . ,expr) . ,input))))
 
 (defun zencoding-classes (input)
   "Parse many classes."
@@ -284,7 +315,18 @@
                  ("a*2>b*2"                "<a><b></b><b></b></a><a><b></b><b></b></a>")
                  ("a>b*2"                  "<a><b></b><b></b></a>")
                  ("a#q.x>b#q.x*2"          "<a id=\"q\" class=\"x\"><b id=\"q\" class=\"x\"></b><b id=\"q\" class=\"x\"></b></a>")
-                 ;; ;; Parentheses
+                 ;; Properties
+                 ("a x=y"                  "<a x=\"y\"></a>")
+                 ("a x=y m=l"              "<a x=\"y\" m=\"l\"></a>")
+                 ("a#foo x=y m=l"          "<a id=\"foo\" x=\"y\" m=\"l\"></a>")
+                 ("a.foo x=y m=l"          "<a class=\"foo\" x=\"y\" m=\"l\"></a>")
+                 ("a#foo.bar.mu x=y m=l"   "<a id=\"foo\" class=\"bar mu\" x=\"y\" m=\"l\"></a>")
+                 ("a x=y+b"                "<a x=\"y\"></a><b></b>")
+                 ("a x=y+b x=y"            "<a x=\"y\"></a><b x=\"y\"></b>")
+                 ("a x=y>b"                "<a x=\"y\"><b></b></a>")
+                 ("a x=y>b x=y"            "<a x=\"y\"><b x=\"y\"></b></a>")
+                 ("a x=y>b x=y+c x=y"      "<a x=\"y\"><b x=\"y\"></b><c x=\"y\"></c></a>")
+                 ;; Parentheses
                  ("(a)"                    "<a></a>")
                  ("(a)+(b)"                "<a></a><b></b>")
                  ("a>(b)"                  "<a><b></b></a>")
@@ -295,7 +337,8 @@
                  ("((a)*2)"                "<a></a><a></a>")
                  ("((a)*2)"                "<a></a><a></a>")
                  ("(a>b)*2"                "<a><b></b></a><a><b></b></a>")
-                 ("(a+b)*2"                "<a></a><b></b><a></a><b></b>"))))
+                 ("(a+b)*2"                "<a></a><b></b><a></a><b></b>")
+                 )))
     (mapcar (lambda (input)
               (let ((expected (cadr input))
                     (actual (zencoding-transform (car (zencoding-expr (car input))))))
