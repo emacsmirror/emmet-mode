@@ -52,30 +52,30 @@
 (defmacro zencoding-parse (regex nums label &rest body)
   "Parse according to a regex and update the `input' variable."
   `(zencoding-aif (zencoding-regex ,regex input ',(number-sequence 0 nums))
-        (let ((input (elt it ,nums)))
-          ,@body)
-        `,`(error ,(concat "expected " ,label))))
+                  (let ((input (elt it ,nums)))
+                    ,@body)
+                  `,`(error ,(concat "expected " ,label))))
 
 (defmacro zencoding-run (parser then-form &rest else-forms)
   "Run a parser and update the input properly, extract the parsed
    expression."
   `(zencoding-pif (,parser input)
-        (let ((input (cdr it))
-              (expr (car it)))
-          ,then-form)
-        ,@else-forms))
+                  (let ((input (cdr it))
+                        (expr (car it)))
+                    ,then-form)
+                  ,@else-forms))
 
 (defmacro zencoding-por (parser1 parser2 then-form &rest else-forms)
   "OR two parsers. Try one parser, if it fails try the next."
   `(zencoding-pif (,parser1 input)
-        (let ((input (cdr it))
-              (expr (car it)))
-          ,then-form)
-        (zencoding-pif (,parser2 input)
-             (let ((input (cdr it))
-                   (expr (car it)))
-               ,then-form)
-             ,@else-forms)))
+                  (let ((input (cdr it))
+                        (expr (car it)))
+                    ,then-form)
+                  (zencoding-pif (,parser2 input)
+                                 (let ((input (cdr it))
+                                       (expr (car it)))
+                                   ,then-form)
+                                 ,@else-forms)))
 
 (defun zencoding-regex (regexp string refs)
   "Return a list of (`ref') matches for a `regex' on a `string' or nil."
@@ -90,135 +90,136 @@
 (defun zencoding-expr (input)
   "Parse a zen coding expression. This pretty much defines precedence."
   (zencoding-run zencoding-siblings
-       it
-       (zencoding-run zencoding-parent-child
-            it
-            (zencoding-run zencoding-multiplier
                  it
-                 (zencoding-run zencoding-pexpr
-                      it
-                      (zencoding-run zencoding-tag
-                           it
-                           '(error "no match, expecting ( or a-zA-Z0-9")))))))
+                 (zencoding-run zencoding-parent-child
+                                it
+                                (zencoding-run zencoding-multiplier
+                                               it
+                                               (zencoding-run zencoding-pexpr
+                                                              it
+                                                              (zencoding-run zencoding-tag
+                                                                             it
+                                                                             '(error "no match, expecting ( or a-zA-Z0-9")))))))
 
 (defun zencoding-multiplier (input)
   (zencoding-por zencoding-pexpr zencoding-tag
-       (let ((multiplier expr))
-         (zencoding-parse "\\*\\([0-9]+\\)" 2 "*n where n is a number"
-                (let ((multiplicand (read (elt it 1))))
-                  `((list ,(make-list multiplicand multiplier)) . ,input))))
-       '(error "expected *n multiplier")))
+                 (let ((multiplier expr))
+                   (zencoding-parse "\\*\\([0-9]+\\)" 2 "*n where n is a number"
+                                    (let ((multiplicand (read (elt it 1))))
+                                      `((list ,(make-list multiplicand multiplier)) . ,input))))
+                 '(error "expected *n multiplier")))
 
 (defun zencoding-tag (input)
   "Parse a tag."
   (zencoding-run zencoding-tagname
-       (let ((result it) 
-             (tagname (cdr expr)))
-         (zencoding-run zencoding-identifier
-              (zencoding-tag-classes `(tag ,tagname ((id ,(cddr expr)))) input)
-              (zencoding-tag-classes `(tag ,tagname ()) input)))
-       '(error "expected tagname")))
+                 (let ((result it) 
+                       (tagname (cdr expr)))
+                   (zencoding-run zencoding-identifier
+                                  (zencoding-tag-classes
+                                   `(tag ,tagname ((id ,(cddr expr)))) input)
+                                  (zencoding-tag-classes `(tag ,tagname ()) input)))
+                 '(error "expected tagname"a)))
 
 (defun zencoding-tag-classes (tag input)
   (zencoding-run zencoding-classes
-       (let ((tagname (cadr tag)) 
-             (props (caddr tag))
-             (classes `(class ,(mapconcat 
-                                (lambda (prop)
-                                  (cdadr prop))
-                                (cdr expr)
-                                " "))))
-         `((tag ,tagname ,(append props (list classes))) . ,input))
-       `(,tag . ,input)))
+                 (let ((tagname (cadr tag)) 
+                       (props (caddr tag))
+                       (classes `(class ,(mapconcat 
+                                          (lambda (prop)
+                                            (cdadr prop))
+                                          (cdr expr)
+                                          " "))))
+                   `((tag ,tagname ,(append props (list classes))) . ,input))
+                 `(,tag . ,input)))
 
 (defun zencoding-tagname (input)
   "Parse a tagname a-zA-Z0-9 tagname (e.g. html/head/xsl:if/br)."
   (zencoding-parse "\\([a-zA-Z0-9:-]+\\)" 2 "tagname, a-zA-Z0-9"
-         `((tagname . ,(elt it 1)) . ,input)))
+                   `((tagname . ,(elt it 1)) . ,input)))
 
 (defun zencoding-pexpr (input)
   "A zen coding expression with parentheses around it."
   (zencoding-parse "(" 1 "("
-         (zencoding-run zencoding-expr
-              (zencoding-aif (zencoding-regex ")" input '(0 1))
-                   `(,expr . ,(elt it 1))
-                   '(error "expecting `)'")))))
+                   (zencoding-run zencoding-expr
+                                  (zencoding-aif (zencoding-regex ")" input '(0 1))
+                                                 `(,expr . ,(elt it 1))
+                                                 '(error "expecting `)'")))))
 
 (defun zencoding-parent-child (input)
   "Parse an tag>e expression, where `n' is an tag and `e' is any 
    expression."
   (zencoding-run zencoding-multiplier
-       (let* ((items (cadr expr))
-              (rest (zencoding-child-sans expr input)))
-         (if (not (eq (car rest) 'error))
-             (let ((child (car rest))
-                   (input (cdr rest)))
-               (cons (cons 'list
-                           (cons (mapcar (lambda (parent)
-                                           `(parent-child ,parent ,child))
-                                         items)
-                                 nil))
-                     input))
-           '(error "expected child")))
-       (zencoding-run zencoding-tag
-            (zencoding-child expr input)
-            '(error "expected parent"))))
+                 (let* ((items (cadr expr))
+                        (rest (zencoding-child-sans expr input)))
+                   (if (not (eq (car rest) 'error))
+                       (let ((child (car rest))
+                             (input (cdr rest)))
+                         (cons (cons 'list
+                                     (cons (mapcar (lambda (parent)
+                                                     `(parent-child ,parent ,child))
+                                                   items)
+                                           nil))
+                               input))
+                     '(error "expected child")))
+                 (zencoding-run zencoding-tag
+                                (zencoding-child expr input)
+                                '(error "expected parent"))))
 
 (defun zencoding-child-sans (parent input)
   (zencoding-parse ">" 1 ">"
-         (zencoding-run zencoding-expr
-              it
-              '(error "expected child"))))
+                   (zencoding-run zencoding-expr
+                                  it
+                                  '(error "expected child"))))
 
 (defun zencoding-child (parent input)
   (zencoding-parse ">" 1 ">"
-         (zencoding-run zencoding-expr
-              (let ((child expr))
-                `((parent-child ,parent ,child) . ,input))
-              '(error "expected child"))))
+                   (zencoding-run zencoding-expr
+                                  (let ((child expr))
+                                    `((parent-child ,parent ,child) . ,input))
+                                  '(error "expected child"))))
 
 (defun zencoding-sibling (input)
   (zencoding-por zencoding-pexpr zencoding-multiplier
-       it
-       (zencoding-run zencoding-tag
-            it
-            '(error "expected sibling"))))
+                 it
+                 (zencoding-run zencoding-tag
+                                it
+                                '(error "expected sibling"))))
 
 (defun zencoding-siblings (input)
   "Parse an e+e expression, where e is an tag or a pexpr."
   (zencoding-run zencoding-sibling
-       (let ((parent expr))
-         (zencoding-parse "\\+" 1 "+"
-                (zencoding-run zencoding-expr
-                     (let ((child expr))
-                       `((zencoding-siblings ,parent ,child) . ,input))
-                     '(error "expected second sibling"))))
-       '(error "expected first sibling")))
+                 (let ((parent expr))
+                   (zencoding-parse "\\+" 1 "+"
+                                    (zencoding-run zencoding-expr
+                                                   (let ((child expr))
+                                                     `((zencoding-siblings ,parent ,child) . ,input))
+                                                   '(error "expected second sibling"))))
+                 '(error "expected first sibling")))
 
 (defun zencoding-name (input)
   "Parse a class or identifier name, e.g. news, footer, mainimage"
   (zencoding-parse "\\([a-zA-Z][a-zA-Z0-9-_]*\\)" 2 "class or identifer name"
-         `((name . ,(elt it 1)) . ,input)))
+                   `((name . ,(elt it 1)) . ,input)))
 
 (defun zencoding-class (input)
   "Parse a classname expression, e.g. .foo"
   (zencoding-parse "\\." 1 "."
-         (zencoding-run zencoding-name 
-              `((class ,expr) . ,input)
-              '(error "expected class name"))))
+                   (zencoding-run zencoding-name 
+                                  `((class ,expr) . ,input)
+                                  '(error "expected class name"))))
 
 (defun zencoding-identifier (input)
   "Parse an identifier expression, e.g. #foo"
   (zencoding-parse "#" 1 "#"
-         (zencoding-run zencoding-name `((identifier . ,expr) . ,input))))
+                   (zencoding-run zencoding-name `((identifier . ,expr) . ,input))))
 
 (defun zencoding-classes (input)
   "Parse many classes."
   (zencoding-run zencoding-class
-       (zencoding-pif (zencoding-classes input)
-            `((classes . ,(cons expr (cdar it))) . ,(cdr it))
-            `((classes . ,(list expr)) . ,input))
-       '(error "expected class")))
+                 (zencoding-pif (zencoding-classes input)
+                                `((classes . ,(cons expr (cdar it))) . ,(cdr it))
+                                `((classes . ,(list expr)) . ,input))
+                 '(error "expected class")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Zen coding transformer from AST to HTML
