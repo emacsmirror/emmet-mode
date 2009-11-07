@@ -89,7 +89,7 @@
 (defun zencoding-regex (regexp string refs)
   "Return a list of (`ref') matches for a `regex' on a `string' or nil."
   (if (string-match (concat "^" regexp "\\(.*\\)$") string)
-      (mapcar (lambda (ref) (match-string ref string)) 
+      (mapcar (lambda (ref) (match-string ref string))
               (if (sequencep refs) refs (list refs)))
     nil))
 
@@ -121,7 +121,7 @@
 (defun zencoding-tag (input)
   "Parse a tag."
   (zencoding-run zencoding-tagname
-                 (let ((result it) 
+                 (let ((result it)
                        (tagname (cdr expr)))
                    (zencoding-pif (zencoding-run zencoding-identifier
                                                  (zencoding-tag-classes
@@ -138,7 +138,7 @@
                  (let ((tagname (cadr tag))
                        (existing-props (caddr tag))
                        (props (cdr expr)))
-                   `((tag ,tagname 
+                   `((tag ,tagname
                           ,(append existing-props props))
                      . ,input))))
 
@@ -150,12 +150,12 @@
                                   `((props . ,(list expr)) . ,input))))
 
 (defun zencoding-prop (input)
-  (zencoding-parse 
+  (zencoding-parse
    " " 1 "space"
    (zencoding-run
     zencoding-name
     (let ((name (cdr expr)))
-      (zencoding-parse "=\\([^\\,\\+\\>\\ )]*\\)" 2 
+      (zencoding-parse "=\\([^\\,\\+\\>\\ )]*\\)" 2
                        "=property value"
                        (let ((value (elt it 1))
                              (input (elt it 2)))
@@ -163,9 +163,9 @@
 
 (defun zencoding-tag-classes (tag input)
   (zencoding-run zencoding-classes
-                 (let ((tagname (cadr tag)) 
+                 (let ((tagname (cadr tag))
                        (props (caddr tag))
-                       (classes `(class ,(mapconcat 
+                       (classes `(class ,(mapconcat
                                           (lambda (prop)
                                             (cdadr prop))
                                           (cdr expr)
@@ -187,7 +187,7 @@
                                                  '(error "expecting `)'")))))
 
 (defun zencoding-parent-child (input)
-  "Parse an tag>e expression, where `n' is an tag and `e' is any 
+  "Parse an tag>e expression, where `n' is an tag and `e' is any
    expression."
   (zencoding-run zencoding-multiplier
                  (let* ((items (cadr expr))
@@ -245,7 +245,7 @@
 (defun zencoding-class (input)
   "Parse a classname expression, e.g. .foo"
   (zencoding-parse "\\." 1 "."
-                   (zencoding-run zencoding-name 
+                   (zencoding-run zencoding-name
                                   `((class ,expr) . ,input)
                                   '(error "expected class name"))))
 
@@ -266,14 +266,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Zen coding transformer from AST to HTML
 
-(defun zencoding-make-tag (tag &optional content) 
+(defun zencoding-make-tag (tag &optional content)
   (let ((name (car tag))
         (props (apply 'concat (mapcar
                                (lambda (prop)
                                  (concat " " (symbol-name (car prop))
                                          "=\"" (cadr prop) "\""))
                                (cadr tag)))))
-    (concat "<" name props ">" 
+    (concat "<" name props ">"
             (if content content "")
             "</" name ">")))
 
@@ -367,13 +367,13 @@
 (defun zencoding-expand-line ()
   "Replace the current line's zencode expression with the corresponding expansion."
   (interactive)
-  (let* ((line-start (line-beginning-position)) 
+  (let* ((line-start (line-beginning-position))
          (line
           (buffer-substring-no-properties line-start (line-end-position)))
          (match (zencoding-regex "\\([ \t]*\\)\\(.+\\)" line '(0 1 2)))
          (indentation (elt match 1))
          (expr (elt match 2)))
-    (if expr 
+    (if expr
           (let* ((markup (zencoding-transform (car (zencoding-expr expr))))
                  (markup-filled (replace-regexp-in-string "><" ">\n<" markup)))
             (message (concat "Expanded: " expr))
@@ -394,5 +394,85 @@
 (define-minor-mode zencoding-mode "Minor mode to assist writing markup."
   :lighter " Zen"
   :keymap zencoding-mode-keymap)
+
+
+;;; Real-time preview
+;;
+
+(defvar zencoding-realtime-preview-keymap
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\C-c\C-c" 'zencoding-delete-overlay-pair)
+
+    map)
+  "Keymap used in zencoding realtime preview overlays.")
+
+(defun zencoding-realtime-preview-of-region (beg end)
+  "Construct a real-time preview for the region BEG to END."
+  (interactive "r")
+  (let ((beg2)
+	(end2))
+    (save-excursion
+      (goto-char beg)
+      (forward-line)
+      (setq beg2 (point)
+	    end2 (point))
+      (insert "\n"))
+    (let ((input-and-output (zencoding-make-overlay-pair beg end beg2 end2)))
+      (zencoding-handle-overlay-change (car input-and-output) nil nil nil)))
+  )
+
+(defun zencoding-make-overlay-pair (beg1 end1 beg2 end2)
+  "Construct an input and an output overlay for BEG1 END1 and BEG2 END2"
+  (let ((input  (make-overlay beg1 end1 nil t t))
+	(output (make-overlay beg2 end2)))
+    ;; Setup input overlay
+    (overlay-put input  'face '(:underline t))
+    (overlay-put input  'modification-hooks
+		        (list #'zencoding-handle-overlay-change))
+    (overlay-put input  'output output)
+    (overlay-put input  'keymap zencoding-realtime-preview-keymap)
+    ;; Setup output overlay
+    (overlay-put output 'face '(:overline t))
+    (overlay-put output 'intangible t)
+    (overlay-put output 'input input)
+    ;; Return the overlays.
+    (list input output))
+  )
+
+(defun zencoding-delete-overlay-pair (&optional one)
+  "Delete a pair of input and output overlays based on ONE."
+  (interactive) ;; Since called from keymap
+  (unless one
+    (let ((overlays (overlays-at (point))))
+      (while (and overlays
+		  (not (or (overlay-get (car overlays) 'input)
+			   (overlay-get (car overlays) 'output))))
+	(setq overlays (cdr overlays)))
+      (setq one (car overlays))))
+  (when one
+    (let ((other (or (overlay-get one 'input)
+		     (overlay-get one 'output))))
+      (delete-overlay one)
+      (delete-overlay other)))
+  )
+
+(defun zencoding-handle-overlay-change (input del beg end &optional old)
+  "Update preview after overlay change."
+  (let* ((output (overlay-get input 'output))
+	 (start  (overlay-start output))
+	 (string (buffer-substring-no-properties
+		  (overlay-start input)
+		  (overlay-end input)))
+	 (ast    (car (zencoding-expr string)))
+	 (markup (when (not (eq ast 'error))
+		   (zencoding-transform ast))))
+    (save-excursion
+      (delete-region start (overlay-end output))
+      (goto-char start)
+      (if markup
+	  (insert markup)
+	(insert (propertize "error" 'face 'font-lock-error-face)))
+      (move-overlay output start (point))))
+  )
 
 (provide 'zencoding-mode)
