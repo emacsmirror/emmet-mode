@@ -118,8 +118,8 @@
                                   (zencoding-tag-classes
                                    `(tag ,tagname ((id ,(cddr expr)))) input)
                                   (zencoding-tag-classes `(tag ,tagname ()) input)))
-                 '(error "expected tagname"a)))
-
+                 '(error "expected tagname")))
+ 
 (defun zencoding-tag-classes (tag input)
   (zencoding-run zencoding-classes
                  (let ((tagname (cadr tag)) 
@@ -134,7 +134,7 @@
 
 (defun zencoding-tagname (input)
   "Parse a tagname a-zA-Z0-9 tagname (e.g. html/head/xsl:if/br)."
-  (zencoding-parse "\\([a-zA-Z0-9:-]+\\)" 2 "tagname, a-zA-Z0-9"
+  (zencoding-parse "\\([a-zA-Z][a-zA-Z0-9:-]*\\)" 2 "tagname, a-zA-Z0-9"
                    `((tagname . ,(elt it 1)) . ,input)))
 
 (defun zencoding-pexpr (input)
