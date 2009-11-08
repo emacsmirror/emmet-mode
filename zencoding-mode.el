@@ -364,23 +364,27 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Zencoding minor mode
 
+(defun zencoding-expr-at-point ()
+  "Extract a zencoding expression and the corresponding bounds
+   for the current line."
+  (let* ((start (line-beginning-position))
+         (end (line-end-position))
+         (line (buffer-substring-no-properties start end))
+         (expr (zencoding-regex "\\([ \t]*\\)\\(.+\\)" line 2)))
+    (if (first expr)
+        (list (first expr) start end))))
+
 (defun zencoding-expand-line ()
   "Replace the current line's zencode expression with the corresponding expansion."
   (interactive)
-  (let* ((line-start (line-beginning-position))
-         (line
-          (buffer-substring-no-properties line-start (line-end-position)))
-         (match (zencoding-regex "\\([ \t]*\\)\\(.+\\)" line '(0 1 2)))
-         (indentation (elt match 1))
-         (expr (elt match 2)))
+  (let ((expr (zencoding-expr-at-point)))
     (if expr
-          (let* ((markup (zencoding-transform (car (zencoding-expr expr))))
-                 (markup-filled (replace-regexp-in-string "><" ">\n<" markup)))
-            (message (concat "Expanded: " expr))
+          (let* ((markup (zencoding-transform (car (zencoding-expr (first expr)))))
+                 (filled (replace-regexp-in-string "><" ">\n<" markup)))
             (save-excursion
-              (delete-region line-start (line-end-position))
-              (insert markup-filled)
-              (indent-region line-start (+ line-start (length markup-filled))))))))
+              (delete-region (second expr) (third expr))
+              (insert filled)
+              (indent-region (second expr) (point)))))))
 
 (defvar zencoding-mode-keymap nil
   "Keymap for zencode minor mode.")
