@@ -266,6 +266,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Zen coding transformer from AST to HTML
 
+(defvar zencoding-leaf-function nil
+  "Function to execute when expanding a leaf node in the
+  Zencoding AST.")
+
 (defun zencoding-make-tag (tag &optional content)
   (let ((name (car tag))
         (props (apply 'concat (mapcar
@@ -274,7 +278,8 @@
                                          "=\"" (cadr prop) "\""))
                                (cadr tag)))))
     (concat "<" name props ">"
-            (if content content "")
+            (if content content
+              (if zencoding-leaf-function (funcall zencoding-leaf-function)))
             "</" name ">")))
 
 (defun zencoding-transform (ast)
@@ -398,6 +403,31 @@
 (define-minor-mode zencoding-mode "Minor mode to assist writing markup."
   :lighter " Zen"
   :keymap zencoding-mode-keymap)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Zencoding yasnippet integration
+
+(defun zencoding-transform-yas (ast)
+  (let* ((leaf-count 0)
+         (zencoding-leaf-function
+          (lambda ()
+            (format "$%d" (incf leaf-count)))))
+    (zencoding-transform ast)))
+
+(defun zencoding-expand-yas ()
+  (interactive)
+  (let ((expr (zencoding-expr-at-point)))
+    (if expr
+        (let* ((markup (zencoding-transform-yas (car (zencoding-expr (first expr)))))
+               (filled (replace-regexp-in-string "><" ">\n<" markup)))
+          (delete-region (second expr) (third expr))
+          (insert filled)
+          (indent-region (second expr) (point))
+          (yas/expand-snippet 
+           (buffer-substring (second expr) (point))
+           (second expr) (point))))))
+
 
 
 ;;; Real-time preview
