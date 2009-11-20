@@ -464,7 +464,8 @@ Otherwise expand line directly.
 
 For more information see `zencoding-mode'."
   (interactive "P")
-  (let* ((preview (if zencoding-preview-default (not arg) arg))
+  (let* ((here (point))
+         (preview (if zencoding-preview-default (not arg) arg))
          (beg (if preview
                   (progn
                     (beginning-of-line)
@@ -478,7 +479,9 @@ For more information see `zencoding-mode'."
                     (point))
                 (when mark-active (region-end)))))
     (if beg
-        (zencoding-preview beg end)
+        (progn
+          (goto-char here)
+          (zencoding-preview beg end))
       (let ((expr (zencoding-expr-on-line)))
         (if expr
             (let* ((markup (zencoding-transform (car (zencoding-expr (first expr)))))
@@ -574,6 +577,7 @@ See also `zencoding-expand-line'."
 (defvar zencoding-preview-keymap
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "<return>") 'zencoding-preview-accept)
+    (define-key map [(control ?g)] 'zencoding-preview-abort)
     map))
 
 (defun zencoding-preview-accept ()
@@ -629,34 +633,47 @@ accept it or skip it."
   (interactive (if mark-active
                    (list (region-beginning) (region-end))
                  (list nil nil)))
+  (zencoding-preview-abort)
   (if (not beg)
       (message "Region not active")
     (setq zencoding-old-show-paren show-paren-mode)
     (show-paren-mode -1)
-    (goto-char beg)
-    (forward-line 1)
-    (unless (= 0 (current-column))
-      (insert "\n"))
-    (let* ((opos (point))
-           (ovli (make-overlay beg end))
-           (ovlo (make-overlay opos opos))
-           (info (propertize " Zen preview. Choose with RET. Cancel by stepping out. \n"
-                             'face 'tooltip)))
-      (overlay-put ovli 'face 'zencoding-preview-input)
-      (overlay-put ovli 'keymap zencoding-preview-keymap)
-      (overlay-put ovlo 'face 'zencoding-preview-output)
-      (overlay-put ovlo 'before-string info)
-      (setq zencoding-preview-input  ovli)
-      (setq zencoding-preview-output ovlo)
+    (let ((here (point)))
       (goto-char beg)
-      (add-hook 'post-command-hook 'zencoding-preview-post-command t t))))
+      (forward-line 1)
+      (unless (= 0 (current-column))
+        (insert "\n"))
+      (let* ((opos (point))
+             (ovli (make-overlay beg end nil nil t))
+             (ovlo (make-overlay opos opos))
+             (info (propertize " Zen preview. Choose with RET. Cancel by stepping out. \n"
+                               'face 'tooltip)))
+        (overlay-put ovli 'face 'zencoding-preview-input)
+        (overlay-put ovli 'keymap zencoding-preview-keymap)
+        (overlay-put ovlo 'face 'zencoding-preview-output)
+        (overlay-put ovlo 'before-string info)
+        (setq zencoding-preview-input  ovli)
+        (setq zencoding-preview-output ovlo)
+        (add-hook 'before-change-functions 'zencoding-preview-before-change t t)
+        (goto-char here)
+        (add-hook 'post-command-hook 'zencoding-preview-post-command t t)))))
 
-(defun zencoding-preview-post-command ()
-  (condition-case err
-      (zencoding-preview-post-command-1)
-    (error (message "zencoding-preview-post: %s" err))))
+(defvar zencoding-preview-pending-abort nil)
+(make-variable-buffer-local 'zencoding-preview-pending-abort)
+
+(defun zencoding-preview-before-change (beg end)
+  (when
+      (or (> beg (overlay-end zencoding-preview-input))
+          (< beg (overlay-start zencoding-preview-input))
+          (> end (overlay-end zencoding-preview-input))
+          (< end (overlay-start zencoding-preview-input)))
+    (setq zencoding-preview-pending-abort t)))
 
 (defun zencoding-preview-abort ()
+  "Abort zen code preview."
+  (interactive)
+  (setq zencoding-preview-pending-abort nil)
+  (remove-hook 'before-change-functions 'zencoding-preview-before-change t)
   (when (overlayp zencoding-preview-input)
     (delete-overlay zencoding-preview-input))
   (setq zencoding-preview-input nil)
@@ -666,8 +683,14 @@ accept it or skip it."
   (remove-hook 'post-command-hook 'zencoding-preview-post-command t)
   (when zencoding-old-show-paren (show-paren-mode 1)))
 
+(defun zencoding-preview-post-command ()
+  (condition-case err
+      (zencoding-preview-post-command-1)
+    (error (message "zencoding-preview-post: %s" err))))
+
 (defun zencoding-preview-post-command-1 ()
-  (if (and (<= (point) (overlay-end zencoding-preview-input))
+  (if (and (not zencoding-preview-pending-abort)
+           (<= (point) (overlay-end zencoding-preview-input))
            (>= (point) (overlay-start zencoding-preview-input)))
       (zencoding-update-preview (current-indentation))
     (zencoding-preview-abort)))
@@ -687,8 +710,7 @@ accept it or skip it."
                  (propertize pretty 'face 'highlight))))
     (when show
       (overlay-put zencoding-preview-output 'after-string
-                   (concat show "\n"))
-      )))
+                   (concat show "\n")))))
 ;; a+bc
 
 ;;;;;;;;;;
