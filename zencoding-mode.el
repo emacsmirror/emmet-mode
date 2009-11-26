@@ -59,6 +59,9 @@
 ;;
 ;;; Code:
 
+;; Include the trie data structure for caching
+;(require 'zencoding-trie)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic parsing macros and utilities
 
