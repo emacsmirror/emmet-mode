@@ -1,0 +1,150 @@
+% -*- mode: noweb; noweb-doc-mode: latex-mode; noweb-code-mode: emacs-lisp-mode; -*-
+
+To improve the performance of zencoding-mode, caching/memoization of
+previously entered input needed to be done. At first, a naive
+hash-table implementation was chosen and this greatly cut down the
+speed with which zencoding generated HTML. Then it was realized that a
+trie data structure would be more efficient as the hash-table was
+storing partially entered input as well. A trie could store the
+partially entered data when needed and use less space than a
+hash-table.
+
+A trie is a tree where each node is a character in a string. When you
+reach a leaf node, a word or sentence is spelled out.
+
+The only operations we require for our trie are \emph{retrieve value}
+and \emph{insert value}.
+
+A node is a sequence of two elements. The first element is some cached
+version of zencoding's AST (Abstract Syntax Tree) output. If this is
+`nil' then there is no cached output. The second element is a sequence
+of branches (more nodes).
+
+<<Node creation function>>=
+(defun make-zencoding-trie-node ()
+  "Creates a vector of two elements. The first element is some value,
+the second element is a character table for storing more branches of the
+trie. The value is initially NIL."
+  (vector nil (make-char-table 'trie-table)))
+@
+
+<<Node accessors>>=
+(defun zencoding-trie-node-value (node)
+  (aref node 0))
+
+(defun zencoding-trie-node-set-value (node value)
+  (aset node 0 value))
+
+(defun zencoding-trie-node-branches (node)
+  (aref node 1))
+
+(defun zencoding-trie-node-create-branch (node branch-key)
+  (aset node branch-key (make-zencoding-trie-node)))
+@ 
+
+<<Retrieve node operation>>=
+(defun zencoding-trie-retrieve (s trie i)
+  
+@ 
+
+Next we have a function for inserting a string and its value into a
+trie. The pre-conditions are that $s$ is a type of string, $value$ and
+$trie$ are non-\texttt{NIL}, and $0 < i \leq s_n$ (where $n$ is the
+length of the string). We actually have two functions, the first one
+defines the function that does the real work while the second is a
+convenience function that removes the variable $i$.
+
+Inserting a string into a trie involves the conversion of each
+character into a key. The value given will be stored in the leaf node
+which is reached when there is only a single character left in the
+string.
+
+We are moving forward through a string till we reach its end. The
+current character is $s_{i - 1}$. If the current node we are visting
+in the trie contains the current character as one of its branches,
+then we have to insert the value or visit it. When there is a single
+character in the string, we insert the value. Otherwise, we visit the
+next node.
+
+If the branch doesn't exist, we create the node then do the other
+things needed.
+
+<<Trie insertion function>>=
+(defun zencoding-trie-insert-do (s value trie i)
+  (let ((c (aref s (1- i))))
+    (cond <<Insert the value if we are at the end>>
+	  <<Visit the next node if we are not at the end>>
+	  <<Otherwise signal an error because the string was too short>>)))
+
+(defun zencoding-trie-insert (s value trie)
+  "`s' is the string used to navigate the trie (each character is a node
+in the trie). `value' is the value we want to insert. `trie' is the node
+where we start the insertion."
+  
+@ 
+
+<<Insert the value if we are at the end>>=
+((= i (length s))
+ <<Create a branch if it does not exist>>
+ (zencoding-trie-node-set-value (aref (zencoding-trie-node-branches trie) c)
+				value))
+@ 
+
+<<Visit the next node if we are not at the end>>=
+((and (< 0 i) (<= i (length s)))
+ <<Create a branch if it does not exist>>
+ (zencoding-trie-insert s value (aref trie c) (1+ i)))
+@ 
+
+<<Otherwise signal an error because the string was too short>>=
+(t (error "The string was too short"))
+@ 
+
+<<Create a branch if it does not exist>>=
+(if (null (aref trie c))
+    (zencoding-trie-node-create-branch trie c))
+@ 
+
+The code is licensed under the GNU GPL version 3 or later.
+
+<<Copyright info>>=
+;;; zencoding-trie.el --- A trie data structure built for zencoding-mode
+;;
+;; Copyright (C) 2009, Rudolf Olah
+;;
+;; Author: Rudolf Olah <omouse@gmail.com>
+;;
+;; This file is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+;;
+;; This file is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING.  If not, write to
+;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+;; Boston, MA 02110-1301, USA.
+;;
+@
+
+The final file looks like this:
+
+<<zencoding-trie.el>>=
+<<Copyright info>>
+
+<<Node creation function>>
+<<Node accessors>>
+<<Retrieve node operation>>
+<<Insert node operation>>
+
+(provide 'zencoding-trie)
+
+;; test code
+(let ((x (make-zencoding-trie-node)))
+  (zencoding-trie-insert "i" "i" x 0)
+  x)
+@
