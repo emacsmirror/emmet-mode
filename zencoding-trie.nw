@@ -47,6 +47,9 @@ argument must be a character.
 
 (defun zencoding-trie-node-branches (node)
   (aref node 1))
+
+(defun zencoding-trie-node-branch (node branch-key)
+  (aref (zencoding-trie-node-branches node) branch-key))
 @ 
 
 We need a function to access a particular branch in a node. If the
@@ -54,16 +57,16 @@ branch does not exist, it will be created.
 
 <<Node accessors>>=
 (defun zencoding-trie-node-create-branch (node branch-key)
-  (aset node branch-key (make-zencoding-trie-node)))
+  (aset (zencoding-trie-node-branches node)
+	branch-key
+	(make-zencoding-trie-node)))
 
-(defun zencoding-trie-node-branch (node branch-key)
+(defun zencoding-trie-node-brancher (node branch-key)
   (let ((branch (aref (zencoding-trie-node-branches node) branch-key)))
     (if branch
 	branch
       ;; branch doesn't exist, so create it and then return it.
-      (aset (zencoding-trie-node-branches node)
-	    branch-key
-	    (make-zencoding-trie-node)))))
+      (zencoding-trie-node-create-branch node branch-key))))
 @ 
 
 The retrieval function is given a string $s$ to search for and the
@@ -80,15 +83,24 @@ the correct node and can return it (it will be created if it doesn't
 already exist). Before this, we will have to keep on searching for the
 right node.
 
+If we reach the end of the trie before the correct node has been
+found, we return \texttt{NIL}.
+
+The traverse function is a generalized version which includes a
+function argument, $f$, telling us how to select the next branch to
+visit.
+
 <<Retrieve node operation>>=
-(defun zencoding-trie-retrieve-do (s trie i)
-  (let ((branch	(zencoding-trie-node-branch trie (aref s (1- i)))))
-    (if (= i (length s))
-	branch
-      (zencoding-trie-retrieve-do s branch (1+ i)))))
+(defun zencoding-trie-traverse (s trie i f)
+  (if (null trie)
+      nil
+    (let ((branch (funcall f trie (aref s (1- i)))))
+      (if (or (null branch) (= i (length s)))
+	  branch
+	(zencoding-trie-traverse s branch (1+ i) f)))))
 
 (defun zencoding-trie-retrieve (s trie)
-  (zencoding-trie-retrieve-do s trie 1))
+  (zencoding-trie-traverse s trie 1 'zencoding-trie-node-branch))
 @ 
 
 Next we have a function for inserting a string and its value into a
@@ -104,8 +116,9 @@ retrieve operation takes care of creating new branches if necessary.
   "`s' is the string used to navigate the trie (each character is a node
 in the trie). `value' is the value we want to insert. `trie' is the node
 where we start the insertion."
-  (let ((node (zencoding-trie-retrieve s trie)))
-    (zencoding-trie-node-set-value node value)))
+  (zencoding-trie-node-set-value
+   (zencoding-trie-traverse s trie 1 'zencoding-trie-node-brancher)
+   value))
 @ 
 
 The code is licensed under the GNU GPL version 3 or later.
