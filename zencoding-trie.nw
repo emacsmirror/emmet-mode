@@ -9,16 +9,20 @@ storing partially entered input as well. A trie could store the
 partially entered data when needed and use less space than a
 hash-table.
 
-A trie is a tree where each node is a character in a string. When you
-reach a leaf node, a word or sentence is spelled out.
+A trie is a tree where each node represents a character in a string.
+When you reach a leaf node, a word or sentence is spelled out. Each
+node can contain a value.
+
+\emph{Important: the key is not stored in the node, but in the parent
+  of that node.}
 
 The only operations we require for our trie are \emph{retrieve value}
 and \emph{insert value}.
 
-A node is a sequence of two elements. The first element is some cached
-version of zencoding's AST (Abstract Syntax Tree) output. If this is
-`nil' then there is no cached output. The second element is a sequence
-of branches (more nodes).
+A node is a sequence of two elements. The first element is some value,
+in our case the cached version of zencoding's AST (Abstract Syntax
+Tree) output. If this is \texttt{NIL} then there is no value stored in
+this node. The second element is a sequence of branches (more nodes).
 
 <<Node creation function>>=
 (defun make-zencoding-trie-node ()
@@ -27,6 +31,12 @@ the second element is a character table for storing more branches of the
 trie. The value is initially NIL."
   (vector nil (make-char-table 'trie-table)))
 @
+
+We need some functions for setting and getting the values of our node
+type. All of the functions accept a node as an argument which must be
+a sequence type with at least two elements. The $value$ argument can
+be anything, typically something non-\texttt{NIL}. The $branch-key$
+argument must be a character.
 
 <<Node accessors>>=
 (defun zencoding-trie-node-value (node)
@@ -37,72 +47,65 @@ trie. The value is initially NIL."
 
 (defun zencoding-trie-node-branches (node)
   (aref node 1))
+@ 
 
+We need a function to access a particular branch in a node. If the
+branch does not exist, it will be created.
+
+<<Node accessors>>=
 (defun zencoding-trie-node-create-branch (node branch-key)
   (aset node branch-key (make-zencoding-trie-node)))
+
+(defun zencoding-trie-node-branch (node branch-key)
+  (let ((branch (aref (zencoding-trie-node-branches node) branch-key)))
+    (if branch
+	branch
+      ;; branch doesn't exist, so create it and then return it.
+      (aset (zencoding-trie-node-branches node)
+	    branch-key
+	    (make-zencoding-trie-node)))))
 @ 
 
-<<Retrieve node operation>>=
-(defun zencoding-trie-retrieve (s trie i)
-  
-@ 
-
-Next we have a function for inserting a string and its value into a
-trie. The pre-conditions are that $s$ is a type of string, $value$ and
-$trie$ are non-\texttt{NIL}, and $0 < i \leq s_n$ (where $n$ is the
-length of the string). We actually have two functions, the first one
-defines the function that does the real work while the second is a
-convenience function that removes the variable $i$.
-
-Inserting a string into a trie involves the conversion of each
-character into a key. The value given will be stored in the leaf node
-which is reached when there is only a single character left in the
-string.
+The retrieval function is given a string $s$ to search for and the
+$trie$ to search within. Where $n$ is the length of the string $s$,
+the argument $i$ is bounded like so: $0 < i \leq n$.
 
 We are moving forward through a string till we reach its end. The
 current character is $s_{i - 1}$. If the current node we are visting
 in the trie contains the current character as one of its branches,
-then we have to insert the value or visit it. When there is a single
-character in the string, we insert the value. Otherwise, we visit the
-next node.
+then we have to visit it.
 
-If the branch doesn't exist, we create the node then do the other
-things needed.
+When the end of $s$ has been reached, $i = n$, then we have reached
+the correct node and can return it (it will be created if it doesn't
+already exist). Before this, we will have to keep on searching for the
+right node.
 
-<<Trie insertion function>>=
-(defun zencoding-trie-insert-do (s value trie i)
-  (let ((c (aref s (1- i))))
-    (cond <<Insert the value if we are at the end>>
-	  <<Visit the next node if we are not at the end>>
-	  <<Otherwise signal an error because the string was too short>>)))
+<<Retrieve node operation>>=
+(defun zencoding-trie-retrieve-do (s trie i)
+  (let ((branch	(zencoding-trie-node-branch trie (aref s (1- i)))))
+    (if (= i (length s))
+	branch
+      (zencoding-trie-retrieve-do s branch (1+ i)))))
 
+(defun zencoding-trie-retrieve (s trie)
+  (zencoding-trie-retrieve-do s trie 1))
+@ 
+
+Next we have a function for inserting a string and its value into a
+trie. The pre-conditions are that $s$ is a type of string, $value$ and
+$trie$ are non-\texttt{NIL}.
+
+We use the previously defined retrieve operation to find the final
+node and then insert the $value$ there. Fortunately for us, the
+retrieve operation takes care of creating new branches if necessary.
+
+<<Insert node operation>>=
 (defun zencoding-trie-insert (s value trie)
   "`s' is the string used to navigate the trie (each character is a node
 in the trie). `value' is the value we want to insert. `trie' is the node
 where we start the insertion."
-  
-@ 
-
-<<Insert the value if we are at the end>>=
-((= i (length s))
- <<Create a branch if it does not exist>>
- (zencoding-trie-node-set-value (aref (zencoding-trie-node-branches trie) c)
-				value))
-@ 
-
-<<Visit the next node if we are not at the end>>=
-((and (< 0 i) (<= i (length s)))
- <<Create a branch if it does not exist>>
- (zencoding-trie-insert s value (aref trie c) (1+ i)))
-@ 
-
-<<Otherwise signal an error because the string was too short>>=
-(t (error "The string was too short"))
-@ 
-
-<<Create a branch if it does not exist>>=
-(if (null (aref trie c))
-    (zencoding-trie-node-create-branch trie c))
+  (let ((node (zencoding-trie-retrieve s trie)))
+    (zencoding-trie-node-set-value node value)))
 @ 
 
 The code is licensed under the GNU GPL version 3 or later.
@@ -137,14 +140,18 @@ The final file looks like this:
 <<Copyright info>>
 
 <<Node creation function>>
+
 <<Node accessors>>
+
 <<Retrieve node operation>>
+
 <<Insert node operation>>
 
 (provide 'zencoding-trie)
 
 ;; test code
 (let ((x (make-zencoding-trie-node)))
-  (zencoding-trie-insert "i" "i" x 0)
-  x)
+  (zencoding-trie-insert "ha" 1 x)
+  (zencoding-trie-insert "hi" 2 x)
+  (zencoding-trie-retrieve "ha" x))
 @
