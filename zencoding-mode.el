@@ -256,7 +256,7 @@
 
 (defun zencoding-name (input)
   "Parse a class or identifier name, e.g. news, footer, mainimage"
-  (zencoding-parse "\\([a-zA-Z][a-zA-Z0-9-_]*\\)" 2 "class or identifer name"
+  (zencoding-parse "\\([a-zA-Z][a-zA-Z0-9-_:]*\\)" 2 "class or identifer name"
                    `((name . ,(elt it 1)) . ,input)))
 
 (defun zencoding-class (input)
