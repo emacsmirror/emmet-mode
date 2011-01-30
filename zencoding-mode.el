@@ -138,12 +138,12 @@
 (defun zencoding-tag (input)
   "Parse a tag."
   (zencoding-run zencoding-tagname
-                 (let ((result it)
-                       (tagname (cdr expr)))
+                 (let ((tagname (cadr expr))
+                       (has-body? (cddr expr)))
                    (zencoding-pif (zencoding-run zencoding-identifier
                                                  (zencoding-tag-classes
-                                                  `(tag ,tagname ((id ,(cddr expr)))) input)
-                                                 (zencoding-tag-classes `(tag ,tagname ()) input))
+                                                  `(tag (,tagname . ,has-body?) ((id ,(cddr expr)))) input)
+                                                 (zencoding-tag-classes `(tag (,tagname . ,has-body?) ()) input))
                                   (let ((expr-and-input it) (expr (car it)) (input (cdr it)))
                                     (zencoding-pif (zencoding-tag-props expr input)
                                                    it
@@ -192,8 +192,13 @@
 
 (defun zencoding-tagname (input)
   "Parse a tagname a-zA-Z0-9 tagname (e.g. html/head/xsl:if/br)."
-  (zencoding-parse "\\([a-zA-Z][a-zA-Z0-9:-]*\\)" 2 "tagname, a-zA-Z0-9"
-                   `((tagname . ,(elt it 1)) . ,input)))
+  (zencoding-parse "\\([a-zA-Z][a-zA-Z0-9:-]*\/?\\)" 2 "tagname, a-zA-Z0-9"
+                   (let* ((tag-spec (elt it 1))
+                          (empty-tag (zencoding-regex "\\([^\/]*\\)\/" tag-spec 1))
+                          (tag (if empty-tag
+                                   (car empty-tag)
+                                 tag-spec)))
+                     `((tagname . (,tag . ,(not empty-tag))) . ,input))))
 
 (defun zencoding-pexpr (input)
   "A zen coding expression with parentheses around it."
@@ -283,11 +288,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Zen coding transformer from AST to HTML
 
-;; Fix-me: make mode specific
-(defvar zencoding-single-tags
-  '("br"
-    "img"))
-
 (defvar zencoding-inline-tags
   '("a"
     "abbr"
@@ -316,7 +316,8 @@
   Zencoding AST.")
 
 (defun zencoding-make-tag (tag &optional content)
-  (let* ((name (car tag))
+  (let* ((name (caar tag))
+         (has-body? (cdar tag))
          (lf (if
                  (or
                   (member name zencoding-block-tags)
@@ -325,21 +326,20 @@
                    (not (member name zencoding-inline-tags))
                    ))
                  "\n" ""))
-         (single (member name zencoding-single-tags))
-        (props (apply 'concat (mapcar
-                               (lambda (prop)
-                                 (concat " " (symbol-name (car prop))
-                                         "=\"" (cadr prop) "\""))
-                               (cadr tag)))))
-    (concat lf "<" name props ">" lf
-            (if single
-                ""
-              (concat
+         (props (apply 'concat (mapcar
+                                (lambda (prop)
+                                  (concat " " (symbol-name (car prop))
+                                          "=\"" (cadr prop) "\""))
+                                (cadr tag)))))
+    (concat lf "<" name props
+            (if has-body?
+              (concat ">"
                (if content content
                  (if zencoding-leaf-function
                      (funcall zencoding-leaf-function)
                    ""))
-               lf "</" name ">")))))
+               lf "</" name ">")
+              (concat "/>")))))
 
 (defun zencoding-transform (ast)
   (let ((type (car ast)))
@@ -366,6 +366,11 @@
                  ("a.x"                    "<a class=\"x\"></a>")
                  ("a#q.x"                  "<a id=\"q\" class=\"x\"></a>")
                  ("a#q.x.y.z"              "<a id=\"q\" class=\"x y z\"></a>")
+                 ;; Empty tags
+                 ("a/"                     "<a/>")
+                 ("a/.x"                   "<a class=\"x\"/>")
+                 ("a/#q.x"                 "<a id=\"q\" class=\"x\"/>")
+                 ("a/#q.x.y.z"             "<a id=\"q\" class=\"x y z\"/>")
                  ;; Siblings
                  ("a+b"                    "<a></a><b></b>")
                  ("a+b+c"                  "<a></a><b></b><c></c>")
@@ -385,16 +390,20 @@
                  ;; Multiplication
                  ("a*1"                    "<a></a>")
                  ("a*2"                    "<a></a><a></a>")
+                 ("a/*2"                   "<a/><a/>")
                  ("a*2+b*2"                "<a></a><a></a><b></b><b></b>")
                  ("a*2>b*2"                "<a><b></b><b></b></a><a><b></b><b></b></a>")
                  ("a>b*2"                  "<a><b></b><b></b></a>")
                  ("a#q.x>b#q.x*2"          "<a id=\"q\" class=\"x\"><b id=\"q\" class=\"x\"></b><b id=\"q\" class=\"x\"></b></a>")
+                 ("a#q.x>b/#q.x*2"         "<a id=\"q\" class=\"x\"><b id=\"q\" class=\"x\"/><b id=\"q\" class=\"x\"/></a>")
                  ;; Properties
                  ("a x=y"                  "<a x=\"y\"></a>")
                  ("a x=y m=l"              "<a x=\"y\" m=\"l\"></a>")
+                 ("a/ x=y m=l"             "<a x=\"y\" m=\"l\"/>")
                  ("a#foo x=y m=l"          "<a id=\"foo\" x=\"y\" m=\"l\"></a>")
                  ("a.foo x=y m=l"          "<a class=\"foo\" x=\"y\" m=\"l\"></a>")
                  ("a#foo.bar.mu x=y m=l"   "<a id=\"foo\" class=\"bar mu\" x=\"y\" m=\"l\"></a>")
+                 ("a/#foo.bar.mu x=y m=l"  "<a id=\"foo\" class=\"bar mu\" x=\"y\" m=\"l\"/>")
                  ("a x=y+b"                "<a x=\"y\"></a><b></b>")
                  ("a x=y+b x=y"            "<a x=\"y\"></a><b x=\"y\"></b>")
                  ("a x=y>b"                "<a x=\"y\"><b></b></a>")
