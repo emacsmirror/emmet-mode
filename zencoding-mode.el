@@ -137,6 +137,11 @@
 
 (defun zencoding-tag (input)
   "Parse a tag."
+  (let ((first-char (substring input 0 1)))
+    (if (or (string= "#" first-char)
+            (string= "." first-char))
+        (setq input (concat "div" input))
+      nil))
   (zencoding-run zencoding-tagname
                  (let ((tagname (cadr expr))
                        (has-body? (cddr expr)))
