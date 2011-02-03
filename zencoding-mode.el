@@ -371,6 +371,10 @@
                  ("a.x"                    "<a class=\"x\"></a>")
                  ("a#q.x"                  "<a id=\"q\" class=\"x\"></a>")
                  ("a#q.x.y.z"              "<a id=\"q\" class=\"x y z\"></a>")
+                 ("#q"                     "\n<div id=\"q\">\n</div>")
+                 (".x"                     "\n<div class=\"x\">\n</div>")
+                 ("#q.x"                   "\n<div id=\"q\" class=\"x\">\n</div>")
+                 ("#q.x.y.z"               "\n<div id=\"q\" class=\"x y z\">\n</div>")
                  ;; Empty tags
                  ("a/"                     "<a/>")
                  ("a/.x"                   "<a class=\"x\"/>")
@@ -390,6 +394,7 @@
                  ("a#q.x>b"                "<a id=\"q\" class=\"x\"><b></b></a>")
                  ("a#q.x.y.z>b"            "<a id=\"q\" class=\"x y z\"><b></b></a>")
                  ("a#q.x.y.z>b#p.l.m.n"    "<a id=\"q\" class=\"x y z\"><b id=\"p\" class=\"l m n\"></b></a>")
+                 ("#q>.x"                   "\n<div id=\"q\">\n<div class=\"x\">\n</div>\n</div>")
                  ("a>b+c"                  "<a><b></b><c></c></a>")
                  ("a>b+c>d"                "<a><b></b><c><d></d></c></a>")
                  ;; Multiplication
