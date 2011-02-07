@@ -181,15 +181,18 @@
                      it
                      `((,(read name) "") . ,input))))))
 
-
-
 (defun zencoding-prop-value (name input)
-  (zencoding-parse "=\\([^\\,\\+\\>\\ )]*\\)" 2
-                   "=property value"
-                   (let ((value (elt it 1))
-                         (input (elt it 2)))
-                     (message value)
-                     `((,(read name) ,value) . ,input))))
+  (zencoding-pif (zencoding-parse "=\"\\(.*?\\)\"" 2
+                                  "=\"property value\""
+                                  (let ((value (elt it 1))
+                                        (input (elt it 2)))
+                                    `((,(read name) ,value) . ,input)))
+                 it
+                 (zencoding-parse "=\\([^\\,\\+\\>\\ )]*\\)" 2
+                                  "=property value"
+                                  (let ((value (elt it 1))
+                                        (input (elt it 2)))
+                                    `((,(read name) ,value) . ,input)))))
 
 (defun zencoding-tag-classes (tag input)
   (zencoding-run zencoding-classes
