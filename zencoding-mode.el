@@ -177,11 +177,19 @@
    (zencoding-run
     zencoding-name
     (let ((name (cdr expr)))
-      (zencoding-parse "=\\([^\\,\\+\\>\\ )]*\\)" 2
-                       "=property value"
-                       (let ((value (elt it 1))
-                             (input (elt it 2)))
-                         `((,(read name) ,value) . ,input)))))))
+      (zencoding-pif (zencoding-prop-value name input)
+                     it
+                     `((,(read name) "") . ,input))))))
+
+
+
+(defun zencoding-prop-value (name input)
+  (zencoding-parse "=\\([^\\,\\+\\>\\ )]*\\)" 2
+                   "=property value"
+                   (let ((value (elt it 1))
+                         (input (elt it 2)))
+                     (message value)
+                     `((,(read name) ,value) . ,input))))
 
 (defun zencoding-tag-classes (tag input)
   (zencoding-run zencoding-classes
