@@ -62,6 +62,8 @@
 ;; Include the trie data structure for caching
 ;(require 'zencoding-trie)
 
+(require 'cl)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic parsing macros and utilities
 
