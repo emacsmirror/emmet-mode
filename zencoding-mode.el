@@ -548,6 +548,7 @@ For more information see `zencoding-mode'."
     nil
   (progn
     (setq zencoding-mode-keymap (make-sparse-keymap))
+    (define-key zencoding-mode-keymap (kbd "C-j") 'zencoding-expand-line)
     (define-key zencoding-mode-keymap (kbd "<C-return>") 'zencoding-expand-line)))
 
 ;;;###autoload
@@ -627,6 +628,7 @@ See also `zencoding-expand-line'."
 
 (defvar zencoding-preview-keymap
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "RET") 'zencoding-preview-accept)
     (define-key map (kbd "<return>") 'zencoding-preview-accept)
     (define-key map [(control ?g)] 'zencoding-preview-abort)
     map))
