@@ -322,6 +322,11 @@
 (defvar zencoding-block-tags
   '("p"))
 
+(defvar zencoding-closed-tags
+  '("br"
+    "img"
+    "input"))
+
 ;; li
 ;; a
 ;; em
@@ -333,7 +338,7 @@
 
 (defun zencoding-make-tag (tag &optional content)
   (let* ((name (caar tag))
-         (has-body? (cdar tag))
+         (has-body? (and (cdar tag) (not (member name zencoding-closed-tags))))
          (lf (if
                  (or
                   (member name zencoding-block-tags)
@@ -348,7 +353,7 @@
                                           "=\"" (cadr prop) "\""))
                                 (cadr tag)))))
     (concat lf "<" name props
-            (if has-body?
+            (if (or content has-body?)
               (concat ">"
                (if content content
                  (if zencoding-leaf-function
@@ -391,6 +396,10 @@
                  ("a/.x"                   "<a class=\"x\"/>")
                  ("a/#q.x"                 "<a id=\"q\" class=\"x\"/>")
                  ("a/#q.x.y.z"             "<a id=\"q\" class=\"x y z\"/>")
+                 ;; Self-closing tags
+                 ("input type=text"        "\n<input type=\"text\"/>")
+                 ("img"                    "\n<img/>")
+                 ("img>metadata/*2"        "\n<img>\n<metadata/>\n<metadata/>\n</img>")
                  ;; Siblings
                  ("a+b"                    "<a></a><b></b>")
                  ("a+b+c"                  "<a></a><b></b><c></c>")
