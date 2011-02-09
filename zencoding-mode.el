@@ -137,11 +137,6 @@
 
 (defun zencoding-tag (input)
   "Parse a tag."
-  (let ((first-char (substring input 0 1)))
-    (if (or (string= "#" first-char)
-            (string= "." first-char))
-        (setq input (concat "div" input))
-      nil))
   (zencoding-run zencoding-tagname
                  (let ((tagname (cadr expr))
                        (has-body? (cddr expr)))
@@ -153,7 +148,14 @@
                                     (zencoding-pif (zencoding-tag-props expr input)
                                                    it
                                                    expr-and-input))))
-                 '(error "expected tagname")))
+                 (zencoding-default-tag input)))
+
+(defun zencoding-default-tag (input)
+  "Parse a #id or .class"
+  (zencoding-parse "\\([#|\\.]\\)" 1 "tagname"
+                   (zencoding-tag (concat "div" (elt it 0)))))
+
+;'(error "expected tagname")
 
 (defun zencoding-tag-props (tag input)
   (zencoding-run zencoding-props
@@ -272,8 +274,27 @@
                                     (zencoding-run zencoding-expr
                                                    (let ((child expr))
                                                      `((zencoding-siblings ,parent ,child) . ,input))
-                                                   '(error "expected second sibling"))))
+                                                   (zencoding-expand parent input))))
                  '(error "expected first sibling")))
+
+(defvar zencoding-expandable-tags
+  '("dl"    ">(dt+dd)"
+    "ol"    ">li"
+    "ul"    ">li"
+    "table" ">tr>td"))
+
+(defun zencoding-expand (parent input)
+  "Parse an e+ expression, where e is an expandable tag"
+  (let ((parent-tag (car (elt parent 1))))
+    (let ((expandable (member parent-tag zencoding-expandable-tags)))
+      (if expandable
+          (let ((expansion (zencoding-child parent (concat (cadr expandable)))))
+            (zencoding-pif (zencoding-parse "+\\(.*\\)" 1 "+expr"
+                                            (zencoding-expr (elt it 1)))
+                           `((zencoding-siblings ,(car expansion) ,(car it)))
+                           expansion)
+            )
+        '(error "expected second sibling")))))
 
 (defun zencoding-name (input)
   "Parse a class or identifier name, e.g. news, footer, mainimage"
@@ -407,6 +428,12 @@
                  ("a#q.x+b"                "<a id=\"q\" class=\"x\"></a><b></b>")
                  ("a#q.x.y.z+b"            "<a id=\"q\" class=\"x y z\"></a><b></b>")
                  ("a#q.x.y.z+b#p.l.m.n"    "<a id=\"q\" class=\"x y z\"></a><b id=\"p\" class=\"l m n\"></b>")
+                 ;; Tag expansion
+                 ("table+"                 "\n<table>\n<tr>\n<td>\n</td>\n</tr>\n</table>")
+                 ("dl+"                    "\n<dl>\n<dt>\n</dt>\n<dd>\n</dd>\n</dl>")
+                 ("ul+"                    "\n<ul>\n<li>\n</li>\n</ul>")
+                 ("ul++ol+"                "\n<ul>\n<li>\n</li>\n</ul>\n<ol>\n<li>\n</li>\n</ol>")
+                 ("ul#q.x.y m=l+"          "\n<ul id=\"q\" class=\"x y\" m=\"l\">\n<li>\n</li>\n</ul>")                 
                  ;; Parent > child
                  ("a>b"                    "<a><b></b></a>")
                  ("a>b>c"                  "<a><b><c></c></b></a>")
@@ -414,7 +441,7 @@
                  ("a#q.x>b"                "<a id=\"q\" class=\"x\"><b></b></a>")
                  ("a#q.x.y.z>b"            "<a id=\"q\" class=\"x y z\"><b></b></a>")
                  ("a#q.x.y.z>b#p.l.m.n"    "<a id=\"q\" class=\"x y z\"><b id=\"p\" class=\"l m n\"></b></a>")
-                 ("#q>.x"                   "\n<div id=\"q\">\n<div class=\"x\">\n</div>\n</div>")
+                 ("#q>.x"                  "\n<div id=\"q\">\n<div class=\"x\">\n</div>\n</div>")
                  ("a>b+c"                  "<a><b></b><c></c></a>")
                  ("a>b+c>d"                "<a><b></b><c><d></d></c></a>")
                  ;; Multiplication
