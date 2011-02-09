@@ -157,8 +157,6 @@
   (zencoding-parse "\\([#|\\.]\\)" 1 "tagname"
                    (zencoding-tag (concat "div" (elt it 0)))))
 
-;'(error "expected tagname")
-
 (defun zencoding-tag-props (tag input)
   (zencoding-run zencoding-props
                  (let ((tagname (cadr tag))
