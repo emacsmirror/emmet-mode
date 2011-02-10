@@ -1,8 +1,8 @@
 # About Zencoding
 
-(Description
+[Description
 here](http://www.456bereastreet.com/archive/200909/write_html_and_css_quicker_with_with_zen_coding/)
-and (here](http://mondaybynoon.com/2009/08/17/the-art-of-zen-coding-bringing-snippets-to-a-new-level/).
+and [here](http://mondaybynoon.com/2009/08/17/the-art-of-zen-coding-bringing-snippets-to-a-new-level/).
 
 I’ll quote the blog:
 
