@@ -18,6 +18,10 @@ to auto-load on your sgml modes:
 
 Good to go.
 
+# Screenshot
+
+![Picture of zencoding in action](http://img703.imageshack.us/img703/4474/zencodingmode.png)
+
 # Examples
 
 ## Basic tags
