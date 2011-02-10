@@ -18,7 +18,13 @@ I’ll quote the blog:
 
     <div id="name" class="one two"></div>
 
-See the [EmacsWiki for more background on this mode.](http://www.emacswiki.org/emacs/ZenCoding).
+See the [EmacsWiki for more background on this mode.](http://www.emacswiki.org/emacs/ZenCoding)
+
+# Screenshots and videos
+
+* ![Picture of zencoding in action](http://img703.imageshack.us/img703/4474/zencodingmode.png)
+
+* [YouTube video](http://www.youtube.com/watch?v=u2r8JfJJgy8)
 
 # Installation
 
@@ -39,12 +45,6 @@ to auto-load on your sgml modes:
     (add-hook 'sgml-mode-hook 'zencoding-mode) ;; Auto-start on any markup modes
 
 Good to go.
-
-# Screenshots and videos
-
-* ![Picture of zencoding in action](http://img703.imageshack.us/img703/4474/zencodingmode.png)
-
-* [YouTube video]: http://www.youtube.com/watch?v=u2r8JfJJgy8
 
 # Examples
 
