@@ -1,3 +1,25 @@
+# About Zencoding
+
+(Description
+here](http://www.456bereastreet.com/archive/200909/write_html_and_css_quicker_with_with_zen_coding/)
+and (here](http://mondaybynoon.com/2009/08/17/the-art-of-zen-coding-bringing-snippets-to-a-new-level/).
+
+I’ll quote the blog:
+
+> zen-coding includes an entirely new angle to writing markup, and it
+> facilitates the feature by letting you write HTML based on CSS
+> selectors. It’s so simple it’s confusing at first. I think it’s best
+> explained by doing a quick before and after. If you were to type:
+
+    div#name.one.two
+
+> and follow that with the zen-coding plugin keystroke (CMD+E in
+  TextMate), the plugin will reformat the line as:
+
+    <div id="name" class="one two"></div>
+
+See the [EmacsWiki for more background on this mode.](http://www.emacswiki.org/emacs/ZenCoding).
+
 # Installation
 
 Just make sure zencoding-mode.el is in your `load-path`, if you
