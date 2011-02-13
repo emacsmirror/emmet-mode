@@ -359,14 +359,13 @@
 
 (defun zencoding-make-tag (tag &optional content)
   (let* ((name (caar tag))
-         (has-body? (and (cdar tag) (not (member name zencoding-closed-tags))))
-         (lf (if
-                 (or
-                  (member name zencoding-block-tags)
-                  (and
-                   (> (length name) 1)
-                   (not (member name zencoding-inline-tags))
-                   ))
+         (has-body? (or content
+                        (and (cdar tag)
+                             (not (member name zencoding-closed-tags)))))
+         (lf (if (or (and content (string-match "\n" content))
+                     (member name zencoding-block-tags)
+                     (and (> (length name) 1)
+                          (not (member name zencoding-inline-tags))))
                  "\n" ""))
          (props (apply 'concat (mapcar
                                 (lambda (prop)
@@ -374,14 +373,14 @@
                                           "=\"" (cadr prop) "\""))
                                 (cadr tag)))))
     (concat lf "<" name props
-            (if (or content has-body?)
-              (concat ">"
-               (if content content
-                 (if zencoding-leaf-function
-                     (funcall zencoding-leaf-function)
-                   ""))
-               lf "</" name ">")
-              (concat "/>")))))
+            (if has-body?
+                (concat ">" lf
+                        (if content content
+                          (if zencoding-leaf-function
+                              (funcall zencoding-leaf-function)
+                            ""))
+                        lf "</" name ">" lf)
+                "/>"))))
 
 (defun zencoding-transform (ast)
   (let ((type (car ast)))
@@ -408,10 +407,10 @@
                  ("a.x"                    "<a class=\"x\"></a>")
                  ("a#q.x"                  "<a id=\"q\" class=\"x\"></a>")
                  ("a#q.x.y.z"              "<a id=\"q\" class=\"x y z\"></a>")
-                 ("#q"                     "\n<div id=\"q\">\n</div>")
-                 (".x"                     "\n<div class=\"x\">\n</div>")
-                 ("#q.x"                   "\n<div id=\"q\" class=\"x\">\n</div>")
-                 ("#q.x.y.z"               "\n<div id=\"q\" class=\"x y z\">\n</div>")
+                 ("#q"                     "\n<div id=\"q\">\n\n</div>\n")
+                 (".x"                     "\n<div class=\"x\">\n\n</div>\n")
+                 ("#q.x"                   "\n<div id=\"q\" class=\"x\">\n\n</div>\n")
+                 ("#q.x.y.z"               "\n<div id=\"q\" class=\"x y z\">\n\n</div>\n")
                  ;; Empty tags
                  ("a/"                     "<a/>")
                  ("a/.x"                   "<a class=\"x\"/>")
@@ -420,7 +419,7 @@
                  ;; Self-closing tags
                  ("input type=text"        "\n<input type=\"text\"/>")
                  ("img"                    "\n<img/>")
-                 ("img>metadata/*2"        "\n<img>\n<metadata/>\n<metadata/>\n</img>")
+                 ("img>metadata/*2"        "\n<img>\n\n<metadata/>\n<metadata/>\n</img>\n")
                  ;; Siblings
                  ("a+b"                    "<a></a><b></b>")
                  ("a+b+c"                  "<a></a><b></b><c></c>")
@@ -429,11 +428,11 @@
                  ("a#q.x.y.z+b"            "<a id=\"q\" class=\"x y z\"></a><b></b>")
                  ("a#q.x.y.z+b#p.l.m.n"    "<a id=\"q\" class=\"x y z\"></a><b id=\"p\" class=\"l m n\"></b>")
                  ;; Tag expansion
-                 ("table+"                 "\n<table>\n<tr>\n<td>\n</td>\n</tr>\n</table>")
-                 ("dl+"                    "\n<dl>\n<dt>\n</dt>\n<dd>\n</dd>\n</dl>")
-                 ("ul+"                    "\n<ul>\n<li>\n</li>\n</ul>")
-                 ("ul++ol+"                "\n<ul>\n<li>\n</li>\n</ul>\n<ol>\n<li>\n</li>\n</ol>")
-                 ("ul#q.x.y m=l+"          "\n<ul id=\"q\" class=\"x y\" m=\"l\">\n<li>\n</li>\n</ul>")                 
+                 ("table+"                 "\n<table>\n\n<tr>\n\n<td>\n\n</td>\n\n</tr>\n\n</table>\n")
+                 ("dl+"                    "\n<dl>\n\n<dt>\n\n</dt>\n\n<dd>\n\n</dd>\n\n</dl>\n")
+                 ("ul+"                    "\n<ul>\n\n<li>\n\n</li>\n\n</ul>\n")
+                 ("ul++ol+"                "\n<ul>\n\n<li>\n\n</li>\n\n</ul>\n\n<ol>\n\n<li>\n\n</li>\n\n</ol>\n")
+                 ("ul#q.x.y m=l+"          "\n<ul id=\"q\" class=\"x y\" m=\"l\">\n\n<li>\n\n</li>\n\n</ul>\n")
                  ;; Parent > child
                  ("a>b"                    "<a><b></b></a>")
                  ("a>b>c"                  "<a><b><c></c></b></a>")
@@ -441,7 +440,7 @@
                  ("a#q.x>b"                "<a id=\"q\" class=\"x\"><b></b></a>")
                  ("a#q.x.y.z>b"            "<a id=\"q\" class=\"x y z\"><b></b></a>")
                  ("a#q.x.y.z>b#p.l.m.n"    "<a id=\"q\" class=\"x y z\"><b id=\"p\" class=\"l m n\"></b></a>")
-                 ("#q>.x"                  "\n<div id=\"q\">\n<div class=\"x\">\n</div>\n</div>")
+                 ("#q>.x"                  "\n<div id=\"q\">\n\n<div class=\"x\">\n\n</div>\n\n</div>\n")
                  ("a>b+c"                  "<a><b></b><c></c></a>")
                  ("a>b+c>d"                "<a><b></b><c><d></d></c></a>")
                  ;; Multiplication
