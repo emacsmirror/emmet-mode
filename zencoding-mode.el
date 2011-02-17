@@ -116,7 +116,17 @@
 ;; Zen coding parsers
 
 (defun zencoding-expr (input)
-  "Parse a zen coding expression. This pretty much defines precedence."
+  "Parse a zen coding expression with optional filters."
+  (zencoding-pif (zencoding-parse "\\(.*?\\)|" 2 "expr|filter" it)
+                 (let ((input (elt it 1))
+                       (filters (elt it 2)))
+                   (zencoding-pif (zencoding-extract-filters filters)
+                                  (zencoding-filter input it)
+                                  it))
+                 (zencoding-filter input (zencoding-default-filter))))
+
+(defun zencoding-subexpr (input)
+  "Parse a zen coding expression with no filter. This pretty much defines precedence."
   (zencoding-run zencoding-siblings
                  it
                  (zencoding-run zencoding-parent-child
@@ -128,6 +138,28 @@
                                                               (zencoding-run zencoding-tag
                                                                              it
                                                                              '(error "no match, expecting ( or a-zA-Z0-9")))))))
+
+(defun zencoding-extract-filters (input)
+  "Extract filters from expression."
+  (zencoding-pif (zencoding-parse "\\([^\\|]+?\\)|" 2 "" it)
+                 (let ((filter-name (elt it 1))
+                       (more-filters (elt it 2)))
+                   (zencoding-pif (zencoding-extract-filters more-filters)
+                                  (cons filter-name it)
+                                  it))
+                 (zencoding-parse "\\([^\\|]+\\)" 1 "filter name" `(,(elt it 1)))))
+
+(defun zencoding-filter (input filters)
+  "Construct AST with specified filters."
+  (zencoding-pif (zencoding-subexpr input)
+                 (let ((result (car it))
+                       (rest (cdr it)))
+                   `((,filters ,result) . ,rest))
+                 it))
+
+(defun zencoding-default-filter ()
+  "Default filter(s) to be used if none is specified."
+  '("html"))
 
 (defun zencoding-multiplier (input)
   (zencoding-por zencoding-pexpr zencoding-tag
@@ -221,7 +253,7 @@
 (defun zencoding-pexpr (input)
   "A zen coding expression with parentheses around it."
   (zencoding-parse "(" 1 "("
-                   (zencoding-run zencoding-expr
+                   (zencoding-run zencoding-subexpr
                                   (zencoding-aif (zencoding-regex ")" input '(0 1))
                                                  `(,expr . ,(elt it 1))
                                                  '(error "expecting `)'")))))
@@ -248,13 +280,13 @@
 
 (defun zencoding-child-sans (parent input)
   (zencoding-parse ">" 1 ">"
-                   (zencoding-run zencoding-expr
+                   (zencoding-run zencoding-subexpr
                                   it
                                   '(error "expected child"))))
 
 (defun zencoding-child (parent input)
   (zencoding-parse ">" 1 ">"
-                   (zencoding-run zencoding-expr
+                   (zencoding-run zencoding-subexpr
                                   (let ((child expr))
                                     `((parent-child ,parent ,child) . ,input))
                                   '(error "expected child"))))
@@ -271,9 +303,9 @@
   (zencoding-run zencoding-sibling
                  (let ((parent expr))
                    (zencoding-parse "\\+" 1 "+"
-                                    (zencoding-run zencoding-expr
+                                    (zencoding-run zencoding-subexpr
                                                    (let ((child expr))
-                                                     `((zencoding-siblings ,parent ,child) . ,input))
+                                                     `((sibling ,parent ,child) . ,input))
                                                    (zencoding-expand parent input))))
                  '(error "expected first sibling")))
 
@@ -285,16 +317,15 @@
 
 (defun zencoding-expand (parent input)
   "Parse an e+ expression, where e is an expandable tag"
-  (let ((parent-tag (car (elt parent 1))))
-    (let ((expandable (member parent-tag zencoding-expandable-tags)))
-      (if expandable
-          (let ((expansion (zencoding-child parent (concat (cadr expandable)))))
-            (zencoding-pif (zencoding-parse "+\\(.*\\)" 1 "+expr"
-                                            (zencoding-expr (elt it 1)))
-                           `((zencoding-siblings ,(car expansion) ,(car it)))
-                           expansion)
-            )
-        '(error "expected second sibling")))))
+  (let* ((parent-tag (car (elt parent 1)))
+         (expandable (member parent-tag zencoding-expandable-tags)))
+    (if expandable
+        (let ((expansion (zencoding-child parent (concat (cadr expandable)))))
+          (zencoding-pif (zencoding-parse "+\\(.*\\)" 1 "+expr"
+                                          (zencoding-subexpr (elt it 1)))
+                         `((sibling ,(car expansion) ,(car it)))
+                         expansion))
+      '(error "expected second sibling"))))
 
 (defun zencoding-name (input)
   "Parse a class or identifier name, e.g. news, footer, mainimage"
@@ -323,7 +354,7 @@
                  '(error "expected class")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Zen coding transformer from AST to HTML
+;; Zen coding transformer from AST to string
 
 (defvar zencoding-inline-tags
   '("a"
@@ -343,7 +374,7 @@
 (defvar zencoding-block-tags
   '("p"))
 
-(defvar zencoding-closed-tags
+(defvar zencoding-self-closing-tags
   '("br"
     "img"
     "input"))
@@ -357,21 +388,43 @@
   "Function to execute when expanding a leaf node in the
   Zencoding AST.")
 
-(defun zencoding-make-tag (tag &optional content)
+(defvar zencoding-filters
+  '("html" (zencoding-primary-filter zencoding-make-html-tag)))
+
+(defun zencoding-primary-filter (input proc)
+  "Process filter that needs to be executed first, ie. not given output from other filter."
+  (if (listp input)
+      (let ((tag-maker (cadr proc)))
+        (zencoding-transform-ast input tag-maker))
+    nil))
+
+(defun zencoding-process-filter (filters input)
+  "Process filters, chain one filter output as the input of the next filter."
+  (let ((filter-data (member (car filters) zencoding-filters))
+        (more-filters (cdr filters)))
+    (if filter-data
+        (let* ((proc   (cadr filter-data))
+               (fun    (car proc))
+               (filter-output (funcall fun input proc)))
+          (if more-filters
+              (zencoding-process-filter more-filters filter-output)
+            filter-output))
+      nil)))
+
+(defun zencoding-make-html-tag (tag &optional content)
   (let* ((name (caar tag))
          (has-body? (or content
                         (and (cdar tag)
-                             (not (member name zencoding-closed-tags)))))
+                             (not (member name zencoding-self-closing-tags)))))
          (lf (if (or (and content (string-match "\n" content))
                      (member name zencoding-block-tags)
                      (and (> (length name) 1)
                           (not (member name zencoding-inline-tags))))
                  "\n" ""))
-         (props (apply 'concat (mapcar
-                                (lambda (prop)
-                                  (concat " " (symbol-name (car prop))
-                                          "=\"" (cadr prop) "\""))
-                                (cadr tag)))))
+         (props (apply 'concat (mapcar (lambda (prop)
+                                         (concat " " (symbol-name (car prop))
+                                                 "=\"" (cadr prop) "\""))
+                                       (cadr tag)))))
     (concat lf "<" name props
             (if has-body?
                 (concat ">" lf
@@ -380,22 +433,31 @@
                               (funcall zencoding-leaf-function)
                             ""))
                         lf "</" name ">" lf)
-                "/>"))))
+              "/>\n"))))
 
-(defun zencoding-transform (ast)
+(defun zencoding-transform (ast-with-filters)
+  (let ((filters (car ast-with-filters))
+        (ast (cadr ast-with-filters)))
+    (zencoding-process-filter filters ast)))
+
+(defun zencoding-transform-ast (ast tag-maker)
   (let ((type (car ast)))
     (cond
      ((eq type 'list)
-      (mapconcat 'zencoding-transform (cadr ast) ""))
+      (mapconcat (lexical-let ((make-tag-fun tag-maker))
+                   #'(lambda (sub-ast)
+                       (zencoding-transform-ast sub-ast make-tag-fun)))
+                 (cadr ast)
+                 ""))
      ((eq type 'tag)
-      (zencoding-make-tag (cdr ast)))
+      (funcall tag-maker (cdr ast)))
      ((eq type 'parent-child)
       (let ((parent (cdadr ast))
-            (children (zencoding-transform (caddr ast))))
-        (zencoding-make-tag parent children)))
-     ((eq type 'zencoding-siblings)
-      (let ((sib1 (zencoding-transform (cadr ast)))
-            (sib2 (zencoding-transform (caddr ast))))
+            (children (zencoding-transform-ast (caddr ast) tag-maker)))
+        (funcall tag-maker parent children)))
+     ((eq type 'sibling)
+      (let ((sib1 (zencoding-transform-ast (cadr ast) tag-maker))
+            (sib2 (zencoding-transform-ast (caddr ast) tag-maker)))
         (concat sib1 sib2))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -412,14 +474,14 @@
                  ("#q.x"                   "\n<div id=\"q\" class=\"x\">\n\n</div>\n")
                  ("#q.x.y.z"               "\n<div id=\"q\" class=\"x y z\">\n\n</div>\n")
                  ;; Empty tags
-                 ("a/"                     "<a/>")
-                 ("a/.x"                   "<a class=\"x\"/>")
-                 ("a/#q.x"                 "<a id=\"q\" class=\"x\"/>")
-                 ("a/#q.x.y.z"             "<a id=\"q\" class=\"x y z\"/>")
+                 ("a/"                     "<a/>\n")
+                 ("a/.x"                   "<a class=\"x\"/>\n")
+                 ("a/#q.x"                 "<a id=\"q\" class=\"x\"/>\n")
+                 ("a/#q.x.y.z"             "<a id=\"q\" class=\"x y z\"/>\n")
                  ;; Self-closing tags
-                 ("input type=text"        "\n<input type=\"text\"/>")
-                 ("img"                    "\n<img/>")
-                 ("img>metadata/*2"        "\n<img>\n\n<metadata/>\n<metadata/>\n</img>\n")
+                 ("input type=text"        "\n<input type=\"text\"/>\n")
+                 ("img"                    "\n<img/>\n")
+                 ("img>metadata/*2"        "\n<img>\n\n<metadata/>\n\n<metadata/>\n\n</img>\n")
                  ;; Siblings
                  ("a+b"                    "<a></a><b></b>")
                  ("a+b+c"                  "<a></a><b></b><c></c>")
@@ -446,12 +508,12 @@
                  ;; Multiplication
                  ("a*1"                    "<a></a>")
                  ("a*2"                    "<a></a><a></a>")
-                 ("a/*2"                   "<a/><a/>")
+                 ("a/*2"                   "<a/>\n<a/>\n")
                  ("a*2+b*2"                "<a></a><a></a><b></b><b></b>")
                  ("a*2>b*2"                "<a><b></b><b></b></a><a><b></b><b></b></a>")
                  ("a>b*2"                  "<a><b></b><b></b></a>")
                  ("a#q.x>b#q.x*2"          "<a id=\"q\" class=\"x\"><b id=\"q\" class=\"x\"></b><b id=\"q\" class=\"x\"></b></a>")
-                 ("a#q.x>b/#q.x*2"         "<a id=\"q\" class=\"x\"><b id=\"q\" class=\"x\"/><b id=\"q\" class=\"x\"/></a>")
+                 ("a#q.x>b/#q.x*2"         "\n<a id=\"q\" class=\"x\">\n<b id=\"q\" class=\"x\"/>\n<b id=\"q\" class=\"x\"/>\n\n</a>\n")
                  ;; Properties
                  ("a x"                    "<a x=\"\"></a>")
                  ("a x="                   "<a x=\"\"></a>")
@@ -462,11 +524,11 @@
                  ("a x m"                  "<a x=\"\" m=\"\"></a>")
                  ("a x= m=\"\""            "<a x=\"\" m=\"\"></a>")
                  ("a x=y m=l"              "<a x=\"y\" m=\"l\"></a>")
-                 ("a/ x=y m=l"             "<a x=\"y\" m=\"l\"/>")
+                 ("a/ x=y m=l"             "<a x=\"y\" m=\"l\"/>\n")
                  ("a#foo x=y m=l"          "<a id=\"foo\" x=\"y\" m=\"l\"></a>")
                  ("a.foo x=y m=l"          "<a class=\"foo\" x=\"y\" m=\"l\"></a>")
                  ("a#foo.bar.mu x=y m=l"   "<a id=\"foo\" class=\"bar mu\" x=\"y\" m=\"l\"></a>")
-                 ("a/#foo.bar.mu x=y m=l"  "<a id=\"foo\" class=\"bar mu\" x=\"y\" m=\"l\"/>")
+                 ("a/#foo.bar.mu x=y m=l"  "<a id=\"foo\" class=\"bar mu\" x=\"y\" m=\"l\"/>\n")
                  ("a x=y+b"                "<a x=\"y\"></a><b></b>")
                  ("a x=y+b x=y"            "<a x=\"y\"></a><b x=\"y\"></b>")
                  ("a x=y>b"                "<a x=\"y\"><b></b></a>")
@@ -495,7 +557,6 @@
                                  actual)))))
             tests)
     (concat (number-to-string (length tests)) " tests performed. All OK.")))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Zencoding minor mode
@@ -778,8 +839,9 @@ accept it or skip it."
 		  (overlay-end zencoding-preview-input)))
 	 (ast    (car (zencoding-expr string))))
     (when (not (eq ast 'error))
-      (zencoding-prettify (zencoding-transform ast)
-                          indent))))
+      (let ((output (zencoding-transform ast)))
+        (when output
+          (zencoding-prettify output indent))))))
 
 (defun zencoding-update-preview (indent)
   (let* ((pretty (zencoding-preview-transformed indent))
