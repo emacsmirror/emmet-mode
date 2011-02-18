@@ -159,7 +159,14 @@
 
 (defun zencoding-default-filter ()
   "Default filter(s) to be used if none is specified."
-  '("html"))
+  (let* ((file-ext (car (zencoding-regex ".*\\(\\..*\\)"(buffer-file-name) 1)))
+         (defaults '(".html" ("html")
+                     ".htm"  ("html")))
+         (default-else '("html"))
+         (selected-default (member file-ext defaults)))
+    (if selected-default
+        (cadr selected-default)
+      default-else)))
 
 (defun zencoding-multiplier (input)
   (zencoding-por zencoding-pexpr zencoding-tag
