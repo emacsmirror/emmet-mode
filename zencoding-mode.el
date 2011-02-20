@@ -154,14 +154,15 @@
   (zencoding-pif (zencoding-subexpr input)
                  (let ((result (car it))
                        (rest (cdr it)))
-                   `((,filters ,result) . ,rest))
+                   `((filter ,filters ,result) . ,rest))
                  it))
 
 (defun zencoding-default-filter ()
   "Default filter(s) to be used if none is specified."
   (let* ((file-ext (car (zencoding-regex ".*\\(\\..*\\)"(buffer-file-name) 1)))
          (defaults '(".html" ("html")
-                     ".htm"  ("html")))
+                     ".htm"  ("html")
+                     ".haml" ("haml")))
          (default-else      '("html"))
          (selected-default (member file-ext defaults)))
     (if selected-default
@@ -362,10 +363,13 @@
     "acronym"
     "cite"
     "code"
+    "dd"
     "dfn"
+    "dt"
     "em"
     "h1" "h2" "h3" "h4" "h5" "h6"
     "kbd"
+    "li"
     "q"
     "span"
     "strong"
@@ -379,18 +383,14 @@
     "img"
     "input"))
 
-;; li
-;; a
-;; em
-;; p
-
 (defvar zencoding-leaf-function nil
   "Function to execute when expanding a leaf node in the
   Zencoding AST.")
 
-(setq zencoding-filters
+(defvar zencoding-filters
   '("html" (zencoding-primary-filter zencoding-make-html-tag)
-    "c"    (zencoding-primary-filter zencoding-make-commented-html-tag)))
+    "c"    (zencoding-primary-filter zencoding-make-commented-html-tag)
+    "haml" (zencoding-primary-filter zencoding-make-haml-tag)))
 
 (defun zencoding-primary-filter (input proc)
   "Process filter that needs to be executed first, ie. not given output from other filter."
@@ -413,52 +413,74 @@
       nil)))
 
 (defun zencoding-make-tag (tag-maker tag-info &optional content)
+  "Extract tag info and pass them to tag-maker."
   (let* ((name      (pop tag-info))
          (has-body? (pop tag-info))
          (id        (pop tag-info))
          (classes   (pop tag-info))
          (props     (pop tag-info))
-         (has-body  (or content
-                        (and has-body?
-                             (not (member name zencoding-self-closing-tags)))))
-         (lf (if (or (and content (string-match "\n" content))
-                     (member name zencoding-block-tags)
-                     (and (> (length name) 1)
-                          (not (member name zencoding-inline-tags))))
-                 "\n" "")))
-    (funcall tag-maker name id classes props has-body lf
+         (self-closing? (not (or content
+                                 (and has-body?
+                                      (not (member name zencoding-self-closing-tags)))))))
+    (funcall tag-maker name id classes props self-closing?
              (if content content
-               (if zencoding-leaf-function (funcall zencoding-leaf-function)
-                 "")))))
+               (if zencoding-leaf-function (funcall zencoding-leaf-function))))))
 
-(defun zencoding-make-html-tag (tag-name tag-id tag-classes tag-props has-body lf content)
-  (let ((id      (zencoding-concat-or-empty " id=\"" tag-id "\""))
-        (classes (zencoding-mapconcat-or-empty " class=\"" tag-classes " " "\""))
-        (props   (zencoding-mapconcat-or-empty " " tag-props " " nil
-                                               (lambda (prop)
-                                                 (concat (symbol-name (car prop)) "=\"" (cadr prop) "\"")))))
-   
-    (concat lf "<" tag-name id classes props
-            (if has-body
-                (concat ">" lf content lf "</" tag-name ">" lf)
-              "/>\n"))))
+(defun zencoding-make-html-tag (tag-name tag-id tag-classes tag-props self-closing? content)
+  "Create HTML markup string"
+  (let* ((id      (zencoding-concat-or-empty " id=\"" tag-id "\""))
+         (classes (zencoding-mapconcat-or-empty " class=\"" tag-classes " " "\""))
+         (props   (zencoding-mapconcat-or-empty " " tag-props " " nil
+                                                (lambda (prop)
+                                                  (concat (symbol-name (car prop)) "=\"" (cadr prop) "\""))))
+         (content-multiline? (and content (string-match "\n" content)))
+         (block-tag? (or (member tag-name zencoding-block-tags)
+                         (and (> (length tag-name) 1)
+                              (not (member tag-name zencoding-inline-tags)))))
+         (lf (if (or content-multiline? block-tag?)
+                 "\n")))
+    (concat "<" tag-name id classes props (if self-closing?
+                                              "/>"
+                                            (concat ">" (if content
+                                                            (if (or content-multiline? block-tag?)
+                                                                (zencoding-indent content)
+                                                              content))
+                                                    lf
+                                                    "</" tag-name ">")))))
 
-(defun zencoding-make-commented-html-tag (tag-name tag-id tag-classes tag-props has-body lf content)
-  (let ((body (zencoding-make-html-tag tag-name tag-id tag-classes tag-props has-body lf content)))
+(defun zencoding-make-commented-html-tag (tag-name tag-id tag-classes tag-props self-closing? content)
+  "Create HTML markup string with extra comments for elements with #id or .classes"
+  (let ((body (zencoding-make-html-tag tag-name tag-id tag-classes tag-props self-closing? content)))
     (if (or tag-id tag-classes)
         (let ((id      (zencoding-concat-or-empty "#" tag-id))
               (classes (zencoding-mapconcat-or-empty "." tag-classes ".")))
           (concat "<!-- " id classes " -->\n"
                   body
-                  "\n<!-- /" id classes " -->\n"))
+                  "\n<!-- /" id classes " -->"))
       body)))
 
+(defun zencoding-make-haml-tag (tag-name tag-id tag-classes tag-props self-closing? content)
+  "Create HAML markup string"
+  (let ((name    (if (and (equal tag-name "div")
+                          (or tag-id tag-classes))
+                     ""
+                   (concat "%" tag-name)))
+        (id      (zencoding-concat-or-empty "#" tag-id))
+        (classes (zencoding-mapconcat-or-empty "." tag-classes "."))
+        (props   (zencoding-mapconcat-or-empty "{" tag-props ", " "}"
+                                               (lambda (prop)
+                                                 (concat ":" (symbol-name (car prop)) " => \"" (cadr prop) "\"")))))
+    (concat name id classes props (if content
+                                      (zencoding-indent content)))))
+
 (defun zencoding-concat-or-empty (prefix body &optional suffix)
+  "Return prefixed suffixed text or empty string."
   (if body
       (concat prefix body suffix)
     ""))
 
 (defun zencoding-mapconcat-or-empty (prefix list-body delimiter &optional suffix map-fun)
+  "Return prefixed suffixed mapconcated text or empty string."
   (if list-body
       (let* ((mapper (if map-fun map-fun 'identity))
              (body (mapconcat mapper list-body delimiter)))
@@ -466,11 +488,13 @@
     ""))
 
 (defun zencoding-transform (ast-with-filters)
-  (let ((filters (car ast-with-filters))
-        (ast (cadr ast-with-filters)))
+  "Transform AST (containing filter data) into string."
+  (let ((filters (cadr ast-with-filters))
+        (ast (caddr ast-with-filters)))
     (zencoding-process-filter filters ast)))
 
 (defun zencoding-transform-ast (ast tag-maker)
+  "Transform AST (without filter data) into string."
   (let ((type (car ast)))
     (cond
      ((eq type 'list)
@@ -478,7 +502,7 @@
                    #'(lambda (sub-ast)
                        (zencoding-transform-ast sub-ast make-tag-fun)))
                  (cadr ast)
-                 ""))
+                 "\n"))
      ((eq type 'tag)
       (zencoding-make-tag tag-maker (cadr ast)))
      ((eq type 'parent-child)
@@ -488,7 +512,13 @@
      ((eq type 'sibling)
       (let ((sib1 (zencoding-transform-ast (cadr ast) tag-maker))
             (sib2 (zencoding-transform-ast (caddr ast) tag-maker)))
-        (concat sib1 sib2))))))
+        (concat sib1 "\n" sib2))))))
+
+(defun zencoding-indent (text)
+  "Indent the text"
+  (if text
+      (replace-regexp-in-string "\n" "\n    " (concat "\n" text))
+    nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Test-cases
@@ -499,32 +529,63 @@
                  ("a.x"                    "<a class=\"x\"></a>")
                  ("a#q.x"                  "<a id=\"q\" class=\"x\"></a>")
                  ("a#q.x.y.z"              "<a id=\"q\" class=\"x y z\"></a>")
-                 ("#q"                     "\n<div id=\"q\">\n\n</div>\n")
-                 (".x"                     "\n<div class=\"x\">\n\n</div>\n")
-                 ("#q.x"                   "\n<div id=\"q\" class=\"x\">\n\n</div>\n")
-                 ("#q.x.y.z"               "\n<div id=\"q\" class=\"x y z\">\n\n</div>\n")
+                 ("#q"                     "<div id=\"q\">"
+                                           "</div>")
+                 (".x"                     "<div class=\"x\">"
+                                           "</div>")
+                 ("#q.x"                   "<div id=\"q\" class=\"x\">"
+                                           "</div>")
+                 ("#q.x.y.z"               "<div id=\"q\" class=\"x y z\">"
+                                           "</div>")
                  ;; Empty tags
-                 ("a/"                     "<a/>\n")
-                 ("a/.x"                   "<a class=\"x\"/>\n")
-                 ("a/#q.x"                 "<a id=\"q\" class=\"x\"/>\n")
-                 ("a/#q.x.y.z"             "<a id=\"q\" class=\"x y z\"/>\n")
+                 ("a/"                     "<a/>")
+                 ("a/.x"                   "<a class=\"x\"/>")
+                 ("a/#q.x"                 "<a id=\"q\" class=\"x\"/>")
+                 ("a/#q.x.y.z"             "<a id=\"q\" class=\"x y z\"/>")
                  ;; Self-closing tags
-                 ("input type=text"        "\n<input type=\"text\"/>\n")
-                 ("img"                    "\n<img/>\n")
-                 ("img>metadata/*2"        "\n<img>\n\n<metadata/>\n\n<metadata/>\n\n</img>\n")
+                 ("input type=text"        "<input type=\"text\"/>")
+                 ("img"                    "<img/>")
+                 ("img>metadata/*2"        "<img>"
+                                           "    <metadata/>"
+                                           "    <metadata/>"
+                                           "</img>")
                  ;; Siblings
-                 ("a+b"                    "<a></a><b></b>")
-                 ("a+b+c"                  "<a></a><b></b><c></c>")
-                 ("a.x+b"                  "<a class=\"x\"></a><b></b>")
-                 ("a#q.x+b"                "<a id=\"q\" class=\"x\"></a><b></b>")
-                 ("a#q.x.y.z+b"            "<a id=\"q\" class=\"x y z\"></a><b></b>")
-                 ("a#q.x.y.z+b#p.l.m.n"    "<a id=\"q\" class=\"x y z\"></a><b id=\"p\" class=\"l m n\"></b>")
+                 ("a+b"                    "<a></a>"
+                                           "<b></b>")
+                 ("a+b+c"                  "<a></a>"
+                                           "<b></b>"
+                                           "<c></c>")
+                 ("a.x+b"                  "<a class=\"x\"></a>"
+                                           "<b></b>")
+                 ("a#q.x+b"                "<a id=\"q\" class=\"x\"></a>"
+                                           "<b></b>")
+                 ("a#q.x.y.z+b"            "<a id=\"q\" class=\"x y z\"></a>"
+                                           "<b></b>")
+                 ("a#q.x.y.z+b#p.l.m.n"    "<a id=\"q\" class=\"x y z\"></a>"
+                                           "<b id=\"p\" class=\"l m n\"></b>")
                  ;; Tag expansion
-                 ("table+"                 "\n<table>\n\n<tr>\n\n<td>\n\n</td>\n\n</tr>\n\n</table>\n")
-                 ("dl+"                    "\n<dl>\n\n<dt>\n\n</dt>\n\n<dd>\n\n</dd>\n\n</dl>\n")
-                 ("ul+"                    "\n<ul>\n\n<li>\n\n</li>\n\n</ul>\n")
-                 ("ul++ol+"                "\n<ul>\n\n<li>\n\n</li>\n\n</ul>\n\n<ol>\n\n<li>\n\n</li>\n\n</ol>\n")
-                 ("ul#q.x.y m=l+"          "\n<ul id=\"q\" class=\"x y\" m=\"l\">\n\n<li>\n\n</li>\n\n</ul>\n")
+                 ("table+"                 "<table>"
+                                           "    <tr>"
+                                           "        <td>"
+                                           "        </td>"
+                                           "    </tr>"
+                                           "</table>")
+                 ("dl+"                    "<dl>"
+                                           "    <dt></dt>"
+                                           "    <dd></dd>"
+                                           "</dl>")
+                 ("ul+"                    "<ul>"
+                                           "    <li></li>"
+                                           "</ul>")
+                 ("ul++ol+"                "<ul>"
+                                           "    <li></li>"
+                                           "</ul>"
+                                           "<ol>"
+                                           "    <li></li>"
+                                           "</ol>")
+                 ("ul#q.x.y m=l+"          "<ul id=\"q\" class=\"x y\" m=\"l\">"
+                                           "    <li></li>"
+                                           "</ul>")
                  ;; Parent > child
                  ("a>b"                    "<a><b></b></a>")
                  ("a>b>c"                  "<a><b><c></c></b></a>")
@@ -532,18 +593,48 @@
                  ("a#q.x>b"                "<a id=\"q\" class=\"x\"><b></b></a>")
                  ("a#q.x.y.z>b"            "<a id=\"q\" class=\"x y z\"><b></b></a>")
                  ("a#q.x.y.z>b#p.l.m.n"    "<a id=\"q\" class=\"x y z\"><b id=\"p\" class=\"l m n\"></b></a>")
-                 ("#q>.x"                  "\n<div id=\"q\">\n\n<div class=\"x\">\n\n</div>\n\n</div>\n")
-                 ("a>b+c"                  "<a><b></b><c></c></a>")
-                 ("a>b+c>d"                "<a><b></b><c><d></d></c></a>")
+                 ("#q>.x"                  "<div id=\"q\">"
+                                           "    <div class=\"x\">"
+                                           "    </div>"
+                                           "</div>")
+                 ("a>b+c"                  "<a>"
+                                           "    <b></b>"
+                                           "    <c></c>"
+                                           "</a>")
+                 ("a>b+c>d"                "<a>"
+                                           "    <b></b>"
+                                           "    <c><d></d></c>"
+                                           "</a>")
                  ;; Multiplication
                  ("a*1"                    "<a></a>")
-                 ("a*2"                    "<a></a><a></a>")
-                 ("a/*2"                   "<a/>\n<a/>\n")
-                 ("a*2+b*2"                "<a></a><a></a><b></b><b></b>")
-                 ("a*2>b*2"                "<a><b></b><b></b></a><a><b></b><b></b></a>")
-                 ("a>b*2"                  "<a><b></b><b></b></a>")
-                 ("a#q.x>b#q.x*2"          "<a id=\"q\" class=\"x\"><b id=\"q\" class=\"x\"></b><b id=\"q\" class=\"x\"></b></a>")
-                 ("a#q.x>b/#q.x*2"         "\n<a id=\"q\" class=\"x\">\n<b id=\"q\" class=\"x\"/>\n<b id=\"q\" class=\"x\"/>\n\n</a>\n")
+                 ("a*2"                    "<a></a>"
+                                           "<a></a>")
+                 ("a/*2"                   "<a/>"
+                                           "<a/>")
+                 ("a*2+b*2"                "<a></a>"
+                                           "<a></a>"
+                                           "<b></b>"
+                                           "<b></b>")
+                 ("a*2>b*2"                "<a>"
+                                           "    <b></b>"
+                                           "    <b></b>"
+                                           "</a>"
+                                           "<a>"
+                                           "    <b></b>"
+                                           "    <b></b>"
+                                           "</a>")
+                 ("a>b*2"                  "<a>"
+                                           "    <b></b>"
+                                           "    <b></b>"
+                                           "</a>")
+                 ("a#q.x>b#q.x*2"          "<a id=\"q\" class=\"x\">"
+                                           "    <b id=\"q\" class=\"x\"></b>"
+                                           "    <b id=\"q\" class=\"x\"></b>"
+                                           "</a>")
+                 ("a#q.x>b/#q.x*2"         "<a id=\"q\" class=\"x\">"
+                                           "    <b id=\"q\" class=\"x\"/>"
+                                           "    <b id=\"q\" class=\"x\"/>"
+                                           "</a>")
                  ;; Properties
                  ("a x"                    "<a x=\"\"></a>")
                  ("a x="                   "<a x=\"\"></a>")
@@ -554,33 +645,62 @@
                  ("a x m"                  "<a x=\"\" m=\"\"></a>")
                  ("a x= m=\"\""            "<a x=\"\" m=\"\"></a>")
                  ("a x=y m=l"              "<a x=\"y\" m=\"l\"></a>")
-                 ("a/ x=y m=l"             "<a x=\"y\" m=\"l\"/>\n")
+                 ("a/ x=y m=l"             "<a x=\"y\" m=\"l\"/>")
                  ("a#foo x=y m=l"          "<a id=\"foo\" x=\"y\" m=\"l\"></a>")
                  ("a.foo x=y m=l"          "<a class=\"foo\" x=\"y\" m=\"l\"></a>")
                  ("a#foo.bar.mu x=y m=l"   "<a id=\"foo\" class=\"bar mu\" x=\"y\" m=\"l\"></a>")
-                 ("a/#foo.bar.mu x=y m=l"  "<a id=\"foo\" class=\"bar mu\" x=\"y\" m=\"l\"/>\n")
-                 ("a x=y+b"                "<a x=\"y\"></a><b></b>")
-                 ("a x=y+b x=y"            "<a x=\"y\"></a><b x=\"y\"></b>")
+                 ("a/#foo.bar.mu x=y m=l"  "<a id=\"foo\" class=\"bar mu\" x=\"y\" m=\"l\"/>")
+                 ("a x=y+b"                "<a x=\"y\"></a>"
+                                           "<b></b>")
+                 ("a x=y+b x=y"            "<a x=\"y\"></a>"
+                                           "<b x=\"y\"></b>")
                  ("a x=y>b"                "<a x=\"y\"><b></b></a>")
                  ("a x=y>b x=y"            "<a x=\"y\"><b x=\"y\"></b></a>")
-                 ("a x=y>b x=y+c x=y"      "<a x=\"y\"><b x=\"y\"></b><c x=\"y\"></c></a>")
+                 ("a x=y>b x=y+c x=y"      "<a x=\"y\">"
+                                           "    <b x=\"y\"></b>"
+                                           "    <c x=\"y\"></c>"
+                                           "</a>")
                  ;; Parentheses
                  ("(a)"                    "<a></a>")
-                 ("(a)+(b)"                "<a></a><b></b>")
+                 ("(a)+(b)"                "<a></a>"
+                                           "<b></b>")
                  ("a>(b)"                  "<a><b></b></a>")
                  ("(a>b)>c"                "<a><b></b></a>")
-                 ("(a>b)+c"                "<a><b></b></a><c></c>")
-                 ("z+(a>b)+c+k"            "<z></z><a><b></b></a><c></c><k></k>")
-                 ("(a)*2"                  "<a></a><a></a>")
-                 ("((a)*2)"                "<a></a><a></a>")
-                 ("((a)*2)"                "<a></a><a></a>")
-                 ("(a>b)*2"                "<a><b></b></a><a><b></b></a>")
-                 ("(a+b)*2"                "<a></a><b></b><a></a><b></b>")
+                 ("(a>b)+c"                "<a><b></b></a>"
+                                           "<c></c>")
+                 ("z+(a>b)+c+k"            "<z></z>"
+                                           "<a><b></b></a>"
+                                           "<c></c>"
+                                           "<k></k>")
+                 ("(a)*2"                  "<a></a>"
+                                           "<a></a>")
+                 ("((a)*2)"                "<a></a>"
+                                           "<a></a>")
+                 ("((a))*2"                "<a></a>"
+                                           "<a></a>")
+                 ("(a>b)*2"                "<a><b></b></a>"
+                                           "<a><b></b></a>")
+                 ("(a+b)*2"                "<a></a>"
+                                           "<b></b>"
+                                           "<a></a>"
+                                           "<b></b>")
                  ;; Filters
-                 ("#a.b|c"                 "<!-- #a.b -->\n\n<div id=\"a\" class=\"b\">\n\n</div>\n\n<!-- /#a.b -->\n")
+                 ("#a.b|c"                 "<!-- #a.b -->"
+                                           "<div id=\"a\" class=\"b\">"
+                                           "</div>"
+                                           "<!-- /#a.b -->")
+                 ("a|haml"                 "%a")
+                 ("a#q.x.y.z|haml"         "%a#q.x.y.z")
+                 ("a#q.x x=y m=l|haml"     "%a#q.x{:x => \"y\", :m => \"l\"}")
+                 ("div|haml"               "%div")
+                 ("div.footer|haml"        ".footer")
+                 (".footer|haml"           ".footer")
+                 ("p>a href=#+br|haml"     "%p"
+                                           "    %a{:href => \"#\"}"
+                                           "    %br")
                  )))
     (mapc (lambda (input)
-            (let ((expected (cadr input))
+            (let ((expected (mapconcat 'identity (cdr input) "\n"))
                   (actual (zencoding-transform (car (zencoding-expr (car input))))))
               (if (not (equal expected actual))
                   (error (concat "Assertion " (car input) " failed:"
@@ -589,8 +709,6 @@
                                  actual)))))
             tests)
     (concat (number-to-string (length tests)) " tests performed. All OK.")))
-
-(zencoding-test-cases)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Zencoding minor mode
@@ -609,20 +727,17 @@
     (if (first expr)
         (list (first expr) start end))))
 
+(defcustom zencoding-indentation 4
+  "Number of spaces used for indentation."
+  :type '(number :tag "Spaces")
+  :group 'zencoding)
+
 (defun zencoding-prettify (markup indent)
-  (save-match-data
-    ;;(setq markup (replace-regexp-in-string "><" ">\n<" markup))
-    (setq markup (replace-regexp-in-string "\n\n" "\n" markup))
-    (setq markup (replace-regexp-in-string "^\n" "" markup)))
-  (with-temp-buffer
-    (indent-to indent)
-    (insert "<i></i>")
-    (insert "\n")
-    (let ((here (point)))
-      (insert markup)
-      (sgml-mode)
-      (indent-region here (point-max))
-      (buffer-substring-no-properties here (point-max)))))
+  (let ((first-col (format (format "%%%ds" indent) ""))
+        (tab       (format (format "%%%ds" zencoding-indentation) "")))
+    (concat first-col
+            (replace-regexp-in-string "\n" (concat "\n" first-col)
+                                      (replace-regexp-in-string "    " tab markup)))))
 
 ;;;###autoload
 (defun zencoding-expand-line (arg)
@@ -694,7 +809,6 @@ See also `zencoding-expand-line'."
   :lighter " Zen"
   :keymap zencoding-mode-keymap)
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Zencoding yasnippet integration
 
@@ -719,8 +833,6 @@ See also `zencoding-expand-line'."
            (buffer-substring (second expr) (point))
            (second expr) (point))))))
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Real-time preview
 ;;
