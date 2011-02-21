@@ -392,7 +392,8 @@
   '("html" (zencoding-primary-filter zencoding-make-html-tag)
     "c"    (zencoding-primary-filter zencoding-make-commented-html-tag)
     "haml" (zencoding-primary-filter zencoding-make-haml-tag)
-    "hic"  (zencoding-primary-filter zencoding-make-hiccup-tag)))
+    "hic"  (zencoding-primary-filter zencoding-make-hiccup-tag)
+    "e"    (zencoding-escape-xml)))
 
 (defun zencoding-primary-filter (input proc)
   "Process filter that needs to be executed first, ie. not given output from other filter."
@@ -506,6 +507,18 @@
              (body (mapconcat mapper list-body delimiter)))
         (concat prefix body suffix))
     ""))
+
+(defun zencoding-escape-xml (input proc)
+  "Escapes XML-unsafe characters: <, > and &."
+  (replace-regexp-in-string
+   "<" "&lt;"
+   (replace-regexp-in-string
+    ">" "&gt;"
+    (replace-regexp-in-string
+     "&" "&amp;"
+     (if (stringp input)
+         input
+       (zencoding-process-filter (zencoding-default-filter) input))))))
 
 (defun zencoding-transform (ast-with-filters)
   "Transform AST (containing filter data) into string."
@@ -739,6 +752,9 @@
                                            "    [:a [:b]]"
                                            "    [:p"
                                            "        [:b]]]")
+                 ;; Filter: escape
+                 ("script src=&quot;|e"    "&lt;script src=\"&amp;quot;\"&gt;"
+                                           "&lt;/script&gt;")
                  )))
     (mapc (lambda (input)
             (let ((expected (mapconcat 'identity (cdr input) "\n"))
