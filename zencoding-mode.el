@@ -162,7 +162,8 @@
   (let* ((file-ext (car (zencoding-regex ".*\\(\\..*\\)"(buffer-file-name) 1)))
          (defaults '(".html" ("html")
                      ".htm"  ("html")
-                     ".haml" ("haml")))
+                     ".haml" ("haml")
+                     ".clj"  ("hic")))
          (default-else      '("html"))
          (selected-default (member file-ext defaults)))
     (if selected-default
@@ -390,7 +391,8 @@
 (defvar zencoding-filters
   '("html" (zencoding-primary-filter zencoding-make-html-tag)
     "c"    (zencoding-primary-filter zencoding-make-commented-html-tag)
-    "haml" (zencoding-primary-filter zencoding-make-haml-tag)))
+    "haml" (zencoding-primary-filter zencoding-make-haml-tag)
+    "hic"  (zencoding-primary-filter zencoding-make-hiccup-tag)))
 
 (defun zencoding-primary-filter (input proc)
   "Process filter that needs to be executed first, ie. not given output from other filter."
@@ -460,7 +462,7 @@
       body)))
 
 (defun zencoding-make-haml-tag (tag-name tag-id tag-classes tag-props self-closing? content)
-  "Create HAML markup string"
+  "Create HAML string"
   (let ((name    (if (and (equal tag-name "div")
                           (or tag-id tag-classes))
                      ""
@@ -472,6 +474,24 @@
                                                  (concat ":" (symbol-name (car prop)) " => \"" (cadr prop) "\"")))))
     (concat name id classes props (if content
                                       (zencoding-indent content)))))
+
+(defun zencoding-make-hiccup-tag (tag-name tag-id tag-classes tag-props self-closing? content)
+  "Create Hiccup string"
+  (let* ((id      (zencoding-concat-or-empty "#" tag-id))
+         (classes (zencoding-mapconcat-or-empty "." tag-classes "."))
+         (props   (zencoding-mapconcat-or-empty " {" tag-props ", " "}"
+                                                (lambda (prop)
+                                                  (concat ":" (symbol-name (car prop)) " \"" (cadr prop) "\""))))
+         (content-multiline? (and content (string-match "\n" content)))
+         (block-tag? (or (member tag-name zencoding-block-tags)
+                         (and (> (length tag-name) 1)
+                              (not (member tag-name zencoding-inline-tags))))))
+    (concat "[:" tag-name id classes props
+            (if content
+                (if (or content-multiline? block-tag?)
+                    (zencoding-indent content)
+                  (concat " " content)))
+            "]")))
 
 (defun zencoding-concat-or-empty (prefix body &optional suffix)
   "Return prefixed suffixed text or empty string."
@@ -684,11 +704,19 @@
                                            "<b></b>"
                                            "<a></a>"
                                            "<b></b>")
-                 ;; Filters
-                 ("#a.b|c"                 "<!-- #a.b -->"
-                                           "<div id=\"a\" class=\"b\">"
+                 ;; Filter: comment
+                 ("a.b|c"                  "<!-- .b -->"
+                                           "<a class=\"b\"></a>"
+                                           "<!-- /.b -->")
+                 ("#a>.b|c"                "<!-- #a -->"
+                                           "<div id=\"a\">"
+                                           "    <!-- .b -->"
+                                           "    <div class=\"b\">"
+                                           "    </div>"
+                                           "    <!-- /.b -->"
                                            "</div>"
-                                           "<!-- /#a.b -->")
+                                           "<!-- /#a -->")
+                 ;; Filter: HAML
                  ("a|haml"                 "%a")
                  ("a#q.x.y.z|haml"         "%a#q.x.y.z")
                  ("a#q.x x=y m=l|haml"     "%a#q.x{:x => \"y\", :m => \"l\"}")
@@ -698,6 +726,19 @@
                  ("p>a href=#+br|haml"     "%p"
                                            "    %a{:href => \"#\"}"
                                            "    %br")
+                 ;; Filter: Hiccup
+                 ("a|hic"                  "[:a]")
+                 ("a#q.x.y.z|hic"          "[:a#q.x.y.z]")
+                 ("a#q.x x=y m=l|hic"      "[:a#q.x {:x \"y\", :m \"l\"}]")
+                 (".footer|hic"            "[:div.footer]")
+                 ("p>a href=#+br|hic"      "[:p"
+                                           "    [:a {:href \"#\"}]"
+                                           "    [:br]]")
+                 ("#q>(a*2>b)+p>b|hic"     "[:div#q"
+                                           "    [:a [:b]]"
+                                           "    [:a [:b]]"
+                                           "    [:p"
+                                           "        [:b]]]")
                  )))
     (mapc (lambda (input)
             (let ((expected (mapconcat 'identity (cdr input) "\n"))
@@ -833,6 +874,8 @@ See also `zencoding-expand-line'."
            (buffer-substring (second expr) (point))
            (second expr) (point))))))
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Real-time preview
 ;;
