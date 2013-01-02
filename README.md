@@ -228,7 +228,7 @@ you'll transform your snippet into the appropriate tag structure.
                              <a></a>
                              <b></b>
 
-## Text inner tag.
+## Text
 
     a{Click me}              <a>Click me</a>
     a>{Click me}*2           <a>
@@ -245,7 +245,7 @@ you'll transform your snippet into the appropriate tag structure.
                              <p>
                                  Click 
                                  <a>here</a>
-                                 to continue
+                                  to continue
                              </p>
     p{Click }+a{here}+{ to continue}
                              <p>
@@ -276,7 +276,8 @@ you'll transform your snippet into the appropriate tag structure.
     div|haml                 %div
     div.footer|haml          .footer
     .footer|haml             .footer
-    p>a href=#+br|haml       %p
+    p>{txt}+a href=#+br|haml %p
+                                 txt
                                  %a{:href => "#"}
                                  %br
 
@@ -289,9 +290,9 @@ you'll transform your snippet into the appropriate tag structure.
     p>a href=#+br|hic        [:p
                                  [:a {:href "#"}]
                                  [:br]]
-    #q>(a*2>b)+p>b|hic       [:div#q
-                                 [:a [:b]]
-                                 [:a [:b]]
+    #q>(a*2>b{x})+p>b|hic    [:div#q
+                                 [:a [:b "x"]]
+                                 [:a [:b "x"]]
                                  [:p
                                      [:b]]]
 
