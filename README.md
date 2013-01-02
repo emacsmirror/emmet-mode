@@ -228,6 +228,32 @@ you'll transform your snippet into the appropriate tag structure.
                              <a></a>
                              <b></b>
 
+## Text inner tag.
+
+    a{Click me}              <a>Click me</a>
+    a>{Click me}*2           <a>
+                                 Click me
+                                 Click me
+                             </a>
+    a{click}+b{here}         <a>click</a>
+                             <b>here</b>
+    a>{click}+b{here}        <a>
+                                 click
+                                 <b>here</b>
+                             </a>
+    p>{Click }+a{here}+{ to continue}
+                             <p>
+                                 Click 
+                                 <a>here</a>
+                                 to continue
+                             </p>
+    p{Click }+a{here}+{ to continue}
+                             <p>
+                                 Click 
+                             </p>
+                             <a>here</a>
+                              to continue
+
 ## Filter: HTML with comments
 
     a.b|c                    <!-- .b -->
