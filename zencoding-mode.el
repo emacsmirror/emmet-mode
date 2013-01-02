@@ -404,15 +404,41 @@
     "q"
     "span"
     "strong"
-    "var"))
+    "var"
+    "textarea"
+    "small"
+    "time" "del" "ins"
+    "sub"
+    "sup"
+    "i" "s" "b"
+    "ruby" "rt" "rp"
+    "bdo"
+    "iframe" "canvas"
+    "audio" "video"
+    "ovject" "embed"
+    "map"))
 
 (defvar zencoding-block-tags
-  '("p"))
+  '("p"
+    "article"
+    "section"
+    "aside"
+    "nav"
+    "figure"
+    "address"
+    "header"
+    "footer"))
 
 (defvar zencoding-self-closing-tags
   '("br"
     "img"
-    "input"))
+    "input"
+    "wbr"
+    "object"
+    "source"
+    "area"
+    "param"
+    "option"))
 
 (defvar zencoding-leaf-function nil
   "Function to execute when expanding a leaf node in the
