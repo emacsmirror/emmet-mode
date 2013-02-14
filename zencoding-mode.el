@@ -830,7 +830,7 @@
                                            "</p>"
                                            "<a>here</a>"
                                            " to continue")
-                 ;; ClimbUp
+                 ;; Climb-up
                  ("a>b>c^d"                "<a>"
                                            "    <b><c></c></b>"
                                            "    <d></d>"
