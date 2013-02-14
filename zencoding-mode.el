@@ -292,18 +292,23 @@
 (defun zencoding-parent-child (input)
   "Parse an tag>e expression, where `n' is an tag and `e' is any
    expression."
+  (defun listing (parents child input)
+    `((list ,(mapcar (lambda (parent)
+                       `(parent-child ,parent ,child))
+                     parents)) . ,input))
   (zencoding-run zencoding-multiplier
                  (let* ((items (cadr expr))
                         (rest (zencoding-child-sans expr input)))
                    (if (not (eq (car rest) 'error))
                        (let ((child (car rest))
                              (input (cdr rest)))
-                         (cons (cons 'list
-                                     (cons (mapcar (lambda (parent)
-                                                     `(parent-child ,parent ,child))
-                                                   items)
-                                           nil))
-                               input))
+
+                         (zencoding-aif (zencoding-regex "^" input '(0 1))
+                                                   (let ((input (elt it 1)))
+                                                     (zencoding-run zencoding-subexpr
+                                                                    `((sibling ,(car (listing items child "")) ,expr) . ,input)
+                                                                    (listing items child input)))
+                                                   (listing items child input)))
                      '(error "expected child")))
                  (zencoding-run zencoding-tag
                                 (zencoding-child expr input)
@@ -319,7 +324,12 @@
   (zencoding-parse ">" 1 ">"
                    (zencoding-run zencoding-subexpr
                                   (let ((child expr))
-                                    `((parent-child ,parent ,child) . ,input))
+                                    (zencoding-aif (zencoding-regex "^" input '(0 1))
+                                                   (let ((input (elt it 1)))
+                                                     (zencoding-run zencoding-subexpr
+                                                                    `((sibling (parent-child ,parent ,child) ,expr) . ,input)
+                                                                    `((parent-child ,parent ,child) . ,input)))
+                                                   `((parent-child ,parent ,child) . ,input)))
                                   '(error "expected child"))))
 
 (defun zencoding-sibling (input)
@@ -820,6 +830,46 @@
                                            "</p>"
                                            "<a>here</a>"
                                            " to continue")
+                 ;; ClimbUp
+                 ("a>b>c^d"                "<a>"
+                                           "    <b><c></c></b>"
+                                           "    <d></d>"
+                                           "</a>")
+                 ("a>b>c^^d"               "<a><b><c></c></b></a>"
+                                           "<d></d>")
+                 ("a*2>b*2>c^d"            "<a>"
+                                           "    <b><c></c></b>"
+                                           "    <b><c></c></b>"
+                                           "    <d></d>"
+                                           "</a>"
+                                           "<a>"
+                                           "    <b><c></c></b>"
+                                           "    <b><c></c></b>"
+                                           "    <d></d>"
+                                           "</a>")
+                 ("div+a>p>span{foo}+em>b^^^p"
+                                           "<div>"
+                                           "</div>"
+                                           "<a>"
+                                           "    <p>"
+                                           "        <span>foo</span>"
+                                           "        <em><b></b></em>"
+                                           "    </p>"
+                                           "</a>"
+                                           "<p>"
+                                           "</p>")
+                 ("div+div>p>span+em^blockquote{foo}"
+                                           "<div>"
+                                           "</div>"
+                                           "<div>"
+                                           "    <p>"
+                                           "        <span></span>"
+                                           "        <em></em>"
+                                           "    </p>"
+                                           "    <blockquote>"
+                                           "        foo"
+                                           "    </blockquote>"
+                                           "</div>")
                  ;; Filter: comment
                  ("a.b|c"                  "<!-- .b -->"
                                            "<a class=\"b\"></a>"
