@@ -185,6 +185,57 @@ you'll transform your snippet into the appropriate tag structure.
                                  <b id="q" class="x"/>
                              </a>
 
+## Item numbering
+
+    ul>li.item$*3            <ul>
+                                 <li class="item1"></li>
+                                 <li class="item2"></li>
+                                 <li class="item3"></li>
+                             </ul>
+    ul>li.item$$$*3          <ul>
+                                 <li class="item001"></li>
+                                 <li class="item002"></li>
+                                 <li class="item003"></li>
+                             </ul>
+    ul>li.item$@-*3          <ul>
+                                 <li class="item3"></li>
+                                 <li class="item2"></li>
+                                 <li class="item1"></li>
+                             </ul>
+    ul>li.item$@3*3          <ul>
+                                 <li class="item3"></li>
+                                 <li class="item4"></li>
+                                 <li class="item5"></li>
+                             </ul>
+    ul>li.item$@-3*3         <ul>
+                                 <li class="item5"></li>
+                                 <li class="item4"></li>
+                                 <li class="item3"></li>
+                             </ul>
+    a$b$@-/*5                <a1b5/>
+                             <a2b4/>
+                             <a3b3/>
+                             <a4b2/>
+                             <a5b1/>
+    (div>(a#id$$*2)+b.c$@-3+c#d$)*2
+                             <div>
+                                 <a id=\"id01\"></a>
+                                 <a id=\"id02\"></a>
+                                 <b class=\"c4\"></b>
+                                 <c id=\"d1\"></c>
+                             </div>
+                             <div>
+                                 <a id=\"id01\"></a>
+                                 <a id=\"id02\"></a>
+                                 <b class=\"c3\"></b>
+                                 <c id=\"d2\"></c>
+                             </div>
+    ul>li.c${price: 10\\$}*3 <ul>
+                                 <li class=\"c1\">price: 10$</li>
+                                 <li class=\"c2\">price: 10$</li>
+                                 <li class=\"c3\">price: 10$</li>
+                             </ul>
+
 ## Properties
 
     a x                      <a x=""></a>

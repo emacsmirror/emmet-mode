@@ -175,6 +175,71 @@
         (cadr selected-default)
       default-else)))
 
+(defun zencoding-numbering (input)
+  (zencoding-parse
+   "\\(\\$+\\)" 2 "numbering, $"
+   (let ((doller (elt it 1)))
+     (zencoding-pif (zencoding-parse
+                     "@\\([0-9-][0-9]*\\)" 2 "numbering args"
+                     (let* ((args (read (elt it 1)))
+                            (direction  (not (or (eq '- args) (minusp args))))
+                            (base       (if (eq '- args) 1 (abs args))))
+                       `((n ,(length doller) ,direction ,base) . ,input)))
+                    it
+                    `((n ,(length doller) t 1) . ,input)))))
+
+(defun zencoding-split-numbering-expressions (input)
+  (labels
+      ((iter (input)
+             (zencoding-aif (zencoding-regex "\\([^$]*\\)\\(\\$.*\\)" input '(1 2))
+                (let ((prefix (car it))
+                      (input (cadr it)))
+                  (if (and (< 0 (length prefix)) ; check if ..\\$... or ...$...
+                           (string-equal (substring prefix -1) "\\"))
+                      `(,(store-substring prefix (- (length prefix) 1) ?$)
+                        ,@(iter (substring input 1)))
+                    (let ((res (zencoding-numbering input)))
+                      `(,prefix ,(car res) ,@(iter (cdr res))))))
+                (list input))))
+    (let ((res (iter input)))
+      (if (every #'stringp res)
+          (apply #'concat res)
+        `(numberings ,@res)))))
+
+(defun zencoding-multiply-expression (multiplicand exp)
+  (labels
+      ((instantiate-numberings
+        (i lim exps)
+        (apply #'concat
+               (mapcar
+                (lambda (exp)
+                  (if (listp exp)
+                      (let ((digits (second exp))
+                            (direction (third exp))
+                            (base (fourth exp)))
+                        (let ((num (if direction (+ base i)
+                                     (- (+ lim (- base 1)) i))))
+                          (format (concat "%0" (format "%d" digits) "d") num)))
+                    exp)) exps)))
+       (search-numberings
+        (i lim exp)
+        (if (listp exp)
+            (if (eql (car exp) 'numberings)
+                (instantiate-numberings i lim (cdr exp))
+              ;; Should do like this for real searching.
+              ;; But stack overflow occurs.
+              ;; (cons (search-numberings i lim (car exp))
+              ;;       (search-numberings i lim (cdr exp)))
+              (mapcar (lambda (exp)
+                        (search-numberings i lim exp))
+                      exp))
+          exp))
+       (iter (i lim exp)
+             (when (< i lim)
+               (let ((this-time (search-numberings i lim exp)))
+                 `(,this-time ,@(iter (+ i 1) lim exp))))))
+    (iter 0 multiplicand exp)))
+
 (defun zencoding-multiplier (input)
   (zencoding-pif (zencoding-run zencoding-pexpr
                                 it
@@ -187,7 +252,9 @@
                         (multiplier expr))
                    (zencoding-parse "\\*\\([0-9]+\\)" 2 "*n where n is a number"
                                     (let ((multiplicand (read (elt it 1))))
-                                      `((list ,(make-list multiplicand multiplier)) . ,input))))))
+                                      `((list ,(zencoding-multiply-expression
+                                                multiplicand
+                                                multiplier)) . ,input))))))
 
 (defun zencoding-tag (input)
   "Parse a tag."
@@ -216,7 +283,7 @@
 (defun zencoding-tag-text (tag input)
   (let ((tag-data (cadr tag)))
     (zencoding-run zencoding-text
-                   (let ((txt (cdr expr)))
+                   (let ((txt (cadr expr)))
                      `((tag ,(append tag-data (list txt))) . ,input))
                    `((tag ,(append tag-data '(nil))) . ,input))))
 
@@ -267,19 +334,18 @@
 
 (defun zencoding-tagname (input)
   "Parse a tagname a-zA-Z0-9 tagname (e.g. html/head/xsl:if/br)."
-  (zencoding-parse "\\([a-zA-Z][a-zA-Z0-9:-]*\/?\\)" 2 "tagname, a-zA-Z0-9"
+  (zencoding-parse "\\([a-zA-Z][a-zA-Z0-9:$@-]*\/?\\)" 2 "tagname, a-zA-Z0-9"
                    (let* ((tag-spec (elt it 1))
                           (empty-tag (zencoding-regex "\\([^\/]*\\)\/" tag-spec 1))
-                          (tag (if empty-tag
-                                   (car empty-tag)
-                                 tag-spec)))
+                          (tag (zencoding-split-numbering-expressions
+                                (if empty-tag (car empty-tag) tag-spec))))
                      `((tagname . (,tag . ,(not empty-tag))) . ,input))))
 
 (defun zencoding-text (input)
   "A zen coding expression innertext."
   (zencoding-parse "{\\(.*?\\)}" 2 "inner text"
-                   (let ((txt (elt it 1)))
-                     `((text . ,txt) . ,input))))
+                   (let ((txt (zencoding-split-numbering-expressions (elt it 1))))
+                     `((text ,txt) . ,input))))
 
 (defun zencoding-pexpr (input)
   "A zen coding expression with parentheses around it."
@@ -372,8 +438,9 @@
 
 (defun zencoding-name (input)
   "Parse a class or identifier name, e.g. news, footer, mainimage"
-  (zencoding-parse "\\([a-zA-Z][a-zA-Z0-9-_:]*\\)" 2 "class or identifer name"
-                   `((name . ,(elt it 1)) . ,input)))
+  (zencoding-parse "\\([a-zA-Z$@][a-zA-Z0-9$@_:-]*\\)" 2 "class or identifer name"
+                   `((name . ,(zencoding-split-numbering-expressions
+                               (elt it 1))) . ,input)))
 
 (defun zencoding-class (input)
   "Parse a classname expression, e.g. .foo"
@@ -625,7 +692,7 @@
      ((eq type 'tag)
       (zencoding-make-tag tag-maker (cadr ast)))
      ((eq type 'text)
-      (zencoding-make-text tag-maker (cdr ast)))
+      (zencoding-make-text tag-maker (cadr ast)))
      ((eq type 'parent-child)
       (let ((parent (cadadr ast))
             (children (zencoding-transform-ast (caddr ast) tag-maker)))
@@ -756,6 +823,51 @@
                                            "    <b id=\"q\" class=\"x\"/>"
                                            "    <b id=\"q\" class=\"x\"/>"
                                            "</a>")
+                 ;; Numbering
+                 ("a.$x*3"                 "<a class=\"1x\"></a>"
+                                           "<a class=\"2x\"></a>"
+                                           "<a class=\"3x\"></a>")
+                 ("ul>li.item$*3"          "<ul>"
+                                           "    <li class=\"item1\"></li>"
+                                           "    <li class=\"item2\"></li>"
+                                           "    <li class=\"item3\"></li>"
+                                           "</ul>")
+                 ("ul>li.item$$$*3"        "<ul>"
+                                           "    <li class=\"item001\"></li>"
+                                           "    <li class=\"item002\"></li>"
+                                           "    <li class=\"item003\"></li>"
+                                           "</ul>")
+                 ("ul>li.item$@-*2"        "<ul>"
+                                           "    <li class=\"item2\"></li>"
+                                           "    <li class=\"item1\"></li>"
+                                           "</ul>")
+                 ("ul>li.item$@-1000*2"    "<ul>"
+                                           "    <li class=\"item1001\"></li>"
+                                           "    <li class=\"item1000\"></li>"
+                                           "</ul>")
+                 ("(div>(a#id$$*2)+b.c$@-3+c#d$)*2"
+                                           "<div>"
+                                           "    <a id=\"id01\"></a>"
+                                           "    <a id=\"id02\"></a>"
+                                           "    <b class=\"c4\"></b>"
+                                           "    <c id=\"d1\"></c>"
+                                           "</div>"
+                                           "<div>"
+                                           "    <a id=\"id01\"></a>"
+                                           "    <a id=\"id02\"></a>"
+                                           "    <b class=\"c3\"></b>"
+                                           "    <c id=\"d2\"></c>"
+                                           "</div>")
+                 ("a:b$$$-c$$@-:d$@-3-e$$@100/#b.c$*3"
+                                           "<a:b001-c03:d5-e100 id=\"b\" class=\"c1\"/>"
+                                           "<a:b002-c02:d4-e101 id=\"b\" class=\"c2\"/>"
+                                           "<a:b003-c01:d3-e102 id=\"b\" class=\"c3\"/>")
+                 ("ul>li.item${name: item$ price: $\\$}*3"
+                                           "<ul>"
+                                           "    <li class=\"item1\">name: item1 price: 1$</li>"
+                                           "    <li class=\"item2\">name: item2 price: 2$</li>"
+                                           "    <li class=\"item3\">name: item3 price: 3$</li>"
+                                           "</ul>")
                  ;; Properties
                  ("a x"                    "<a x=\"\"></a>")
                  ("a x="                   "<a x=\"\"></a>")
