@@ -206,39 +206,36 @@
           (apply #'concat res)
         `(numberings ,@res)))))
 
+(defun zencoding-instantiate-numbering-expression (i lim exp)
+  (labels ((instantiate
+            (i lim exps)
+            (apply #'concat
+                   (mapcar
+                    (lambda (exp)
+                      (if (listp exp)
+                          (let ((digits (second exp))
+                                (direction (third exp))
+                                (base (fourth exp)))
+                            (let ((num (if direction (+ base i)
+                                         (- (+ lim (- base 1)) i))))
+                              (format (concat "%0" (format "%d" digits) "d") num)))
+                        exp)) exps)))
+           (search
+            (i lim exp)
+            (if (listp exp)
+                (if (eql (car exp) 'numberings)
+                    (instantiate i lim (cdr exp))
+                  ;; Should do like this for real searching.
+                  ;; But stack overflow occurs.
+                  ;; (cons (search-numberings i lim (car exp))
+                  ;;       (search-numberings i lim (cdr exp)))
+                  (mapcar (lambda (exp) (search i lim exp)) exp))
+              exp)))
+    (search i lim exp)))
+
 (defun zencoding-multiply-expression (multiplicand exp)
-  (labels
-      ((instantiate-numberings
-        (i lim exps)
-        (apply #'concat
-               (mapcar
-                (lambda (exp)
-                  (if (listp exp)
-                      (let ((digits (second exp))
-                            (direction (third exp))
-                            (base (fourth exp)))
-                        (let ((num (if direction (+ base i)
-                                     (- (+ lim (- base 1)) i))))
-                          (format (concat "%0" (format "%d" digits) "d") num)))
-                    exp)) exps)))
-       (search-numberings
-        (i lim exp)
-        (if (listp exp)
-            (if (eql (car exp) 'numberings)
-                (instantiate-numberings i lim (cdr exp))
-              ;; Should do like this for real searching.
-              ;; But stack overflow occurs.
-              ;; (cons (search-numberings i lim (car exp))
-              ;;       (search-numberings i lim (cdr exp)))
-              (mapcar (lambda (exp)
-                        (search-numberings i lim exp))
-                      exp))
-          exp))
-       (iter (i lim exp)
-             (when (< i lim)
-               (let ((this-time (search-numberings i lim exp)))
-                 `(,this-time ,@(iter (+ i 1) lim exp))))))
-    (iter 0 multiplicand exp)))
+  (loop for i to (- multiplicand 1) collect
+        (zencoding-instantiate-numbering-expression i multiplicand exp)))
 
 (defun zencoding-multiplier (input)
   (zencoding-pif (zencoding-run zencoding-pexpr
@@ -359,9 +356,13 @@
   "Parse an tag>e expression, where `n' is an tag and `e' is any
    expression."
   (defun listing (parents child input)
-    `((list ,(mapcar (lambda (parent)
-                       `(parent-child ,parent ,child))
-                     parents)) . ,input))
+    (let ((len (length parents)))
+      `((list ,(map 'list
+                    (lambda (parent i)
+                      `(parent-child ,parent
+                                     ,(zencoding-instantiate-numbering-expression i len child)))
+                    parents
+                    (loop for i to (- len 1) collect i))) . ,input)))
   (zencoding-run zencoding-multiplier
                  (let* ((items (cadr expr))
                         (rest (zencoding-child-sans expr input)))
@@ -845,6 +846,16 @@
                                            "    <li class=\"item1001\"></li>"
                                            "    <li class=\"item1000\"></li>"
                                            "</ul>")
+                 ("a.$*2>b.$$@-*3"         "<a class=\"1\">"
+                                           "    <b class=\"03\"></b>"
+                                           "    <b class=\"02\"></b>"
+                                           "    <b class=\"01\"></b>"
+                                           "</a>"
+                                           "<a class=\"2\">"
+                                           "    <b class=\"03\"></b>"
+                                           "    <b class=\"02\"></b>"
+                                           "    <b class=\"01\"></b>"
+                                           "</a>")
                  ("(div>(a#id$$*2)+b.c$@-3+c#d$)*2"
                                            "<div>"
                                            "    <a id=\"id01\"></a>"

@@ -217,6 +217,16 @@ you'll transform your snippet into the appropriate tag structure.
                              <a3b3/>
                              <a4b2/>
                              <a5b1/>
+    a.$*2>b.$$@-*3           <a class=\"1\">
+                                 <b class=\"03\"></b>
+                                 <b class=\"02\"></b>
+                                 <b class=\"01\"></b>
+                             </a>
+                             <a class=\"2\">
+                                 <b class=\"03\"></b>
+                                 <b class=\"02\"></b>
+                                 <b class=\"01\"></b>
+                             </a>
     (div>(a#id$$*2)+b.c$@-3+c#d$)*2
                              <div>
                                  <a id=\"id01\"></a>
