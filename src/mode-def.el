@@ -15,7 +15,7 @@
     (if (first expr)
         (list (first expr) start end))))
 
-(defcustom zencoding-indentation 2
+(defcustom zencoding-indentation 4
   "Number of spaces used for indentation."
   :type '(number :tag "Spaces")
   :group 'zencoding)
