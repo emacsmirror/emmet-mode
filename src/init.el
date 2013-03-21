@@ -9,6 +9,14 @@
 
 (require 'cl)
 
+(defmacro zencoding-defparameter (symbol &optional initvalue docstring)
+  `(progn
+     (defvar ,symbol nil ,docstring)
+     (setq   ,symbol ,initvalue)))
+
+(defun zencoding-join-string (lis joiner)
+  (mapconcat 'identity lis joiner))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic parsing macros and utilities
 

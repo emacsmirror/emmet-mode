@@ -3,53 +3,59 @@
 
 (load-file (concat (file-name-directory load-file-name) "../zencoding-mode.el"))
 
-(defmacro defparameter (symbol &optional initvalue docstring)
-  `(progn
-     (defvar ,symbol nil ,docstring)
-     (setq   ,symbol ,initvalue)))
-(defparameter *zencoding-test-cases* nil)
+(zencoding-defparameter *zencoding-test-cases* nil)
 
 (defun zencoding-test-cases (&rest args)
   (let ((cmd (car args)))
     (flet
         ((run-cases
-          (cases)
-          (block outer
-            (loop for c in cases
-                  for i to (1- (length cases)) do
-                  (let ((expected (mapconcat 'identity (cdr c) "\n"))
-                        (actual (zencoding-transform (car (zencoding-expr (car c))))))
-                    (when (not (equal expected actual))
-                      (princ
-                       (concat "*** [FAIL] | \"" name "\" " (number-to-string i) "\n\n"
-                               (car c) "\t=>\n\n"
-                               "Expected\n" expected "\n\nActual\n" actual "\n\n"))
-                      (return-from outer 'fail)))))))
-    (cond ((eql cmd 'assign)
-           (let ((name (cadr args))
-                 (defs (caddr args)))
-             (let ((place (assoc name *zencoding-test-cases*)))
-               (if place
-                   (setf (cdr place) defs)
-                 (setq *zencoding-test-cases*
-                       (cons (cons name defs) *zencoding-test-cases*))))))
-          (t
-           (loop for test in (reverse *zencoding-test-cases*) do
-                 (let ((name (symbol-name (car test)))
-                       (cases (cdr test)))
-                   (let ((res (run-cases cases)))
-                     (if (not (eql res 'fail))
-                         (princ (concat "    [PASS] | \"" name "\" "
-                                        (number-to-string (length cases)) " tests.\n")))))))))))
+          (fn cases)
+          (loop for c in cases
+                for i to (1- (length cases)) do
+                (let ((expected (cdr c))
+                      (actual (funcall fn (car c))))
+                  (when (not (equal expected actual))
+                    (princ
+                     (concat "*** [FAIL] | \"" name "\" " (number-to-string i) "\n\n"
+                             (format "%s" (car c)) "\t=>\n\n"
+                             "Expected\n" (format "%s" expected) "\n\nActual\n" (format "%s" actual) "\n\n"))
+                    (return 'fail))))))
+      (cond ((eql cmd 'assign)
+             (let ((name (cadr args))
+                   (fn   (caddr args))
+                   (defs (cadddr args)))
+               (let ((place (assoc name *zencoding-test-cases*)))
+                 (if place
+                     (setf (cdr place) (cons fn defs))
+                   (setq *zencoding-test-cases*
+                         (cons (cons name (cons fn defs)) *zencoding-test-cases*))))))
+            (t
+             (loop for test in (reverse *zencoding-test-cases*) do
+                   (let ((name  (symbol-name (car test)))
+                         (fn    (cadr test))
+                         (cases (cddr test)))
+                     (let ((res (run-cases fn cases)))
+                       (if (not (eql res 'fail))
+                           (princ (concat "    [PASS] | \"" name "\" "
+                                          (number-to-string (length cases)) " tests.\n")))))))))))
 
-(defmacro define-zencoding-test-case (name &rest tests)
+(defmacro define-zencoding-transform-test-case (name fn &rest tests)
   `(zencoding-test-cases 'assign ',name
-                         ',(loop for x on tests by #'cddr collect (cons (car x) (cadr x)))))
+                         ,fn
+                         ',(loop for x on tests by #'cddr collect
+                                 (cons (car x)
+                                       (zencoding-join-string (cadr x)
+                                                              "\n")))))
+
+(defmacro define-zencoding-transform-html-test-case (name &rest tests)
+  `(define-zencoding-transform-test-case ,name
+     #'(lambda (c) (zencoding-transform (car (zencoding-expr c))))
+     ,@tests))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; XML-abbrev tests
 
-(define-zencoding-test-case Tags
+(define-zencoding-transform-html-test-case Tags
   "a"                      ("<a></a>")
   "a.x"                    ("<a class=\"x\"></a>")
   "a#q.x"                  ("<a id=\"q\" class=\"x\"></a>")
@@ -63,13 +69,13 @@
   "#q.x.y.z"               ("<div id=\"q\" class=\"x y z\">"
                             "</div>"))
 
-(define-zencoding-test-case Empty-tags
+(define-zencoding-transform-html-test-case Empty-tags
   "a/"                     ("<a/>")
   "a/.x"                   ("<a class=\"x\"/>")
   "a/#q.x"                 ("<a id=\"q\" class=\"x\"/>")
   "a/#q.x.y.z"             ("<a id=\"q\" class=\"x y z\"/>"))
 
-(define-zencoding-test-case Self-closing-tags
+(define-zencoding-transform-html-test-case Self-closing-tags
   "input type=text"        ("<input type=\"text\"/>")
   "img"                    ("<img/>")
   "img>metadata/*2"        ("<img>"
@@ -77,7 +83,7 @@
                             "    <metadata/>"
                             "</img>"))
 
-(define-zencoding-test-case Siblings
+(define-zencoding-transform-html-test-case Siblings
   "a+b"                    ("<a></a>"
                             "<b></b>")
   "a+b+c"                  ("<a></a>"
@@ -92,7 +98,7 @@
   "a#q.x.y.z+b#p.l.m.n"    ("<a id=\"q\" class=\"x y z\"></a>"
                             "<b id=\"p\" class=\"l m n\"></b>"))
 
-(define-zencoding-test-case Tag-expansion
+(define-zencoding-transform-html-test-case Tag-expansion
   "table+"                 ("<table>"
                             "    <tr>"
                             "        <td>"
@@ -116,7 +122,7 @@
                             "    <li></li>"
                             "</ul>"))
 
-(define-zencoding-test-case Parent-child
+(define-zencoding-transform-html-test-case Parent-child
   "a>b"                    ("<a><b></b></a>")
   "a>b>c"                  ("<a><b><c></c></b></a>")
   "a.x>b"                  ("<a class=\"x\"><b></b></a>")
@@ -136,7 +142,7 @@
                             "    <c><d></d></c>"
                             "</a>"))
 
-(define-zencoding-test-case Multiplication
+(define-zencoding-transform-html-test-case Multiplication
   "a*1"                    ("<a></a>")
   "a*2"                    ("<a></a>"
                             "<a></a>")
@@ -167,7 +173,7 @@
                             "    <b id=\"q\" class=\"x\"/>"
                             "</a>"))
 
-(define-zencoding-test-case Numbering
+(define-zencoding-transform-html-test-case Numbering
   "a.$x*3"                 ("<a class=\"1x\"></a>"
                             "<a class=\"2x\"></a>"
                             "<a class=\"3x\"></a>")
@@ -226,7 +232,7 @@
    "    <li class=\"item3\">name: item3 price: 3$</li>"
    "</ul>"))
 
-(define-zencoding-test-case Properties
+(define-zencoding-transform-html-test-case Properties
   "a x"                    ("<a x=\"\"></a>")
   "a x="                   ("<a x=\"\"></a>")
   "a x=\"\""               ("<a x=\"\"></a>")
@@ -252,7 +258,7 @@
                             "    <c x=\"y\"></c>"
                             "</a>"))
 
-(define-zencoding-test-case Parentheses
+(define-zencoding-transform-html-test-case Parentheses
   "(a)"                    ("<a></a>")
   "(a)+(b)"                ("<a></a>"
                             "<b></b>")
@@ -277,7 +283,7 @@
                             "<a></a>"
                             "<b></b>"))
 
-(define-zencoding-test-case Text
+(define-zencoding-transform-html-test-case Text
   "a{Click me}"            ("<a>Click me</a>")
   "a>{Click me}*3"         ("<a>"
                             "    Click me"
@@ -305,7 +311,7 @@
    "<a>here</a>"
    " to continue"))
 
-(define-zencoding-test-case Climb-up
+(define-zencoding-transform-html-test-case Climb-up
   "a>b>c^d"                ("<a>"
                             "    <b><c></c></b>"
                             "    <d></d>"
@@ -348,7 +354,7 @@
    "    </blockquote>"
    "</div>"))
 
-(define-zencoding-test-case Filter-comment
+(define-zencoding-transform-html-test-case Filter-comment
   "a.b|c"                  ("<!-- .b -->"
                             "<a class=\"b\"></a>"
                             "<!-- /.b -->")
@@ -361,7 +367,7 @@
                             "</div>"
                             "<!-- /#a -->"))
 
-(define-zencoding-test-case Filter-HAML
+(define-zencoding-transform-html-test-case Filter-HAML
   "a|haml"                 ("%a")
   "a#q.x.y.z|haml"         ("%a#q.x.y.z")
   "a#q.x x=y m=l|haml"     ("%a#q.x{:x => \"y\", :m => \"l\"}")
@@ -376,7 +382,7 @@
    "    %a{:href => \"#\"}"
    "    %br"))
 
-(define-zencoding-test-case Filter-Hiccup
+(define-zencoding-transform-html-test-case Filter-Hiccup
   "a|hic"                  ("[:a]")
   "a#q.x.y.z|hic"          ("[:a#q.x.y.z]")
   "a#q.x x=y m=l|hic"      ("[:a#q.x {:x \"y\", :m \"l\"}]")
@@ -393,13 +399,79 @@
    "        \"m\""
    "        [:b]]]"))
 
-(define-zencoding-test-case Filter-escape
+(define-zencoding-transform-html-test-case Filter-escape
   "script src=&quot;|e"    ("&lt;script src=\"&amp;quot;\"&gt;"
                             "&lt;/script&gt;"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; CSS-abbrev tests
 
+(defmacro define-zencoding-unit-test-case (name fn &rest tests)
+  `(zencoding-test-cases 'assign ',name
+                         ,fn
+                         ',(loop for x on tests by #'cddr collect
+                                 (cons (car x) (cadr x)))))
+
+(define-zencoding-unit-test-case CSS-toknize
+  #'zencoding-css-toknize
+  ""                     ("")
+  "abc"                  ("abc")
+  "abc+"                 ("abc+")
+  "abc+cde"              ("abc" "cde")
+  "abc++cde"             ("abc+" "cde")
+  "abc+cde+"             ("abc" "cde+")
+  "abc++cde+"            ("abc+" "cde+")
+  "ab:c+0p0x#aa+p0+cde+" ("ab:c+0p0x#aa" "p0" "cde+")
+  "ab+#0+p+#c+x++cde+"   ("ab+#0" "p+#c" "x+" "cde+"))
+
+(define-zencoding-unit-test-case CSS-parse-arg-number
+  #'zencoding-css-arg-number
+  ""                     (error "expected css number arguments")
+  "0"                    (("0" "px") . "")
+  "0-1-2"                (("0" "px") . "1-2")
+  "-100"                 (("-100" "px") . "")
+  "-10e-20"              (("-10" "em") . "-20")
+  "35p#a"                (("35" "%") . "#a"))
+
+(define-zencoding-unit-test-case CSS-parse-arg-color
+  #'zencoding-css-arg-color
+  ""                     (error "expected css color argument")
+  "abc"                  (error "expected css color argument")
+  "#x"                   (error "expected css color argument")
+  "#a"                   ("#aaaaaa" . "")
+  "#09"                  ("#090909" . "")
+  "#3D5-2"               ("#33DD55" . "-2")
+  "#1a2B-3"              ("#1a2B1a" . "-3")
+  "#1A2b3x"              ("#1A2b31" . "x")
+  "#1a2B3Cx"             ("#1a2B3C" . "x")
+  "#1A2B3C4D-2"          ("#1A2B3C" . "4D-2"))
+
+(define-zencoding-unit-test-case CSS-parse-args
+  #'zencoding-css-parse-args
+  ""                     nil
+  "1-2--3-4"             (("1" "px") ("2" "px") ("-3" "px") ("4" "px"))
+  "-10-2p-30#abc"        (("-10" "px") ("2" "%") ("-30" "px") "#aabbcc")
+  "1p2x3-4e5x"           (("1" "%") ("2" "ex") ("3" "px") ("4" "em") ("5" "ex"))
+  "#abc#de#f-3"          ("#aabbcc" "#dedede" "#ffffff" ("-3" "px")))
+
+(define-zencoding-unit-test-case CSS-exprs
+  #'zencoding-css-expr
+  ""                     ((""))
+  "cl:l+ov:h+bg+"        (("cl:l") ("ov:h") ("bg+"))
+  "m10-auto"             (("m" ("10" "px") "auto"))
+  "bg++c"                (("bg+") ("c"))
+  "m+0-10-10--20+p0-0"   (("m+" ("0" "px") ("10" "px") ("10" "px") ("-20" "px"))
+                          ("p" ("0" "px") ("0" "px")))
+  "bg+#abc#bc#c-3"       (("bg+" "#aabbcc" "#bcbcbc" "#cccccc" ("-3" "px"))))
+
+(defmacro define-zencoding-transform-css-test-case (name &rest tests)
+  `(define-zencoding-transform-test-case ,name
+     #'(lambda (c) (zencoding-css-transform (zencoding-css-expr c)))
+     ,@tests))
+
+(define-zencoding-transform-css-test-case CSS-transform
+  "m0+p0-1p2e3x"         ("margin:0px;"
+                          "padding:0px 1% 2em 3ex;"))
 
 ;; start
 (zencoding-test-cases)
