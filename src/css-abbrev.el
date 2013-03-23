@@ -123,7 +123,7 @@
                              (nthcdr ,idx-max ,args) " "))))
               ,body)))))))
 
-(defun zencoding-css-transform (exprs)
+(defun zencoding-css-transform-exprs (exprs)
   (zencoding-join-string
    (mapcar
     #'(lambda (expr)
@@ -155,3 +155,7 @@
                  ";")))
     exprs)
    "\n"))
+
+
+(defun zencoding-css-transform (input)
+  (zencoding-css-transform-exprs (zencoding-css-expr input)))

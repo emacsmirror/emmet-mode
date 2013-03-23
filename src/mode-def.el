@@ -27,6 +27,11 @@
             (replace-regexp-in-string "\n" (concat "\n" first-col)
                                       (replace-regexp-in-string "    " tab markup)))))
 
+(defun zencoding-transform (input)
+  (if (eql major-mode 'css-mode)
+      (zencoding-css-transform input)
+    (zencoding-html-transform input)))
+
 ;;;###autoload
 (defun zencoding-expand-line (arg)
   "Replace the current line's zencode expression with the corresponding expansion.
@@ -57,11 +62,12 @@ For more information see `zencoding-mode'."
           (zencoding-preview beg end))
       (let ((expr (zencoding-expr-on-line)))
         (if expr
-            (let* ((markup (zencoding-transform (car (zencoding-expr (first expr)))))
-                   (pretty (zencoding-prettify markup (current-indentation))))
-              (save-excursion
-                (delete-region (second expr) (third expr))
-                (zencoding-insert-and-flash pretty))))))))
+            (let ((markup (zencoding-transform (first expr))))
+              (when markup
+                (let ((pretty (zencoding-prettify markup (current-indentation))))
+                  (save-excursion
+                    (delete-region (second expr) (third expr))
+                    (zencoding-insert-and-flash pretty))))))))))
 
 (defvar zencoding-mode-keymap nil
   "Keymap for zencode minor mode.")
@@ -100,19 +106,19 @@ See also `zencoding-expand-line'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Zencoding yasnippet integration
 
-(defun zencoding-transform-yas (ast)
+(defun zencoding-transform-yas (input)
   (let* ((leaf-count 0)
          (zencoding-leaf-function
           (lambda ()
             (format "$%d" (incf leaf-count)))))
-    (zencoding-transform ast)))
+    (zencoding-transform input)))
 
 ;;;###autoload
 (defun zencoding-expand-yas ()
   (interactive)
   (let ((expr (zencoding-expr-on-line)))
     (if expr
-        (let* ((markup (zencoding-transform-yas (car (zencoding-expr (first expr)))))
+        (let* ((markup (zencoding-transform-yas (first expr)))
                (filled (replace-regexp-in-string "><" ">\n<" markup)))
           (delete-region (second expr) (third expr))
           (insert filled)
@@ -272,12 +278,10 @@ accept it or skip it."
 (defun zencoding-preview-transformed (indent)
   (let* ((string (buffer-substring-no-properties
 		  (overlay-start zencoding-preview-input)
-		  (overlay-end zencoding-preview-input)))
-	 (ast    (car (zencoding-expr string))))
-    (when (not (eq ast 'error))
-      (let ((output (zencoding-transform ast)))
-        (when output
-          (zencoding-prettify output indent))))))
+		  (overlay-end zencoding-preview-input))))
+    (let ((output (zencoding-transform string)))
+      (when output
+        (zencoding-prettify output indent)))))
 
 (defun zencoding-update-preview (indent)
   (let* ((pretty (zencoding-preview-transformed indent))

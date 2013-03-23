@@ -49,7 +49,7 @@
 
 (defmacro define-zencoding-transform-html-test-case (name &rest tests)
   `(define-zencoding-transform-test-case ,name
-     #'(lambda (c) (zencoding-transform (car (zencoding-expr c))))
+     'zencoding-html-transform
      ,@tests))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -466,7 +466,7 @@
 
 (defmacro define-zencoding-transform-css-test-case (name &rest tests)
   `(define-zencoding-transform-test-case ,name
-     #'(lambda (c) (zencoding-css-transform (zencoding-css-expr c)))
+     'zencoding-css-transform
      ,@tests))
 
 (define-zencoding-transform-css-test-case CSS-transform

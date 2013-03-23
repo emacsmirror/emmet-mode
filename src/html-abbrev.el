@@ -557,7 +557,12 @@
          input
        (zencoding-process-filter (zencoding-default-filter) input))))))
 
-(defun zencoding-transform (ast-with-filters)
+(defun zencoding-html-transform (input)
+  (let ((ast (car (zencoding-expr input))))
+    (when (not (eq ast 'error))
+      (zencoding-transform-ast-with-filters ast))))
+
+(defun zencoding-transform-ast-with-filters (ast-with-filters)
   "Transform AST (containing filter data) into string."
   (let ((filters (cadr ast-with-filters))
         (ast (caddr ast-with-filters)))
