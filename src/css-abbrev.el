@@ -65,7 +65,7 @@
      (let ((f (first i))
            (s (second i)))
        (if f
-           (if (and s (or (eql s "") (string-match "^[#0-9$-]" s)))
+           (if (and s (or (string= s "") (string-match "^[#0-9$-]" s)))
                (progn
                  (setf rt (cons (concat f "+" s) rt))
                  (setf i (cddr i)))
