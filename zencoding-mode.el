@@ -1585,18 +1585,26 @@ tbl))
                                     it
                                   (cons input "")))))
 
+(defun zencoding-css-important-p (input)
+  (let ((len (length input)))
+    (and (< 0 len)
+         (char-equal (aref input (1- len)) ?!))))
+
 (defun zencoding-css-parse-args (args)
-  (let ((rt nil))
-    (loop
-     (zencoding-pif (zencoding-css-parse-arg args)
-                    (progn (push (car it) rt)
-                           (setf args (cdr it)))
-                    (return (nreverse rt))))))
+  (when args
+    (let ((rt nil))
+      (loop
+       (zencoding-pif (zencoding-css-parse-arg args)
+                      (progn (push (car it) rt)
+                             (setf args (cdr it)))
+                      (return (nreverse rt)))))))
 
 (defun zencoding-css-subexpr (exp)
-  (let* ((exp (zencoding-css-split-args exp))
+  (let* ((importantp (zencoding-css-important-p exp))
+         (exp (zencoding-css-split-args
+               (if importantp (subseq exp 0 -1) exp)))
          (args (cdr exp)))
-    (when args (setf (cdr exp) (zencoding-css-parse-args args)))
+    (setf (cdr exp) (cons importantp (zencoding-css-parse-args args)))
     exp))
 
 (defun zencoding-css-toknize (str)
@@ -1673,21 +1681,31 @@ tbl))
          (let ((set it) (fn nil) (unitlessp nil))
            (if (stringp set)
                (progn
+                 ;; new pattern
+                 ;; creating print function
                  (setf fn (zencoding-css-instantiate-lambda set))
+                 ;; get unitless or no
                  (setf unitlessp
                        (not (null (string-match
                                    zencoding-css-unitless-properties-regex set))))
+                 ;; caching
                  (puthash (car expr) (cons fn unitlessp) zencoding-css-snippets))
-             (progn (setf fn (car set))
-                    (setf unitlessp (cdr set))))
-           (apply fn
-                  (mapcar #'(lambda (arg)
+             (progn
+               ;; cache hit.
+               (setf fn (car set))
+               (setf unitlessp (cdr set))))
+           (let ((transformed
+                  (apply fn
+                         (mapcar
+                          #'(lambda (arg)
                               (if (listp arg)
                                   (if unitlessp (car arg)
                                     (apply #'concat arg))
                                 arg))
-                          (cdr expr))))
-
+                          (cddr expr)))))
+             (if (cadr expr)
+                 (concat (subseq transformed 0 -1) " !important;")
+               transformed)))
          (concat (car expr) ":"
                  (zencoding-join-string
                   (mapcar #'(lambda (arg)

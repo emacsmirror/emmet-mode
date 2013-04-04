@@ -456,13 +456,13 @@
 
 (define-zencoding-unit-test-case CSS-exprs
   #'zencoding-css-expr
-  ""                     ((""))
-  "cl:l+ov:h+bg+"        (("cl:l") ("ov:h") ("bg+"))
-  "m10-auto"             (("m" ("10" "px") "auto"))
-  "bg++c"                (("bg+") ("c"))
-  "m+0-10-10--20+p0-0"   (("m+" ("0" "px") ("10" "px") ("10" "px") ("-20" "px"))
-                          ("p" ("0" "px") ("0" "px")))
-  "bg+#abc#bc#c-3"       (("bg+" "#aabbcc" "#bcbcbc" "#cccccc" ("-3" "px"))))
+  ""                     (("" nil))
+  "cl:l+ov:h+bg+"        (("cl:l" nil) ("ov:h" nil) ("bg+" nil))
+  "m10-auto"             (("m" nil ("10" "px") "auto"))
+  "bg++c"                (("bg+" nil) ("c" nil))
+  "m+0-10-10--20+p0-0"   (("m+" nil ("0" "px") ("10" "px") ("10" "px") ("-20" "px"))
+                          ("p" nil ("0" "px") ("0" "px")))
+  "bg+#abc#bc#c-3"       (("bg+" nil "#aabbcc" "#bcbcbc" "#cccccc" ("-3" "px"))))
 
 (defmacro define-zencoding-transform-css-test-case (name &rest tests)
   `(define-zencoding-transform-test-case ,name
@@ -471,7 +471,10 @@
 
 (define-zencoding-transform-css-test-case CSS-transform
   "m0+p0-1p2e3x"         ("margin:0px;"
-                          "padding:0px 1% 2em 3ex;"))
+                          "padding:0px 1% 2em 3ex;")
+  "p!+m10e!+f"           ("padding: !important;"
+                          "margin:10em !important;"
+                          "font:;"))
 
 ;; start
 (zencoding-test-cases)
