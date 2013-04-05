@@ -1647,7 +1647,7 @@ tbl))
           (let ((rt '(concat)) (idx-max 0))
             (loop for i from 0 to 255 do
                   (zencoding-aif
-                   (string-match "\\(?:|\\|${\\([0-9]\\)\\(?::\\(.+?\\)\\|\\)}\\)" str)
+                   (string-match "\\(?:|\\|${\\(?:\\([0-9]\\):\\|\\)\\(?:\\(.+?\\)\\|\\)}\\)" str)
                    (destructuring-bind (mat idx def)
                        (mapcar (lambda (ref) (match-string ref str)) '(0 1 2))
                      (setf rt

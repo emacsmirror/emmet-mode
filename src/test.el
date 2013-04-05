@@ -474,7 +474,8 @@
                           "padding:0px 1% 2em 3ex;")
   "p!+m10e!+f"           ("padding: !important;"
                           "margin:10em !important;"
-                          "font:;"))
+                          "font:;")
+  "fs"                   ("font-style:italic;"))
 
 ;; start
 (zencoding-test-cases)
