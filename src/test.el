@@ -422,7 +422,8 @@
   "abc+cde+"             ("abc" "cde+")
   "abc++cde+"            ("abc+" "cde+")
   "ab:c+0p0x#aa+p0+cde+" ("ab:c+0p0x#aa" "p0" "cde+")
-  "ab+#0+p+#c+x++cde+"   ("ab+#0" "p+#c" "x+" "cde+"))
+  "ab+#0+p+#c+x++cde+"   ("ab+#0" "p+#c" "x+" "cde+")
+  "abc def"              ("abc def"))
 
 (define-zencoding-unit-test-case CSS-parse-arg-number
   #'zencoding-css-arg-number
@@ -431,7 +432,8 @@
   "0-1-2"                (("0" "px") . "1-2")
   "-100"                 (("-100" "px") . "")
   "-10e-20"              (("-10" "em") . "-20")
-  "35p#a"                (("35" "%") . "#a"))
+  "35p#a"                (("35" "%") . "#a")
+  " 0p"                  (("0" "%") . ""))
 
 (define-zencoding-unit-test-case CSS-parse-arg-color
   #'zencoding-css-arg-color
@@ -444,7 +446,15 @@
   "#1a2B-3"              ("#1a2B1a" . "-3")
   "#1A2b3x"              ("#1A2b31" . "x")
   "#1a2B3Cx"             ("#1a2B3C" . "x")
-  "#1A2B3C4D-2"          ("#1A2B3C" . "4D-2"))
+  "#1A2B3C4D-2"          ("#1A2B3C" . "4D-2")
+  " #abc"                ("#aabbcc" . ""))
+
+(define-zencoding-unit-test-case CSS-parse-arg-something
+  #'zencoding-css-arg-something
+  ""                         (error "expected css argument")
+  "abc"                      ("abc" . "")
+  "abc def"                  ("abc" . " def")
+  "url(http://abc.com) auto" ("url(http://abc.com)" . " auto"))
 
 (define-zencoding-unit-test-case CSS-parse-args
   #'zencoding-css-parse-args
@@ -475,7 +485,11 @@
   "p!+m10e!+f"           ("padding: !important;"
                           "margin:10em !important;"
                           "font:;")
-  "fs"                   ("font-style:italic;"))
+  "fs"                   ("font-style:italic;")
+  "p auto+m auto+bg+#F00 x.jpg 10 10 repeat-x"
+                         ("padding:auto;"
+                          "margin:auto;"
+                          "background:#FF0000 url(x.jpg) 10px 10px repeat-x;"))
 
 ;; start
 (zencoding-test-cases)

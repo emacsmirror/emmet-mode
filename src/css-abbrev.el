@@ -4,13 +4,13 @@
 
 (defun zencoding-css-split-args (exp)
   (zencoding-aif
-   (string-match "[#0-9$-]" exp)
+   (string-match "[ #0-9$-]" exp)
    (cons (substring exp 0 it) (substring exp it))
    (list exp)))
 
 (defun zencoding-css-arg-number (input)
   (zencoding-parse
-   "\\(\\(?:-\\|\\)[0-9.]+\\)\\(\\(?:-\\|e\\|p\\|x\\)\\|\\)" 3 "css number arguments"
+   " *\\(\\(?:-\\|\\)[0-9.]+\\)\\(\\(?:-\\|e\\|p\\|x\\)\\|\\)" 3 "css number arguments"
    (cons (list (elt it 1)
                (let ((unit (string-to-char (elt it 2))))
                  (cond ((= unit ?-) "px")
@@ -22,7 +22,7 @@
 
 (defun zencoding-css-arg-color (input)
   (zencoding-parse
-   "#\\([0-9a-fA-F]\\{1,6\\}\\)" 2 "css color argument"
+   " *#\\([0-9a-fA-F]\\{1,6\\}\\)" 2 "css color argument"
    (cons (let* ((n (elt it 1))
                 (l (length n)))
            (concat
@@ -37,12 +37,18 @@
              0 6)))
          input)))
 
+(defun zencoding-css-arg-something (input)
+  (zencoding-parse
+   " *\\([^ ]+\\)" 2 "css argument"
+   (cons (elt it 1) input)))
+
 (defun zencoding-css-parse-arg (input)
   (zencoding-run zencoding-css-arg-number it
                  (zencoding-run zencoding-css-arg-color it
-                                (if (equal input "")
-                                    it
-                                  (cons input "")))))
+                                (zencoding-run zencoding-css-arg-something it
+                                               (if (equal input "")
+                                                   it
+                                                 (cons input ""))))))
 
 (defun zencoding-css-important-p (input)
   (let ((len (length input)))
@@ -73,7 +79,7 @@
      (let ((f (first i))
            (s (second i)))
        (if f
-           (if (and s (or (string= s "") (string-match "^[#0-9$-]" s)))
+           (if (and s (or (string= s "") (string-match "^[ #0-9$-]" s)))
                (progn
                  (setf rt (cons (concat f "+" s) rt))
                  (setf i (cddr i)))
@@ -173,7 +179,6 @@
                  ";")))
     exprs)
    "\n"))
-
 
 (defun zencoding-css-transform (input)
   (zencoding-css-transform-exprs (zencoding-css-expr input)))
