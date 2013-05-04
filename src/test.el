@@ -423,7 +423,9 @@
   "abc++cde+"            ("abc+" "cde+")
   "ab:c+0p0x#aa+p0+cde+" ("ab:c+0p0x#aa" "p0" "cde+")
   "ab+#0+p+#c+x++cde+"   ("ab+#0" "p+#c" "x+" "cde+")
-  "abc def"              ("abc def"))
+  "abc def"              ("abc def")
+  "-abc+-xyz"            ("-abc" "-xyz")
+  "-abc+-10"             ("-abc+-10"))
 
 (define-zencoding-unit-test-case CSS-parse-arg-number
   #'zencoding-css-arg-number
@@ -464,15 +466,21 @@
   "1p2x3-4e5x"           (("1" "%") ("2" "ex") ("3" "px") ("4" "em") ("5" "ex"))
   "#abc#de#f-3"          ("#aabbcc" "#dedede" "#ffffff" ("-3" "px")))
 
+(define-zencoding-unit-test-case CSS-split-vendor-prefixes
+  #'zencoding-css-split-vendor-prefixes
+  ""                     ("" nil)
+  "-abc"                 ("abc" auto)
+  "-wmso-abc"            ("abc" (119 109 115 111)))
+
 (define-zencoding-unit-test-case CSS-exprs
   #'zencoding-css-expr
-  ""                     (("" nil))
-  "cl:l+ov:h+bg+"        (("cl:l" nil) ("ov:h" nil) ("bg+" nil))
-  "m10-auto"             (("m" nil ("10" "px") "auto"))
-  "bg++c"                (("bg+" nil) ("c" nil))
-  "m+0-10-10--20+p0-0"   (("m+" nil ("0" "px") ("10" "px") ("10" "px") ("-20" "px"))
-                          ("p" nil ("0" "px") ("0" "px")))
-  "bg+#abc#bc#c-3"       (("bg+" nil "#aabbcc" "#bcbcbc" "#cccccc" ("-3" "px"))))
+  ""                     (("" nil nil))
+  "cl:l+ov:h+bg+"        (("cl:l" nil nil) ("ov:h" nil nil) ("bg+" nil nil))
+  "m10-auto!"            (("m" nil t ("10" "px") "auto"))
+  "bg++c!"               (("bg+" nil nil) ("c" nil t))
+  "m+0-10-10--20!+p0-0"  (("m+" nil t ("0" "px") ("10" "px") ("10" "px") ("-20" "px"))
+                          ("p" nil nil ("0" "px") ("0" "px")))
+  "bg+#abc#bc#c-3!"      (("bg+" nil t "#aabbcc" "#bcbcbc" "#cccccc" ("-3" "px"))))
 
 (defmacro define-zencoding-transform-css-test-case (name &rest tests)
   `(define-zencoding-transform-test-case ,name
@@ -480,16 +488,29 @@
      ,@tests))
 
 (define-zencoding-transform-css-test-case CSS-transform
-  "m0+p0-1p2e3x"         ("margin:0px;"
-                          "padding:0px 1% 2em 3ex;")
-  "p!+m10e!+f"           ("padding: !important;"
-                          "margin:10em !important;"
-                          "font:;")
-  "fs"                   ("font-style:italic;")
+  "m0+p0-1p2e3x"           ("margin: 0px;"
+                            "padding: 0px 1% 2em 3ex;")
+  "p!+m10e!+f"             ("padding:  !important;"
+                            "margin: 10em !important;"
+                            "font: ;")
+  "fs"                     ("font-style: italic;")
+  "xxxxxx 0 auto 0e auto!" ("xxxxxx: 0px auto 0em auto !important;")
   "p auto+m auto+bg+#F00 x.jpg 10 10 repeat-x"
-                         ("padding:auto;"
-                          "margin:auto;"
-                          "background:#FF0000 url(x.jpg) 10px 10px repeat-x;"))
+                           ("padding: auto;"
+                            "margin: auto;"
+                            "background: #FF0000 url(x.jpg) 10px 10px repeat-x;")
+  "-bdrs"                  ("-webkit-border-radius: ;"
+                            "-moz-border-radius: ;"
+                            "border-radius: ;")
+  "-super-foo"             ("-webkit-super-foo: ;"
+                            "-moz-super-foo: ;"
+                            "-ms-super-foo: ;"
+                            "-o-super-foo: ;"
+                            "super-foo: ;")
+  "-wm-trf"                ("-webkit-transform: ;"
+                            "-moz-transform: ;"
+                            "transform: ;")
+  )
 
 ;; start
 (zencoding-test-cases)

@@ -2,22 +2,15 @@
 ;;
 ;;; CSS abbrev:
 
-(defun zencoding-css-split-args (exp)
-  (zencoding-aif
-   (string-match "[ #0-9$-]" exp)
-   (cons (substring exp 0 it) (substring exp it))
-   (list exp)))
-
+(zencoding-defparameter
+ zencoding-css-unit-aliases
+ (gethash "unitAliases" (gethash "css" zencoding-preferences)))
 (defun zencoding-css-arg-number (input)
   (zencoding-parse
    " *\\(\\(?:-\\|\\)[0-9.]+\\)\\(\\(?:-\\|e\\|p\\|x\\)\\|\\)" 3 "css number arguments"
    (cons (list (elt it 1)
-               (let ((unit (string-to-char (elt it 2))))
-                 (cond ((= unit ?-) "px")
-                       ((= unit ?e) "em")
-                       ((= unit ?p) "%")
-                       ((= unit ?x) "ex")
-                       (t "px"))))
+               (let ((unit (elt it 2)))
+                 (gethash unit zencoding-css-unit-aliases "px")))
          input)))
 
 (defun zencoding-css-arg-color (input)
@@ -64,13 +57,30 @@
                              (setf args (cdr it)))
                       (return (nreverse rt)))))))
 
+(defun zencoding-css-split-args (exp)
+  (zencoding-aif
+   (string-match "\\(?:[ #0-9$]\\|-[0-9]\\)" exp)
+   (list (substring exp 0 it) (substring exp it))
+   (list exp nil)))
+
+(defun zencoding-css-split-vendor-prefixes (input)
+  (zencoding-parse
+   "\\(-[wmso]+-\\|-\\|\\)\\(.*\\)" 3 "css vendor prefixes"
+   (list (elt it 2)
+         (let ((vp (elt it 1)))
+           (if (not (string= vp ""))
+               (if (string= vp "-") 'auto
+                 (string-to-list (subseq vp 1 -1))))))))
+
 (defun zencoding-css-subexpr (exp)
-  (let* ((importantp (zencoding-css-important-p exp))
-         (exp (zencoding-css-split-args
-               (if importantp (subseq exp 0 -1) exp)))
-         (args (cdr exp)))
-    (setf (cdr exp) (cons importantp (zencoding-css-parse-args args)))
-    exp))
+  (let* ((importantp (zencoding-css-important-p exp)))
+    (destructuring-bind (exp vp)
+        (zencoding-css-split-vendor-prefixes exp)
+      (destructuring-bind (key args)
+          (zencoding-css-split-args (if importantp (subseq exp 0 -1) exp))
+        `(,key ,vp
+               ,importantp
+               ,@(zencoding-css-parse-args args))))))
 
 (defun zencoding-css-toknize (str)
   (let* ((i (split-string str "+"))
@@ -79,7 +89,8 @@
      (let ((f (first i))
            (s (second i)))
        (if f
-           (if (and s (or (string= s "") (string-match "^[ #0-9$-]" s)))
+           (if (and s (or (string= s "")
+                          (string-match "^\\(?:[ #0-9$]\\|-[0-9]\\)" s)))
                (progn
                  (setf rt (cons (concat f "+" s) rt))
                  (setf i (cddr i)))
@@ -98,7 +109,7 @@
 
 (zencoding-defparameter
  zencoding-css-unitless-properties
- '("z-index" "line-height" "opacity" "font-weight" "zoom"))
+ (gethash "unitlessProperties" (gethash "css" zencoding-preferences)))
 
 (zencoding-defparameter
  zencoding-css-unitless-properties-regex
@@ -137,29 +148,52 @@
                              (nthcdr ,idx-max ,args) " "))))
               ,body)))))))
 
+(zencoding-defparameter
+ zencoding-vendor-prefixes-properties
+ (gethash "vendorPrefixesProperties" (gethash "css" zencoding-preferences)))
+(zencoding-defparameter
+ zencoding-vendor-prefixes-default
+ (list "webkit" "moz" "ms" "o"))
+(defun zencoding-css-transform-vendor-prefixes (line vp)
+  (let ((key (subseq line 0 (or (position ?: line) (length line)))))
+    (let ((vps (if (eql vp 'auto)
+                   (gethash key
+                            zencoding-vendor-prefixes-properties
+                            zencoding-vendor-prefixes-default)
+                 (mapcar (lambda (v)
+                           (cond ((= v ?w) "webkit")
+                                 ((= v ?m) "moz")
+                                 ((= v ?s) "ms")
+                                 ((= v ?o) "o")))
+                         vp))))
+      (zencoding-join-string
+       (append (mapcar (lambda (v) (concat "-" v "-" line)) vps)
+               (list line))
+       "\n"))))
+
 (defun zencoding-css-transform-exprs (exprs)
   (zencoding-join-string
    (mapcar
     #'(lambda (expr)
-        (zencoding-aif
-         (gethash (car expr) zencoding-css-snippets)
-         (let ((set it) (fn nil) (unitlessp nil))
-           (if (stringp set)
-               (progn
-                 ;; new pattern
-                 ;; creating print function
-                 (setf fn (zencoding-css-instantiate-lambda set))
-                 ;; get unitless or no
-                 (setf unitlessp
-                       (not (null (string-match
-                                   zencoding-css-unitless-properties-regex set))))
-                 ;; caching
-                 (puthash (car expr) (cons fn unitlessp) zencoding-css-snippets))
-             (progn
-               ;; cache hit.
-               (setf fn (car set))
-               (setf unitlessp (cdr set))))
-           (let ((transformed
+        (let ((basement
+               (zencoding-aif
+                (gethash (car expr) zencoding-css-snippets)
+                (let ((set it) (fn nil) (unitlessp nil))
+                  (if (stringp set)
+                      (progn
+                        ;; new pattern
+                        ;; creating print function
+                        (setf fn (zencoding-css-instantiate-lambda set))
+                        ;; get unitless or no
+                        (setf unitlessp
+                              (not (null (string-match
+                                          zencoding-css-unitless-properties-regex set))))
+                        ;; caching
+                        (puthash (car expr) (cons fn unitlessp) zencoding-css-snippets))
+                    (progn
+                      ;; cache hit.
+                      (setf fn (car set))
+                      (setf unitlessp (cdr set))))
                   (apply fn
                          (mapcar
                           #'(lambda (arg)
@@ -167,16 +201,24 @@
                                   (if unitlessp (car arg)
                                     (apply #'concat arg))
                                 arg))
-                          (cddr expr)))))
-             (if (cadr expr)
-                 (concat (subseq transformed 0 -1) " !important;")
-               transformed)))
-         (concat (car expr) ":"
-                 (zencoding-join-string
-                  (mapcar #'(lambda (arg)
-                              (if (listp arg) (apply #'concat arg) arg))
-                          (cdr expr)) " ")
-                 ";")))
+                          (cdddr expr))))
+                (concat (car expr) ":"
+                        (zencoding-join-string
+                         (mapcar #'(lambda (arg)
+                                     (if (listp arg) (apply #'concat arg) arg))
+                                 (cdddr expr)) " ")
+                        ";"))))
+          (let* ((separator-pos (position ?: basement))
+                 (basement (concat (subseq basement 0 (1+ separator-pos)) " "
+                                   (subseq basement (1+ separator-pos)))))
+            (let ((line
+                   (if (caddr expr)
+                       (concat (subseq basement 0 -1) " !important;")
+                     basement)))
+              (zencoding-aif
+               (cadr expr)
+               (zencoding-css-transform-vendor-prefixes line it)
+               line)))))
     exprs)
    "\n"))
 

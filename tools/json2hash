@@ -32,11 +32,11 @@ class Processor(object):
                 self.out.write(' tbl)\n')
             self.out.write('tbl)')
         elif _type is list:
-            self.out.write('(list \n')
+            self.out.write('(vector \n')
             for v in data:
                 self._print(v)
                 self.out.write('\n')
-            self.out.wirte(')\n')
+            self.out.write(')\n')
         elif (_type is str or _type is unicode):
             self.out.write(pystr2elstrexp(data))
         else: # number ?

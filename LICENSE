@@ -23,12 +23,10 @@
     the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
     Boston, MA 02110-1301, USA.
 
-
 - /conf/snippets.json
+- /conf/preferences.json
 
-    IS A COPY OF https://github.com/emmetio/emmet/blob/master/snippets.json
-
-    The MIT License (MIT)
+    original [ https://github.com/emmetio/emmet ]
 
     Copyright (c) 2012 Sergey Chikuyonok <serge.che@gmail.com>
 
