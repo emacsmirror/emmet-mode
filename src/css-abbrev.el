@@ -118,7 +118,13 @@
          "\\):.*$"))
 
 (defun zencoding-css-instantiate-lambda (str)
-  (flet ((split-string-to-body
+  (flet ((insert-space-between-name-and-body
+          (str)
+          (if (string-match "^\\([a-z-]+:\\)\\(.+\\)$" str)
+              (zencoding-join-string
+               (mapcar (lambda (ref) (match-string ref str)) '(1 2)) " ")
+            str))
+         (split-string-to-body
           (str args-sym)
           (let ((rt '(concat)) (idx-max 0))
             (loop for i from 0 to 255 do
@@ -137,7 +143,8 @@
                      (setf str (substring str (+ it (length mat)))))
                    ;; don't use nreverse. cause bug in emacs-lisp.
                    (return (cons idx-max (reverse (cons str rt)))))))))
-    (let ((args (gensym)))
+    (let ((args (gensym))
+          (str  (insert-space-between-name-and-body str)))
       (destructuring-bind (idx-max . body) (split-string-to-body str args)
         (eval
          `(lambda (&rest ,args)
@@ -202,23 +209,20 @@
                                     (apply #'concat arg))
                                 arg))
                           (cdddr expr))))
-                (concat (car expr) ":"
+                (concat (car expr) ": "
                         (zencoding-join-string
                          (mapcar #'(lambda (arg)
                                      (if (listp arg) (apply #'concat arg) arg))
                                  (cdddr expr)) " ")
                         ";"))))
-          (let* ((separator-pos (position ?: basement))
-                 (basement (concat (subseq basement 0 (1+ separator-pos)) " "
-                                   (subseq basement (1+ separator-pos)))))
-            (let ((line
-                   (if (caddr expr)
-                       (concat (subseq basement 0 -1) " !important;")
-                     basement)))
-              (zencoding-aif
-               (cadr expr)
-               (zencoding-css-transform-vendor-prefixes line it)
-               line)))))
+          (let ((line
+                 (if (caddr expr)
+                     (concat (subseq basement 0 -1) " !important;")
+                   basement)))
+            (zencoding-aif
+             (cadr expr)
+             (zencoding-css-transform-vendor-prefixes line it)
+             line))))
     exprs)
    "\n"))
 

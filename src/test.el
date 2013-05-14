@@ -506,6 +506,11 @@
   "-wm-trf"                ("-webkit-transform: ;"
                             "-moz-transform: ;"
                             "transform: ;")
+  "@m print 1"             ("@media print {"
+                            "	1px"
+                            "}")
+  "@i http://github.com/smihica/index.css"
+                           ("@import url(http://github.com/smihica/index.css);")
   )
 
 ;; start
