@@ -56,10 +56,10 @@
 ;; XML-abbrev tests
 
 (define-zencoding-transform-html-test-case Tags
-  "a"                      ("<a></a>")
-  "a.x"                    ("<a class=\"x\"></a>")
-  "a#q.x"                  ("<a id=\"q\" class=\"x\"></a>")
-  "a#q.x.y.z"              ("<a id=\"q\" class=\"x y z\"></a>")
+  "a"                      ("<a href=\"\"></a>")
+  "a.x"                    ("<a class=\"x\" href=\"\"></a>")
+  "a#q.x"                  ("<a id=\"q\" class=\"x\" href=\"\"></a>")
+  "a#q.x.y.z"              ("<a id=\"q\" class=\"x y z\" href=\"\"></a>")
   "#q"                     ("<div id=\"q\">"
                             "</div>")
   ".x"                     ("<div class=\"x\">"
@@ -70,39 +70,38 @@
                             "</div>"))
 
 (define-zencoding-transform-html-test-case Empty-tags
-  "a/"                     ("<a/>")
-  "a/.x"                   ("<a class=\"x\"/>")
-  "a/#q.x"                 ("<a id=\"q\" class=\"x\"/>")
-  "a/#q.x.y.z"             ("<a id=\"q\" class=\"x y z\"/>"))
+  "a/"                     ("<a href=\"\"/>")
+  "a/.x"                   ("<a class=\"x\" href=\"\"/>")
+  "a/#q.x"                 ("<a id=\"q\" class=\"x\" href=\"\"/>")
+  "a/#q.x.y.z"             ("<a id=\"q\" class=\"x y z\" href=\"\"/>"))
 
 (define-zencoding-transform-html-test-case Self-closing-tags
-  "input type=text"        ("<input type=\"text\"/>")
-  "img"                    ("<img/>")
-  "img>metadata/*2"        ("<img>"
+  "input type=text"        ("<input type=\"text\" name=\"\" value=\"\"/>")
+  "img"                    ("<img src=\"\" alt=\"\"/>")
+  "img>metadata/*2"        ("<img src=\"\" alt=\"\">"
                             "    <metadata/>"
                             "    <metadata/>"
                             "</img>"))
 
 (define-zencoding-transform-html-test-case Siblings
-  "a+b"                    ("<a></a>"
+  "a+b"                    ("<a href=\"\"></a>"
                             "<b></b>")
-  "a+b+c"                  ("<a></a>"
+  "a+b+c"                  ("<a href=\"\"></a>"
                             "<b></b>"
                             "<c></c>")
-  "a.x+b"                  ("<a class=\"x\"></a>"
+  "a.x+b"                  ("<a class=\"x\" href=\"\"></a>"
                             "<b></b>")
-  "a#q.x+b"                ("<a id=\"q\" class=\"x\"></a>"
+  "a#q.x+b"                ("<a id=\"q\" class=\"x\" href=\"\"></a>"
                             "<b></b>")
-  "a#q.x.y.z+b"            ("<a id=\"q\" class=\"x y z\"></a>"
+  "a#q.x.y.z+b"            ("<a id=\"q\" class=\"x y z\" href=\"\"></a>"
                             "<b></b>")
-  "a#q.x.y.z+b#p.l.m.n"    ("<a id=\"q\" class=\"x y z\"></a>"
+  "a#q.x.y.z+b#p.l.m.n"    ("<a id=\"q\" class=\"x y z\" href=\"\"></a>"
                             "<b id=\"p\" class=\"l m n\"></b>"))
 
 (define-zencoding-transform-html-test-case Tag-expansion
   "table+"                 ("<table>"
                             "    <tr>"
-                            "        <td>"
-                            "        </td>"
+                            "        <td></td>"
                             "    </tr>"
                             "</table>")
   "dl+"                    ("<dl>"
@@ -123,60 +122,60 @@
                             "</ul>"))
 
 (define-zencoding-transform-html-test-case Parent-child
-  "a>b"                    ("<a><b></b></a>")
-  "a>b>c"                  ("<a><b><c></c></b></a>")
-  "a.x>b"                  ("<a class=\"x\"><b></b></a>")
-  "a#q.x>b"                ("<a id=\"q\" class=\"x\"><b></b></a>")
-  "a#q.x.y.z>b"            ("<a id=\"q\" class=\"x y z\"><b></b></a>")
-  "a#q.x.y.z>b#p.l.m.n"    ("<a id=\"q\" class=\"x y z\"><b id=\"p\" class=\"l m n\"></b></a>")
+  "a>b"                    ("<a href=\"\"><b></b></a>")
+  "a>b>c"                  ("<a href=\"\"><b><c></c></b></a>")
+  "a.x>b"                  ("<a class=\"x\" href=\"\"><b></b></a>")
+  "a#q.x>b"                ("<a id=\"q\" class=\"x\" href=\"\"><b></b></a>")
+  "a#q.x.y.z>b"            ("<a id=\"q\" class=\"x y z\" href=\"\"><b></b></a>")
+  "a#q.x.y.z>b#p.l.m.n"    ("<a id=\"q\" class=\"x y z\" href=\"\"><b id=\"p\" class=\"l m n\"></b></a>")
   "#q>.x"                  ("<div id=\"q\">"
                             "    <div class=\"x\">"
                             "    </div>"
                             "</div>")
-  "a>b+c"                  ("<a>"
+  "a>b+c"                  ("<a href=\"\">"
                             "    <b></b>"
                             "    <c></c>"
                             "</a>")
-  "a>b+c>d"                ("<a>"
+  "a>b+c>d"                ("<a href=\"\">"
                             "    <b></b>"
                             "    <c><d></d></c>"
                             "</a>"))
 
 (define-zencoding-transform-html-test-case Multiplication
-  "a*1"                    ("<a></a>")
-  "a*2"                    ("<a></a>"
-                            "<a></a>")
-  "a/*2"                   ("<a/>"
-                            "<a/>")
-  "a*2+b*2"                ("<a></a>"
-                            "<a></a>"
+  "a*1"                    ("<a href=\"\"></a>")
+  "a*2"                    ("<a href=\"\"></a>"
+                            "<a href=\"\"></a>")
+  "a/*2"                   ("<a href=\"\"/>"
+                            "<a href=\"\"/>")
+  "a*2+b*2"                ("<a href=\"\"></a>"
+                            "<a href=\"\"></a>"
                             "<b></b>"
                             "<b></b>")
-  "a*2>b*2"                ("<a>"
+  "a*2>b*2"                ("<a href=\"\">"
                             "    <b></b>"
                             "    <b></b>"
                             "</a>"
-                            "<a>"
+                            "<a href=\"\">"
                             "    <b></b>"
                             "    <b></b>"
                             "</a>")
-  "a>b*2"                  ("<a>"
+  "a>b*2"                  ("<a href=\"\">"
                             "    <b></b>"
                             "    <b></b>"
                             "</a>")
-  "a#q.x>b#q.x*2"          ("<a id=\"q\" class=\"x\">"
+  "a#q.x>b#q.x*2"          ("<a id=\"q\" class=\"x\" href=\"\">"
                             "    <b id=\"q\" class=\"x\"></b>"
                             "    <b id=\"q\" class=\"x\"></b>"
                             "</a>")
-  "a#q.x>b/#q.x*2"         ("<a id=\"q\" class=\"x\">"
+  "a#q.x>b/#q.x*2"         ("<a id=\"q\" class=\"x\" href=\"\">"
                             "    <b id=\"q\" class=\"x\"/>"
                             "    <b id=\"q\" class=\"x\"/>"
                             "</a>"))
 
 (define-zencoding-transform-html-test-case Numbering
-  "a.$x*3"                 ("<a class=\"1x\"></a>"
-                            "<a class=\"2x\"></a>"
-                            "<a class=\"3x\"></a>")
+  "a.$x*3"                 ("<a class=\"1x\" href=\"\"></a>"
+                            "<a class=\"2x\" href=\"\"></a>"
+                            "<a class=\"3x\" href=\"\"></a>")
   "ul>li.item$*3"          ("<ul>"
                             "    <li class=\"item1\"></li>"
                             "    <li class=\"item2\"></li>"
@@ -195,12 +194,12 @@
                             "    <li class=\"item1001\"></li>"
                             "    <li class=\"item1000\"></li>"
                             "</ul>")
-  "a.$*2>b.$$@-*3"         ("<a class=\"1\">"
+  "a.$*2>b.$$@-*3"         ("<a class=\"1\" href=\"\">"
                             "    <b class=\"03\"></b>"
                             "    <b class=\"02\"></b>"
                             "    <b class=\"01\"></b>"
                             "</a>"
-                            "<a class=\"2\">"
+                            "<a class=\"2\" href=\"\">"
                             "    <b class=\"03\"></b>"
                             "    <b class=\"02\"></b>"
                             "    <b class=\"01\"></b>"
@@ -208,14 +207,14 @@
 
   "(div>(a#id$$*2)+b.c$@-3+c#d$)*2"
   ("<div>"
-   "    <a id=\"id01\"></a>"
-   "    <a id=\"id02\"></a>"
+   "    <a id=\"id01\" href=\"\"></a>"
+   "    <a id=\"id02\" href=\"\"></a>"
    "    <b class=\"c4\"></b>"
    "    <c id=\"d1\"></c>"
    "</div>"
    "<div>"
-   "    <a id=\"id01\"></a>"
-   "    <a id=\"id02\"></a>"
+   "    <a id=\"id01\" href=\"\"></a>"
+   "    <a id=\"id02\" href=\"\"></a>"
    "    <b class=\"c3\"></b>"
    "    <c id=\"d2\"></c>"
    "</div>")
@@ -233,66 +232,66 @@
    "</ul>"))
 
 (define-zencoding-transform-html-test-case Properties
-  "a x"                    ("<a x=\"\"></a>")
-  "a x="                   ("<a x=\"\"></a>")
-  "a x=\"\""               ("<a x=\"\"></a>")
-  "a x=y"                  ("<a x=\"y\"></a>")
-  "a x=\"y\""              ("<a x=\"y\"></a>")
-  "a x=\"()\""             ("<a x=\"()\"></a>")
-  "a x m"                  ("<a x=\"\" m=\"\"></a>")
-  "a x= m=\"\""            ("<a x=\"\" m=\"\"></a>")
-  "a x=y m=l"              ("<a x=\"y\" m=\"l\"></a>")
-  "a/ x=y m=l"             ("<a x=\"y\" m=\"l\"/>")
-  "a#foo x=y m=l"          ("<a id=\"foo\" x=\"y\" m=\"l\"></a>")
-  "a.foo x=y m=l"          ("<a class=\"foo\" x=\"y\" m=\"l\"></a>")
-  "a#foo.bar.mu x=y m=l"   ("<a id=\"foo\" class=\"bar mu\" x=\"y\" m=\"l\"></a>")
-  "a/#foo.bar.mu x=y m=l"  ("<a id=\"foo\" class=\"bar mu\" x=\"y\" m=\"l\"/>")
-  "a x=y+b"                ("<a x=\"y\"></a>"
+  "a x"                    ("<a href=\"\" x=\"\"></a>")
+  "a x="                   ("<a href=\"\" x=\"\"></a>")
+  "a x=\"\""               ("<a href=\"\" x=\"\"></a>")
+  "a x=y"                  ("<a href=\"\" x=\"y\"></a>")
+  "a x=\"y\""              ("<a href=\"\" x=\"y\"></a>")
+  "a x=\"()\""             ("<a href=\"\" x=\"()\"></a>")
+  "a x m"                  ("<a href=\"\" x=\"\" m=\"\"></a>")
+  "a x= m=\"\""            ("<a href=\"\" x=\"\" m=\"\"></a>")
+  "a x=y m=l"              ("<a href=\"\" x=\"y\" m=\"l\"></a>")
+  "a/ x=y m=l"             ("<a href=\"\" x=\"y\" m=\"l\"/>")
+  "a#foo x=y m=l"          ("<a id=\"foo\" href=\"\" x=\"y\" m=\"l\"></a>")
+  "a.foo x=y m=l"          ("<a class=\"foo\" href=\"\" x=\"y\" m=\"l\"></a>")
+  "a#foo.bar.mu x=y m=l"   ("<a id=\"foo\" class=\"bar mu\" href=\"\" x=\"y\" m=\"l\"></a>")
+  "a/#foo.bar.mu x=y m=l"  ("<a id=\"foo\" class=\"bar mu\" href=\"\" x=\"y\" m=\"l\"/>")
+  "a x=y+b"                ("<a href=\"\" x=\"y\"></a>"
                             "<b></b>")
-  "a x=y+b x=y"            ("<a x=\"y\"></a>"
+  "a x=y+b x=y"            ("<a href=\"\" x=\"y\"></a>"
                             "<b x=\"y\"></b>")
-  "a x=y>b"                ("<a x=\"y\"><b></b></a>")
-  "a x=y>b x=y"            ("<a x=\"y\"><b x=\"y\"></b></a>")
-  "a x=y>b x=y+c x=y"      ("<a x=\"y\">"
+  "a x=y>b"                ("<a href=\"\" x=\"y\"><b></b></a>")
+  "a x=y>b x=y"            ("<a href=\"\" x=\"y\"><b x=\"y\"></b></a>")
+  "a x=y>b x=y+c x=y"      ("<a href=\"\" x=\"y\">"
                             "    <b x=\"y\"></b>"
                             "    <c x=\"y\"></c>"
                             "</a>"))
 
 (define-zencoding-transform-html-test-case Parentheses
-  "(a)"                    ("<a></a>")
-  "(a)+(b)"                ("<a></a>"
+  "(a)"                    ("<a href=\"\"></a>")
+  "(a)+(b)"                ("<a href=\"\"></a>"
                             "<b></b>")
-  "a>(b)"                  ("<a><b></b></a>")
-  "(a>b)>c"                ("<a><b></b></a>")
-  "(a>b)+c"                ("<a><b></b></a>"
+  "a>(b)"                  ("<a href=\"\"><b></b></a>")
+  "(a>b)>c"                ("<a href=\"\"><b></b></a>")
+  "(a>b)+c"                ("<a href=\"\"><b></b></a>"
                             "<c></c>")
   "z+(a>b)+c+k"            ("<z></z>"
-                            "<a><b></b></a>"
+                            "<a href=\"\"><b></b></a>"
                             "<c></c>"
                             "<k></k>")
-  "(a)*2"                  ("<a></a>"
-                            "<a></a>")
-  "((a)*2)"                ("<a></a>"
-                            "<a></a>")
-  "((a))*2"                ("<a></a>"
-                            "<a></a>")
-  "(a>b)*2"                ("<a><b></b></a>"
-                            "<a><b></b></a>")
-  "(a+b)*2"                ("<a></a>"
+  "(a)*2"                  ("<a href=\"\"></a>"
+                            "<a href=\"\"></a>")
+  "((a)*2)"                ("<a href=\"\"></a>"
+                            "<a href=\"\"></a>")
+  "((a))*2"                ("<a href=\"\"></a>"
+                            "<a href=\"\"></a>")
+  "(a>b)*2"                ("<a href=\"\"><b></b></a>"
+                            "<a href=\"\"><b></b></a>")
+  "(a+b)*2"                ("<a href=\"\"></a>"
                             "<b></b>"
-                            "<a></a>"
+                            "<a href=\"\"></a>"
                             "<b></b>"))
 
 (define-zencoding-transform-html-test-case Text
-  "a{Click me}"            ("<a>Click me</a>")
-  "a>{Click me}*3"         ("<a>"
+  "a{Click me}"            ("<a href=\"\">Click me</a>")
+  "a>{Click me}*3"         ("<a href=\"\">"
                             "    Click me"
                             "    Click me"
                             "    Click me"
                             "</a>")
-  "a{click}+b{here}"       ("<a>click</a>"
+  "a{click}+b{here}"       ("<a href=\"\">click</a>"
                             "<b>here</b>")
-  "a>{click}+b{here}"      ("<a>"
+  "a>{click}+b{here}"      ("<a href=\"\">"
                             "    click"
                             "    <b>here</b>"
                             "</a>")
@@ -300,30 +299,28 @@
   "p>{Click }+a{here}+{ to continue}"
   ("<p>"
    "    Click "
-   "    <a>here</a>"
+   "    <a href=\"\">here</a>"
    "     to continue"
    "</p>")
 
   "p{Click }+a{here}+{ to continue}"
-  ("<p>"
-   "    Click "
-   "</p>"
-   "<a>here</a>"
+  ("<p>Click </p>"
+   "<a href=\"\">here</a>"
    " to continue"))
 
 (define-zencoding-transform-html-test-case Climb-up
-  "a>b>c^d"                ("<a>"
+  "a>b>c^d"                ("<a href=\"\">"
                             "    <b><c></c></b>"
                             "    <d></d>"
                             "</a>")
-  "a>b>c^^d"               ("<a><b><c></c></b></a>"
+  "a>b>c^^d"               ("<a href=\"\"><b><c></c></b></a>"
                             "<d></d>")
-  "a*2>b*2>c^d"            ("<a>"
+  "a*2>b*2>c^d"            ("<a href=\"\">"
                             "    <b><c></c></b>"
                             "    <b><c></c></b>"
                             "    <d></d>"
                             "</a>"
-                            "<a>"
+                            "<a href=\"\">"
                             "    <b><c></c></b>"
                             "    <b><c></c></b>"
                             "    <d></d>"
@@ -332,14 +329,13 @@
   "div+a>p>span{foo}+em>b^^^p"
   ("<div>"
    "</div>"
-   "<a>"
+   "<a href=\"\">"
    "    <p>"
    "        <span>foo</span>"
    "        <em><b></b></em>"
    "    </p>"
    "</a>"
-   "<p>"
-   "</p>")
+   "<p></p>")
 
   "div+div>p>span+em^blockquote{foo}"
   ("<div>"
@@ -356,7 +352,7 @@
 
 (define-zencoding-transform-html-test-case Filter-comment
   "a.b|c"                  ("<!-- .b -->"
-                            "<a class=\"b\"></a>"
+                            "<a class=\"b\" href=\"\"></a>"
                             "<!-- /.b -->")
   "#a>.b|c"                ("<!-- #a -->"
                             "<div id=\"a\">"

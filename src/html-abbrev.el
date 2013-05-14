@@ -405,6 +405,10 @@
   "Function to execute when expanding a leaf node in the
   Zencoding AST.")
 
+(zencoding-defparameter
+ zencoding-tag-settings-table
+ (gethash "tags" (gethash "html" zencoding-preferences)))
+
 (defvar zencoding-filters
   '("html" (zencoding-primary-filter zencoding-make-html-tag)
     "c"    (zencoding-primary-filter zencoding-make-commented-html-tag)
@@ -440,43 +444,65 @@
          (classes   (pop tag-info))
          (props     (pop tag-info))
          (txt       (pop tag-info))
-         (self-closing? (not (or txt content
-                                 (and has-body?
-                                      (not (member name zencoding-self-closing-tags)))))))
-    (funcall tag-maker name id classes props txt self-closing?
+         (settings  (gethash name zencoding-tag-settings-table)))
+    (funcall tag-maker name has-body? id classes props txt settings
              (if content content
                (if zencoding-leaf-function (funcall zencoding-leaf-function))))))
 
-(defun zencoding-make-html-tag (tag-name tag-id tag-classes tag-props tag-txt self-closing? content)
-  "Create HTML markup string"
-  (let* ((id      (zencoding-concat-or-empty " id=\"" tag-id "\""))
-         (classes (zencoding-mapconcat-or-empty " class=\"" tag-classes " " "\""))
-         (props   (zencoding-mapconcat-or-empty " " tag-props " " nil
-                                                (lambda (prop)
-                                                  (concat (symbol-name (car prop)) "=\"" (cadr prop) "\""))))
-         (content-multiline? (and content (string-match "\n" content)))
-         (block-tag? (or (member tag-name zencoding-block-tags)
-                         (and (> (length tag-name) 1)
-                              (not (member tag-name zencoding-inline-tags)))))
-         (lf (if (or content-multiline? block-tag?)
-                 "\n")))
-    (concat "<" tag-name id classes props (if self-closing?
-                                              "/>"
-                                            (concat ">"
-                                                    (if tag-txt
-                                                        (if (or content-multiline? block-tag?)
-                                                            (zencoding-indent tag-txt)
-                                                          tag-txt))
-                                                    (if content
-                                                        (if (or content-multiline? block-tag?)
-                                                            (zencoding-indent content)
-                                                          content))
-                                                    lf
-                                                    "</" tag-name ">")))))
+(defun zencoding-hash-to-list (hash &optional proc)
+  (unless proc (setq proc #'cons))
+  (loop for key being the hash-keys of hash using (hash-values val)
+        collect (funcall proc key val)))
 
-(defun zencoding-make-commented-html-tag (tag-name tag-id tag-classes tag-props tag-txt self-closing? content)
+(defun zencoding-merge-tag-props (default-table tag-props)
+  (if default-table
+      (let ((tbl (copy-hash-table default-table)))
+        (loop for prop in tag-props do
+              (puthash (symbol-name (car prop)) (cadr prop) tbl))
+        (zencoding-hash-to-list tbl 'list))
+    tag-props))
+
+(defun zencoding-make-html-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
+  "Create HTML markup string"
+  (let* ((id           (zencoding-concat-or-empty " id=\"" tag-id "\""))
+         (classes      (zencoding-mapconcat-or-empty " class=\"" tag-classes " " "\""))
+         (props        (let* ((tag-props-default
+                               (and settings (gethash "defaultAttr" settings)))
+                              (merged-tag-props
+                               (zencoding-merge-tag-props
+                                tag-props-default
+                                tag-props)))
+                         (zencoding-mapconcat-or-empty
+                          " " merged-tag-props " " nil
+                          (lambda (prop)
+                            (let ((key (car prop)))
+                              (concat (if (symbolp key) (symbol-name key) key)
+                                      "=\"" (cadr prop) "\""))))))
+         (content-multiline? (and content (string-match "\n" content)))
+         (block-tag?         (and settings (gethash "block" settings)))
+         (self-closing?      (and (not (or tag-txt content))
+                                  (or (not tag-has-body?)
+                                      (and settings (gethash "selfClosing" settings)))))
+         (lf                 (if (or content-multiline? block-tag?) "\n")))
+    ;(print (concat "block-tag? " tag-name))
+    ;(print (if block-tag? "yes" "no"))
+    (concat "<" tag-name id classes props
+            (if self-closing? "/>"
+              (concat ">"
+                      (if tag-txt
+                          (if (or content-multiline? block-tag?)
+                              (zencoding-indent tag-txt)
+                            tag-txt))
+                      (if content
+                          (if (or content-multiline? block-tag?)
+                              (zencoding-indent content)
+                            content))
+                      lf
+                      "</" tag-name ">")))))
+
+(defun zencoding-make-commented-html-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
   "Create HTML markup string with extra comments for elements with #id or .classes"
-  (let ((body (zencoding-make-html-tag tag-name tag-id tag-classes tag-props tag-txt self-closing? content)))
+  (let ((body (zencoding-make-html-tag tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)))
     (if (or tag-id tag-classes)
         (let ((id      (zencoding-concat-or-empty "#" tag-id))
               (classes (zencoding-mapconcat-or-empty "." tag-classes ".")))
@@ -485,7 +511,7 @@
                   "\n<!-- /" id classes " -->"))
       body)))
 
-(defun zencoding-make-haml-tag (tag-name tag-id tag-classes tag-props tag-txt self-closing? content)
+(defun zencoding-make-haml-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
   "Create HAML string"
   (let ((name    (if (and (equal tag-name "div")
                           (or tag-id tag-classes))
@@ -493,22 +519,24 @@
                    (concat "%" tag-name)))
         (id      (zencoding-concat-or-empty "#" tag-id))
         (classes (zencoding-mapconcat-or-empty "." tag-classes "."))
-        (props   (zencoding-mapconcat-or-empty "{" tag-props ", " "}"
-                                               (lambda (prop)
-                                                 (concat ":" (symbol-name (car prop)) " => \"" (cadr prop) "\"")))))
+        (props   (zencoding-mapconcat-or-empty
+                  "{" tag-props ", " "}"
+                  (lambda (prop)
+                    (concat ":" (symbol-name (car prop)) " => \"" (cadr prop) "\"")))))
     (concat name id classes props
             (if tag-txt
                 (zencoding-indent tag-txt))
             (if content
                 (zencoding-indent content)))))
 
-(defun zencoding-make-hiccup-tag (tag-name tag-id tag-classes tag-props tag-txt self-closing? content)
+(defun zencoding-make-hiccup-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
   "Create Hiccup string"
   (let* ((id      (zencoding-concat-or-empty "#" tag-id))
          (classes (zencoding-mapconcat-or-empty "." tag-classes "."))
-         (props   (zencoding-mapconcat-or-empty " {" tag-props ", " "}"
-                                                (lambda (prop)
-                                                  (concat ":" (symbol-name (car prop)) " \"" (cadr prop) "\""))))
+         (props   (zencoding-mapconcat-or-empty
+                   " {" tag-props ", " "}"
+                   (lambda (prop)
+                     (concat ":" (symbol-name (car prop)) " \"" (cadr prop) "\""))))
          (content-multiline? (and content (string-match "\n" content)))
          (block-tag? (or (member tag-name zencoding-block-tags)
                          (and (> (length tag-name) 1)

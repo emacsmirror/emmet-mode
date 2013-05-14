@@ -37,6 +37,8 @@ class Processor(object):
                 self._print(v)
                 self.out.write('\n')
             self.out.write(')\n')
+        elif _type is bool:
+            self.out.write('t' if data else 'nil')
         elif (_type is str or _type is unicode):
             self.out.write(pystr2elstrexp(data))
         else: # number ?
