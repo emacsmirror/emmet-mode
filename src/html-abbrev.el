@@ -349,58 +349,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Zen coding transformer from AST to string
 
-(defvar zencoding-inline-tags
-  '("a"
-    "abbr"
-    "acronym"
-    "cite"
-    "code"
-    "dd"
-    "dfn"
-    "dt"
-    "em"
-    "h1" "h2" "h3" "h4" "h5" "h6"
-    "kbd"
-    "li"
-    "q"
-    "span"
-    "strong"
-    "var"
-    "textarea"
-    "small"
-    "time" "del" "ins"
-    "sub"
-    "sup"
-    "i" "s" "b"
-    "ruby" "rt" "rp"
-    "bdo"
-    "iframe" "canvas"
-    "audio" "video"
-    "ovject" "embed"
-    "map"))
-
-(defvar zencoding-block-tags
-  '("p"
-    "article"
-    "section"
-    "aside"
-    "nav"
-    "figure"
-    "address"
-    "header"
-    "footer"))
-
-(defvar zencoding-self-closing-tags
-  '("br"
-    "img"
-    "input"
-    "wbr"
-    "object"
-    "source"
-    "area"
-    "param"
-    "option"))
-
 (defvar zencoding-leaf-function nil
   "Function to execute when expanding a leaf node in the
   Zencoding AST.")
@@ -484,8 +432,6 @@
                                   (or (not tag-has-body?)
                                       (and settings (gethash "selfClosing" settings)))))
          (lf                 (if (or content-multiline? block-tag?) "\n")))
-    ;(print (concat "block-tag? " tag-name))
-    ;(print (if block-tag? "yes" "no"))
     (concat "<" tag-name id classes props
             (if self-closing? "/>"
               (concat ">"
@@ -538,9 +484,7 @@
                    (lambda (prop)
                      (concat ":" (symbol-name (car prop)) " \"" (cadr prop) "\""))))
          (content-multiline? (and content (string-match "\n" content)))
-         (block-tag? (or (member tag-name zencoding-block-tags)
-                         (and (> (length tag-name) 1)
-                              (not (member tag-name zencoding-inline-tags))))))
+         (block-tag? (and settings (gethash "block" settings))))
     (concat "[:" tag-name id classes props
             (if tag-txt
                 (let ((tag-txt-quoted (concat "\"" tag-txt "\"")))
