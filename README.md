@@ -1,32 +1,19 @@
-# About Zencoding
 
-[Description
-here](http://www.456bereastreet.com/archive/200909/write_html_and_css_quicker_with_with_zen_coding/)
-and [here](http://mondaybynoon.com/2009/08/17/the-art-of-zen-coding-bringing-snippets-to-a-new-level/).
+__This is a fork of [zencoding-mode](https://github.com/rooney/zencoding) to support [Emmet](http://emmet.io/)'s feature.__
 
-I’ll quote the blog:
+## About zencoding-mode
 
-> zen-coding includes an entirely new angle to writing markup, and it
-> facilitates the feature by letting you write HTML based on CSS
-> selectors. It’s so simple it’s confusing at first. I think it’s best
-> explained by doing a quick before and after. If you were to type:
+[zencoding-mode](https://github.com/rooney/zencoding) is a minor mode providing support for Zen Coding by producing HTML from CSS-like selectors. See [README](https://github.com/rooney/zencoding/blob/master/README.md)
 
-    div#name.one.two
+## About Emmet
+Zen Coding has been renamed to [Emmet](http://emmet.io/) and includes an expanded feature set.
 
-> and follow that with the zen-coding plugin keystroke (CMD+E in
-  TextMate), the plugin will reformat the line as:
+## Abbreviation Examples
 
-    <div id="name" class="one two"></div>
+- [HTML abbreviations](https://github.com/smihica/zencoding#html-abbreviations)
+- [CSS abbreviations](https://github.com/smihica/zencoding#css-abbreviations)
 
-See the [EmacsWiki for more background on this mode.](http://www.emacswiki.org/emacs/ZenCoding)
-
-# Screenshots and videos
-
-* ![Picture of zencoding in action](http://img703.imageshack.us/img703/4474/zencodingmode.png)
-
-* [YouTube video](http://www.youtube.com/watch?v=u2r8JfJJgy8)
-
-# Installation
+## Installation
 
 Just make sure zencoding-mode.el is in your `load-path`, if you
 extracted zencoding-mode to a directory:
@@ -37,25 +24,30 @@ And then just require as normal:
 
     (require 'zencoding-mode)
 
-# Usage
+## Usage
 
 Enable it by running `M-x zencoding-mode`. You probably want to add it
 to auto-load on your sgml modes:
 
     (add-hook 'sgml-mode-hook 'zencoding-mode) ;; Auto-start on any markup modes
+    (add-hook 'css-mode-hook  'zencoding-mode) ;; enable Emmet's css abbreviation.
 
-Good to go: place point in a zencoding snippet and press C-j to expand it (or 
+And you can set default indent depth of HTML abbreviation.
+
+    (add-hook 'zencoding-mode-hook (lambda () (setq zencoding-indentation 2))) ;indent 2 spaces.
+
+Good to go: place point in a zencoding snippet and press C-j to expand it (or
 alternatively, alias your preferred keystroke to M-x zencoding-expand-line) and
-you'll transform your snippet into the appropriate tag structure. 
+you'll transform your snippet into the appropriate tag structure.
 
-# Examples
+## HTML abbreviations
 
-## Basic tags
+#### Basic tags
 
-    a                        <a></a>
-    a.x                      <a class="x"></a>
-    a#q.x                    <a id="q" class="x"></a>
-    a#q.x.y.z                <a id="q" class="x y z"></a>
+    a                        <a href=""></a>
+    a.x                      <a class="x" href=""></a>
+    a#q.x                    <a id="q" class="x" href=""></a>
+    a#q.x.y.z                <a id="q" class="x y z" href=""></a>
     #q                       <div id="q">
                              </div>
     .x                       <div class="x">
@@ -65,39 +57,39 @@ you'll transform your snippet into the appropriate tag structure.
     #q.x.y.z                 <div id="q" class="x y z">
                              </div>
 
-## Empty tags
+#### Empty tags
 
-    a/                       <a/>
-    a/.x                     <a class="x"/>
-    a/#q.x                   <a id="q" class="x"/>
-    a/#q.x.y.z               <a id="q" class="x y z"/>
+    a/                       <a href=""/>
+    a/.x                     <a class="x" href=""/>
+    a/#q.x                   <a id="q" class="x" href=""/>
+    a/#q.x.y.z               <a id="q" class="x y z" href=""/>
 
-## Self-closing tags
+#### Self-closing tags
 
-    input type=text          <input type="text"/>
-    img                      <img/>
-    img>metadata/*2          <img>
+    input type=text          <input type="text" name="" value=""/>
+    img                      <img src="" alt=""/>
+    img>metadata/*2          <img src="" alt="">
                                  <metadata/>
                                  <metadata/>
                              </img>
 
-## Siblings
+#### Siblings
 
-    a+b                      <a></a>
+    a+b                      <a href=""></a>
                              <b></b>
-    a+b+c                    <a></a>
+    a+b+c                    <a href=""></a>
                              <b></b>
                              <c></c>
-    a.x+b                    <a class="x"></a>
+    a.x+b                    <a class="x" href=""></a>
                              <b></b>
-    a#q.x+b                  <a id="q" class="x"></a>
+    a#q.x+b                  <a id="q" class="x" href=""></a>
                              <b></b>
-    a#q.x.y.z+b              <a id="q" class="x y z"></a>
+    a#q.x.y.z+b              <a id="q" class="x y z" href=""></a>
                              <b></b>
-    a#q.x.y.z+b#p.l.m.n      <a id="q" class="x y z"></a>
+    a#q.x.y.z+b#p.l.m.n      <a id="q" class="x y z" href=""></a>
                              <b id="p" class="l m n"></b>
 
-## Tag expansion
+#### Tag expansion
 
     table+                   <table>
                                  <tr>
@@ -122,70 +114,70 @@ you'll transform your snippet into the appropriate tag structure.
                                  <li></li>
                              </ul>
 
-## Parent > child
+#### Parent > child
 
-    a>b                      <a><b></b></a>
-    a>b>c                    <a><b><c></c></b></a>
-    a.x>b                    <a class="x"><b></b></a>
-    a#q.x>b                  <a id="q" class="x"><b></b></a>
-    a#q.x.y.z>b              <a id="q" class="x y z"><b></b></a>
-    a#q.x.y.z>b#p.l.m.n      <a id="q" class="x y z"><b id="p" class="l m n"></b></a>
+    a>b                      <a href=""><b></b></a>
+    a>b>c                    <a href=""><b><c></c></b></a>
+    a.x>b                    <a class="x" href=""><b></b></a>
+    a#q.x>b                  <a id="q" class="x" href=""><b></b></a>
+    a#q.x.y.z>b              <a id="q" class="x y z" href=""><b></b></a>
+    a#q.x.y.z>b#p.l.m.n      <a id="q" class="x y z" href=""><b id="p" class="l m n"></b></a>
     #q>.x                    <div id="q">
                                  <div class="x">
                                  </div>
                              </div>
-    a>b+c                    <a>
+    a>b+c                    <a href="">
                                  <b></b>
                                  <c></c>
                              </a>
-    a>b+c>d                  <a>
+    a>b+c>d                  <a href="">
                                  <b></b>
                                  <c><d></d></c>
                              </a>
 
-## Climb-up
+#### Climb-up
 
-    a>b^c                    <a><b></b></a><c></c>
-    a>b>c^d                  <a>
+    a>b^c                    <a href=""><b></b></a><c></c>
+    a>b>c^d                  <a href="">
                                  <b><c></c></b>
                                  <d></d>
                              </a>
-    a>b>c^^d                 <a><b><c></c></b></a>
+    a>b>c^^d                 <a href=""><b><c></c></b></a>
                              <d></d>
 
-## Multiplication
+#### Multiplication
 
-    a*1                      <a></a>
-    a*2                      <a></a>
-                             <a></a>
-    a/*2                     <a/>
-                             <a/>
-    a*2+b*2                  <a></a>
-                             <a></a>
+    a*1                      <a href=""></a>
+    a*2                      <a href=""></a>
+                             <a href=""></a>
+    a/*2                     <a href=""/>
+                             <a href=""/>
+    a*2+b*2                  <a href=""></a>
+                             <a href=""></a>
                              <b></b>
                              <b></b>
-    a*2>b*2                  <a>
+    a*2>b*2                  <a href="">
                                  <b></b>
                                  <b></b>
                              </a>
-                             <a>
+                             <a href="">
                                  <b></b>
                                  <b></b>
                              </a>
-    a>b*2                    <a>
+    a>b*2                    <a href="">
                                  <b></b>
                                  <b></b>
                              </a>
-    a#q.x>b#q.x*2            <a id="q" class="x">
+    a#q.x>b#q.x*2            <a id="q" class="x" href="">
                                  <b id="q" class="x"></b>
                                  <b id="q" class="x"></b>
                              </a>
-    a#q.x>b/#q.x*2           <a id="q" class="x">
+    a#q.x>b/#q.x*2           <a id="q" class="x" href="">
                                  <b id="q" class="x"/>
                                  <b id="q" class="x"/>
                              </a>
 
-## Item numbering
+#### Item numbering
 
     ul>li.item$*3            <ul>
                                  <li class="item1"></li>
@@ -217,26 +209,26 @@ you'll transform your snippet into the appropriate tag structure.
                              <a3b3/>
                              <a4b2/>
                              <a5b1/>
-    a.$*2>b.$$@-*3           <a class=\"1\">
+    a.$*2>b.$$@-*3           <a class=\"1\" href="">
                                  <b class=\"03\"></b>
                                  <b class=\"02\"></b>
                                  <b class=\"01\"></b>
                              </a>
-                             <a class=\"2\">
+                             <a class=\"2\" href="">
                                  <b class=\"03\"></b>
                                  <b class=\"02\"></b>
                                  <b class=\"01\"></b>
                              </a>
     (div>(a#id$$*2)+b.c$@-3+c#d$)*2
                              <div>
-                                 <a id=\"id01\"></a>
-                                 <a id=\"id02\"></a>
+                                 <a id=\"id01\" href=""></a>
+                                 <a id=\"id02\" href=""></a>
                                  <b class=\"c4\"></b>
                                  <c id=\"d1\"></c>
                              </div>
                              <div>
-                                 <a id=\"id01\"></a>
-                                 <a id=\"id02\"></a>
+                                 <a id=\"id01\" href=""></a>
+                                 <a id=\"id02\" href=""></a>
                                  <b class=\"c3\"></b>
                                  <c id=\"d2\"></c>
                              </div>
@@ -246,89 +238,89 @@ you'll transform your snippet into the appropriate tag structure.
                                  <li class=\"c3\">price: 10$</li>
                              </ul>
 
-## Properties
+#### Properties
 
-    a x                      <a x=""></a>
-    a x=                     <a x=""></a>
-    a x=""                   <a x=""></a>
-    a x=y                    <a x="y"></a>
-    a x="y"                  <a x="y"></a>
-    a x="()"                 <a x="()"></a>
-    a x m                    <a x="" m=""></a>
-    a x= m=""                <a x="" m=""></a>
-    a x=y m=l                <a x="y" m="l"></a>
-    a/ x=y m=l               <a x="y" m="l"/>
-    a#foo x=y m=l            <a id="foo" x="y" m="l"></a>
-    a.foo x=y m=l            <a class="foo" x="y" m="l"></a>
-    a#foo.bar.mu x=y m=l     <a id="foo" class="bar mu" x="y" m="l"></a>
-    a/#foo.bar.mu x=y m=l    <a id="foo" class="bar mu" x="y" m="l"/>
-    a x=y+b                  <a x="y"></a>
+    b x                      <b x=""></b>
+    b x=                     <b x=""></b>
+    b x=""                   <b x=""></b>
+    b x=y                    <b x="y"></b>
+    b x="y"                  <b x="y"></b>
+    b x="()"                 <b x="()"></b>
+    b x m                    <b x="" m=""></b>
+    b x= m=""                <b x="" m=""></b>
+    b x=y m=l                <b x="y" m="l"></b>
+    b/ x=y m=l               <b x="y" m="l"/>
+    b#foo x=y m=l            <b id="foo" x="y" m="l"></b>
+    b.foo x=y m=l            <b class="foo" x="y" m="l"></b>
+    b#foo.bar.mu x=y m=l     <b id="foo" class="bar mu" x="y" m="l"></b>
+    b/#foo.bar.mu x=y m=l    <b id="foo" class="bar mu" x="y" m="l"/>
+    b x=y+b                  <b x="y"></b>
                              <b></b>
-    a x=y+b x=y              <a x="y"></a>
+    b x=y+b x=y              <b x="y"></b>
                              <b x="y"></b>
-    a x=y>b                  <a x="y"><b></b></a>
-    a x=y>b x=y              <a x="y"><b x="y"></b></a>
-    a x=y>b x=y+c x=y        <a x="y">
+    b x=y>b                  <b x="y"><b></b></b>
+    b x=y>b x=y              <b x="y"><b x="y"></b></b>
+    b x=y>b x=y+c x=y        <b x="y">
                                  <b x="y"></b>
                                  <c x="y"></c>
-                             </a>
+                             </b>
 
-## Parentheses
+#### Parentheses
 
-    (a)                      <a></a>
-    (a)+(b)                  <a></a>
+    (a)                      <a href=""></a>
+    (a)+(b)                  <a href=""></a>
                              <b></b>
-    a>(b)                    <a><b></b></a>
-    (a>b)>c                  <a><b></b></a>
-    (a>b)+c                  <a><b></b></a>
+    a>(b)                    <a href=""><b></b></a>
+    (a>b)>c                  <a href=""><b></b></a>
+    (a>b)+c                  <a href=""><b></b></a>
                              <c></c>
     z+(a>b)+c+k              <z></z>
-                             <a><b></b></a>
+                             <a href=""><b></b></a>
                              <c></c>
                              <k></k>
-    (a)*2                    <a></a>
-                             <a></a>
-    ((a)*2)                  <a></a>
-                             <a></a>
-    ((a))*2                  <a></a>
-                             <a></a>
-    (a>b)*2                  <a><b></b></a>
-                             <a><b></b></a>
-    (a+b)*2                  <a></a>
+    (x)*2                    <x></x>
+                             <x></x>
+    ((x)*2)                  <x></x>
+                             <x></x>
+    ((x))*2                  <x></x>
+                             <x></x>
+    (x>b)*2                  <x><b></b></x>
+                             <x><b></b></x>
+    (x+b)*2                  <x></x>
                              <b></b>
-                             <a></a>
+                             <x></x>
                              <b></b>
 
-## Text
+#### Text
 
-    a{Click me}              <a>Click me</a>
-    a>{Click me}*2           <a>
+    a{Click me}              <a href="">Click me</a>
+    a>{Click me}*2           <a href="">
                                  Click me
                                  Click me
                              </a>
-    a{click}+b{here}         <a>click</a>
+    x{click}+b{here}         <x>click</x>
                              <b>here</b>
-    a>{click}+b{here}        <a>
+    span>{click}+b{here}     <span>
                                  click
                                  <b>here</b>
-                             </a>
-    p>{Click }+a{here}+{ to continue}
+                             </span>
+    p>{Click}+span{here}+{ to continue}
                              <p>
-                                 Click 
-                                 <a>here</a>
+                                 Click
+                                 <span>here</span>
                                   to continue
                              </p>
-    p{Click }+a{here}+{ to continue}
+    p{Click}+span{here}+{ to continue}
                              <p>
-                                 Click 
+                                 Click
                              </p>
-                             <a>here</a>
+                             <span>here</span>
                               to continue
 
-## Filter: HTML with comments
+#### Filter: HTML with comments
 
     a.b|c                    <!-- .b -->
-                             <a class="b"></a>
+                             <a class="b" href=""></a>
                              <!-- /.b -->
     #a>.b|c                  <!-- #a -->
                              <div id="a">
@@ -339,7 +331,7 @@ you'll transform your snippet into the appropriate tag structure.
                              </div>
                              <!-- /#a -->
 
-## Filter: HAML
+#### Filter: HAML
 
     a|haml                   %a
     a#q.x.y.z|haml           %a#q.x.y.z
@@ -352,7 +344,7 @@ you'll transform your snippet into the appropriate tag structure.
                                  %a{:href => "#"}
                                  %br
 
-## Filter: Hiccup
+#### Filter: Hiccup
 
     a|hic                    [:a]
     a#q.x.y.z|hic            [:a#q.x.y.z]
@@ -367,7 +359,125 @@ you'll transform your snippet into the appropriate tag structure.
                                  [:p
                                      [:b]]]
 
-## Filter: escape
+#### Filter: escape
 
     script src=&quot;|e      &lt;script src="&amp;quot;"&gt;
                              &lt;/script&gt;
+
+#### Aliases
+
+    html:5                   <!doctype html>
+                             <html lang="en">
+                               <head>
+                                 <meta charset="UTF-8"/>
+                                 <title>Document</title>
+                               </head>
+                               <body>
+                               </body>
+                             </html>
+
+    html:xt                  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+                             <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+                               <head>
+                                 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+                                 <title>Document</title>
+                               </head>
+                             </html>
+
+    meta:vp                  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
+
+
+* See HTML section of [cheat-sheet](http://docs.emmet.io/cheat-sheet/) to find more aliases.
+
+
+## CSS abbreviations
+
+#### Basic Usage
+
+    p1-2!+m10e+bd1#2s        padding: 1px 2px !important;
+                             margin: 10em;
+                             border: 1px #222 solid;
+
+#### Keywords
+
+    m                        margin: ;
+    bg+                      background: #fff url() 0 0 no-repeat;
+    c                        color: #000;
+
+* See CSS section of [cheat-sheet](http://docs.emmet.io/cheat-sheet/) to find more keywords.
+
+#### Values
+
+separate each value by '-' or ' ';
+
+    m1-2-3-4                 margin: 1px 2px 3px 4px;
+    m1 2 3 4                 margin: 1px 2px 3px 4px;
+    m1--2                    margin: 1px -2px;
+    m1 -2                    margin: 1px -2px;
+
+    bg+#c /back.png 10 20 repeat-x
+                             background: #cccccc url(/back.png) 10px 20px repeat-x;
+
+#### Multiple property definition
+
+concatenate each property by '+';
+
+    m10+p0                   margin: 10px;
+                             padding: 0px;
+
+    bg++c#0                  background: #fff url() 0 0 no-repeat;
+                             color: #000;
+
+    m0+p10+c#f+fw:b+w100+h20+bg#f00
+                             margin: 0px;
+                             padding: 10px;
+                             color: #fff;
+                             font-weight: bold;
+                             width: 100px;
+                             height: 20px;
+                             background: #f00;
+
+#### Value units
+
+    m10                      margin: 10px;
+    m1.5                     margin: 1.5em;
+    m1.5ex                   margin: 1.5ex;
+    m1.5x                    margin: 1.5ex;
+    m10foo                   margin: 10foo;
+    m10ex20em                margin: 10ex 20em;
+    m10x20e                  margin: 10ex 20em;
+    m10x-5                   margin: 10ex -5px;
+    w100p                    width: 100%;
+    m10p30e5x                margin: 10% 30em 5ex;
+
+* Unit-aliases
+
+        e                        em
+        p                        %
+        x                        ex
+        r                        rem
+
+#### Unitless property
+
+    lh2                      line-height: 2;
+    fw400                    font-weight: 400;
+
+#### Color abbreviations
+
+    c#3                      color: #333;
+    bd5#0s                   border: 5px #000 solid; /* s: solid, t: dotted, n: none, h: hidden */
+    bd5#20rgb                border: 5px rgb(32,32,32);
+    bd5#20rgbt               border: 5px rgb(32,32,32) dotted;
+
+* Color expansion
+
+        #1                       #111
+        #e0                      #e0e0e0
+        #fc0                     #fc0
+
+#### Important
+
+    c#3!+bdrs2!              color: #333 !important;
+                             border-radius: 2px !important;
+
+* If you want further information, see [Emmet's documentation](http://docs.emmet.io/css-abbreviations/).
