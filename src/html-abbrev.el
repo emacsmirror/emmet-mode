@@ -245,7 +245,7 @@
                                         (input (elt it 2)))
                                     `((,(read name) ,value) . ,input)))
                  it
-                 (zencoding-parse "=\\([^\\,\\+\\>\\ )]*\\)" 2
+                 (zencoding-parse "=\\([^\\,\\+\\>\\{\\}\\ )]*\\)" 2
                                   "=property value"
                                   (let ((value (elt it 1))
                                         (input (elt it 2)))

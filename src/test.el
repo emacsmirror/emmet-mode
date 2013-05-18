@@ -141,6 +141,48 @@
                             "    <c><d></d></c>"
                             "</a>"))
 
+(define-zencoding-transform-html-test-case Climb-up
+  "a>b>c^d"                ("<a href=\"\">"
+                            "    <b><c></c></b>"
+                            "    <d></d>"
+                            "</a>")
+  "a>b>c^^d"               ("<a href=\"\"><b><c></c></b></a>"
+                            "<d></d>")
+  "a*2>b*2>c^d"            ("<a href=\"\">"
+                            "    <b><c></c></b>"
+                            "    <b><c></c></b>"
+                            "    <d></d>"
+                            "</a>"
+                            "<a href=\"\">"
+                            "    <b><c></c></b>"
+                            "    <b><c></c></b>"
+                            "    <d></d>"
+                            "</a>")
+
+  "div+a>p>span{foo}+em>b^^^p"
+  ("<div>"
+   "</div>"
+   "<a href=\"\">"
+   "    <p>"
+   "        <span>foo</span>"
+   "        <em><b></b></em>"
+   "    </p>"
+   "</a>"
+   "<p></p>")
+
+  "div+div>p>span+em^blockquote{foo}"
+  ("<div>"
+   "</div>"
+   "<div>"
+   "    <p>"
+   "        <span></span>"
+   "        <em></em>"
+   "    </p>"
+   "    <blockquote>"
+   "        foo"
+   "    </blockquote>"
+   "</div>"))
+
 (define-zencoding-transform-html-test-case Multiplication
   "a*1"                    ("<a href=\"\"></a>")
   "a*2"                    ("<a href=\"\"></a>"
@@ -306,49 +348,11 @@
   "p{Click }+a{here}+{ to continue}"
   ("<p>Click </p>"
    "<a href=\"\">here</a>"
-   " to continue"))
+   " to continue")
 
-(define-zencoding-transform-html-test-case Climb-up
-  "a>b>c^d"                ("<a href=\"\">"
-                            "    <b><c></c></b>"
-                            "    <d></d>"
-                            "</a>")
-  "a>b>c^^d"               ("<a href=\"\"><b><c></c></b></a>"
-                            "<d></d>")
-  "a*2>b*2>c^d"            ("<a href=\"\">"
-                            "    <b><c></c></b>"
-                            "    <b><c></c></b>"
-                            "    <d></d>"
-                            "</a>"
-                            "<a href=\"\">"
-                            "    <b><c></c></b>"
-                            "    <b><c></c></b>"
-                            "    <d></d>"
-                            "</a>")
+  "xxx#id.cls p=1{txt}"
+  ("<xxx id=\"id\" class=\"cls\" p=\"1\">txt</xxx>"))
 
-  "div+a>p>span{foo}+em>b^^^p"
-  ("<div>"
-   "</div>"
-   "<a href=\"\">"
-   "    <p>"
-   "        <span>foo</span>"
-   "        <em><b></b></em>"
-   "    </p>"
-   "</a>"
-   "<p></p>")
-
-  "div+div>p>span+em^blockquote{foo}"
-  ("<div>"
-   "</div>"
-   "<div>"
-   "    <p>"
-   "        <span></span>"
-   "        <em></em>"
-   "    </p>"
-   "    <blockquote>"
-   "        foo"
-   "    </blockquote>"
-   "</div>"))
 
 (define-zencoding-transform-html-test-case Filter-comment
   "a.b|c"                  ("<!-- .b -->"
@@ -438,14 +442,14 @@
   ""                     (error "expected css color argument")
   "abc"                  (error "expected css color argument")
   "#x"                   (error "expected css color argument")
-  "#a"                   ("#aaaaaa" . "")
+  "#a"                   ("#aaa" . "")
   "#09"                  ("#090909" . "")
-  "#3D5-2"               ("#33DD55" . "-2")
+  "#3D5-2"               ("#3D5" . "-2")
   "#1a2B-3"              ("#1a2B1a" . "-3")
   "#1A2b3x"              ("#1A2b31" . "x")
   "#1a2B3Cx"             ("#1a2B3C" . "x")
   "#1A2B3C4D-2"          ("#1A2B3C" . "4D-2")
-  " #abc"                ("#aabbcc" . ""))
+  " #abc"                ("#abc" . ""))
 
 (define-zencoding-unit-test-case CSS-parse-arg-something
   #'zencoding-css-arg-something
@@ -458,9 +462,9 @@
   #'zencoding-css-parse-args
   ""                     nil
   "1-2--3-4"             (("1" "px") ("2" "px") ("-3" "px") ("4" "px"))
-  "-10-2p-30#abc"        (("-10" "px") ("2" "%") ("-30" "px") "#aabbcc")
+  "-10-2p-30#abc"        (("-10" "px") ("2" "%") ("-30" "px") "#abc")
   "1p2x3-4e5x"           (("1" "%") ("2" "ex") ("3" "px") ("4" "em") ("5" "ex"))
-  "#abc#de#f-3"          ("#aabbcc" "#dedede" "#ffffff" ("-3" "px")))
+  "#abc#de#f-3"          ("#abc" "#dedede" "#fff" ("-3" "px")))
 
 (define-zencoding-unit-test-case CSS-split-vendor-prefixes
   #'zencoding-css-split-vendor-prefixes
@@ -476,7 +480,7 @@
   "bg++c!"               (("bg+" nil nil) ("c" nil t))
   "m+0-10-10--20!+p0-0"  (("m+" nil t ("0" "px") ("10" "px") ("10" "px") ("-20" "px"))
                           ("p" nil nil ("0" "px") ("0" "px")))
-  "bg+#abc#bc#c-3!"      (("bg+" nil t "#aabbcc" "#bcbcbc" "#cccccc" ("-3" "px"))))
+  "bg+#abc#bc#c-3!"      (("bg+" nil t "#abc" "#bcbcbc" "#ccc" ("-3" "px"))))
 
 (defmacro define-zencoding-transform-css-test-case (name &rest tests)
   `(define-zencoding-transform-test-case ,name
@@ -484,6 +488,25 @@
      ,@tests))
 
 (define-zencoding-transform-css-test-case CSS-transform
+  ;; supplying values with units
+  "m10"                    ("margin: 10px;")
+  "m1.5"                   ("margin: 1.5em;")
+  "m1.5ex"                 ("margin: 1.5ex;")
+  "m1.5x"                  ("margin: 1.5ex;")
+  "m10foo"                 ("margin: 10foo;")
+  "m10ex20em"              ("margin: 10ex 20em;")
+  "m10x20e"                ("margin: 10ex 20em;")
+  "m10x-5"                 ("margin: 10ex -5px;")
+  ;; Color values
+  "c#3"                    ("color: #333;")
+  "bd5#0rgb"               ("border: 5px rgb(0,0,0);")
+  "bd5#20rgb"              ("border: 5px rgb(32,32,32);")
+  "bd5#0s"                 ("border: 5px #000 solid;")
+  "bd5#2rgbs"              ("border: 5px rgb(34,34,34) solid;")
+  ;; Unitless property
+  "lh2"                    ("line-height: 2;")
+  "fw400"                  ("font-weight: 400;")
+  ;;
   "m0+p0-1p2e3x"           ("margin: 0px;"
                             "padding: 0px 1% 2em 3ex;")
   "p!+m10e!+f"             ("padding:  !important;"
@@ -494,7 +517,7 @@
   "p auto+m auto+bg+#F00 x.jpg 10 10 repeat-x"
                            ("padding: auto;"
                             "margin: auto;"
-                            "background: #FF0000 url(x.jpg) 10px 10px repeat-x;")
+                            "background: #F00 url(x.jpg) 10px 10px repeat-x;")
   "-bdrs"                  ("-webkit-border-radius: ;"
                             "-moz-border-radius: ;"
                             "border-radius: ;")

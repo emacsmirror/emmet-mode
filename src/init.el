@@ -17,6 +17,16 @@
 (defun zencoding-join-string (lis joiner)
   (mapconcat 'identity lis joiner))
 
+(defun zencoding-get-keys-of-hash (hash)
+  (let ((ks nil))
+    (maphash #'(lambda (k v) (setq ks (cons k ks))) hash)
+    ks))
+
+(defun zencoding-get-vals-of-hash (hash)
+  (let ((vs nil))
+    (maphash #'(lambda (k v) (setq vs (cons v vs))) hash)
+    vs))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic parsing macros and utilities
 

@@ -7,19 +7,33 @@
  (gethash "unitAliases" (gethash "css" zencoding-preferences)))
 (defun zencoding-css-arg-number (input)
   (zencoding-parse
-   " *\\(\\(?:-\\|\\)[0-9.]+\\)\\(\\(?:-\\|e\\|p\\|x\\)\\|\\)" 3 "css number arguments"
+   " *\\(\\(?:-\\|\\)[0-9.]+\\)\\(-\\|[A-Za-z]*\\)" 3 "css number arguments"
    (cons (list (elt it 1)
                (let ((unit (elt it 2)))
-                 (gethash unit zencoding-css-unit-aliases "px")))
+                 (if (= (length unit) 0)
+                     (if (find ?. (elt it 1)) "em" "px")
+                   (gethash unit zencoding-css-unit-aliases unit))))
          input)))
 
+(zencoding-defparameter
+ zencoding-css-color-shorten-if-possible
+ (gethash "shortenIfPossible" (gethash "color" (gethash "css" zencoding-preferences))))
+(zencoding-defparameter
+ zencoding-css-color-case
+ (gethash "case" (gethash "color" (gethash "css" zencoding-preferences))))
+(zencoding-defparameter
+ zencoding-css-color-trailing-aliases
+ (gethash "trailingAliases" (gethash "color" (gethash "css" zencoding-preferences))))
 (defun zencoding-css-arg-color (input)
   (zencoding-parse
-   " *#\\([0-9a-fA-F]\\{1,6\\}\\)" 2 "css color argument"
-   (cons (let* ((n (elt it 1))
+   (concat " *#\\([0-9a-fA-F]\\{1,6\\}\\)\\(rgb\\|\\)\\(["
+           (zencoding-join-string
+            (zencoding-get-keys-of-hash zencoding-css-color-trailing-aliases) "")
+           "]\\|\\)")
+   4 "css color argument"
+   (let ((color
+          (let* ((n (elt it 1))
                 (l (length n)))
-           (concat
-            "#"
             (substring
              (cond ((= l 1) (concat (make-list 6 (string-to-char n))))
                    ((= l 2) (concat n n n))
@@ -27,8 +41,30 @@
                              (loop for c in (string-to-list n)
                                    append (list c c))))
                    (t (concat n n)))
-             0 6)))
-         input)))
+             0 6))))
+     (cons
+      (let ((rgb-mode (string= (elt it 2) "rgb")))
+        (if rgb-mode
+            (format "rgb(%d,%d,%d)"
+                    (string-to-int (substring color 0 2) 16)
+                    (string-to-int (substring color 2 4) 16)
+                    (string-to-int (substring color 4 6) 16))
+          (concat
+           "#"
+           (let ((filter (cond ((string= zencoding-css-color-case "auto") #'identity)
+                               ((string= zencoding-css-color-case "up")   #'upcase)
+                               (t                                         #'downcase))))
+             (funcall
+              filter
+              (if (and zencoding-css-color-shorten-if-possible
+                       (eql (aref color 0) (aref color 1))
+                       (eql (aref color 2) (aref color 3))
+                       (eql (aref color 4) (aref color 5)))
+                  (concat (mapcar #'(lambda (i) (aref color i)) '(0 2 4)))
+                color))))))
+      (if (< 0 (length (elt it 3)))
+          (cons (gethash (elt it 3) zencoding-css-color-trailing-aliases) input)
+        input)))))
 
 (defun zencoding-css-arg-something (input)
   (zencoding-parse
@@ -52,10 +88,12 @@
   (when args
     (let ((rt nil))
       (loop
-       (zencoding-pif (zencoding-css-parse-arg args)
-                      (progn (push (car it) rt)
-                             (setf args (cdr it)))
-                      (return (nreverse rt)))))))
+       (zencoding-pif
+        (zencoding-css-parse-arg args)
+        (loop for i on it do (push (car i) rt)
+              while (consp (cdr i))
+              finally (setq args (cdr i)))
+        (return (nreverse rt)))))))
 
 (defun zencoding-css-split-args (exp)
   (zencoding-aif

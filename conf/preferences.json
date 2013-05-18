@@ -352,10 +352,21 @@
       "t":"transparent"
     },
     "unitAliases": {
+      "-": "px",
       "e": "em",
       "p": "%",
       "x": "ex",
       "r": "rem"
+    },
+    "color": {
+      "shortenIfPossible": true,
+      "case": "auto",
+      "trailingAliases": {
+        "s":    "solid",
+        "t":    "dotted",
+        "n":    "none",
+        "h":    "hidden"
+      }
     }
   }
 }

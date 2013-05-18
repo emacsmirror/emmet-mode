@@ -79,6 +79,16 @@
 (defun zencoding-join-string (lis joiner)
   (mapconcat 'identity lis joiner))
 
+(defun zencoding-get-keys-of-hash (hash)
+  (let ((ks nil))
+    (maphash #'(lambda (k v) (setq ks (cons k ks))) hash)
+    ks))
+
+(defun zencoding-get-vals-of-hash (hash)
+  (let ((vs nil))
+    (maphash #'(lambda (k v) (setq vs (cons v vs))) hash)
+    vs))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic parsing macros and utilities
 
@@ -262,7 +272,7 @@ tbl) tbl)
 (puthash "bdls" "border-left-style:|;" tbl)
 (puthash "bdlw" "border-left-width:|;" tbl)
 (puthash "bdli" "border-left-image:url(|);" tbl)
-(puthash "bdlc" "border-left-color:#${1:000};" tbl)
+(puthash "bdlc" "border-left-color:${1:#000};" tbl)
 (puthash "whsc" "white-space-collapse:|;" tbl)
 (puthash "bdtlrs" "border-top-left-radius:|;" tbl)
 (puthash "bdblrs" "border-bottom-left-radius:|;" tbl)
@@ -304,7 +314,7 @@ tbl) tbl)
 (puthash "d:tbclg" "display:table-column-group;" tbl)
 (puthash "bdf" "border-fit:${1:repeat};" tbl)
 (puthash "@f" "@font-face {\n\tfont-family:|;\n\tsrc:url(|);\n}" tbl)
-(puthash "bdc" "border-color:#${1:000};" tbl)
+(puthash "bdc" "border-color:${1:#000};" tbl)
 (puthash "d:rbt" "display:ruby-text;" tbl)
 (puthash "bdl" "border-left:|;" tbl)
 (puthash "@i" "@import url(|);" tbl)
@@ -361,7 +371,7 @@ tbl) tbl)
 (puthash "ti" "text-indent:|;" tbl)
 (puthash "pgbi:av" "page-break-inside:avoid;" tbl)
 (puthash "tj:t" "text-justify:tibetan;" tbl)
-(puthash "bgc" "background-color:#${1:fff};" tbl)
+(puthash "bgc" "background-color:${1:#fff};" tbl)
 (puthash "trf:tx" "transform: translateX(${1:x});" tbl)
 (puthash "trf:ty" "transform: translateY(${1:y});" tbl)
 (puthash "va:sup" "vertical-align:super;" tbl)
@@ -452,7 +462,7 @@ tbl) tbl)
 (puthash "bdbk" "border-break:${1:close};" tbl)
 (puthash "pgba:r" "page-break-after:right;" tbl)
 (puthash "wfsm" "-webkit-font-smoothing:${antialiased};" tbl)
-(puthash "bdbc" "border-bottom-color:#${1:000};" tbl)
+(puthash "bdbc" "border-bottom-color:${1:#000};" tbl)
 (puthash "ec" "empty-cells:|;" tbl)
 (puthash "te:ac" "text-emphasis:accent;" tbl)
 (puthash "fs" "font-style:${italic};" tbl)
@@ -493,7 +503,7 @@ tbl) tbl)
 (puthash "bdtw" "border-top-width:|;" tbl)
 (puthash "cnt:c" "content:counter(|);" tbl)
 (puthash "cnt:a" "content:attr(|);" tbl)
-(puthash "bdtc" "border-top-color:#${1:000};" tbl)
+(puthash "bdtc" "border-top-color:${1:#000};" tbl)
 (puthash "cnt:noq" "content:no-open-quote;" tbl)
 (puthash "td:u" "text-decoration:underline;" tbl)
 (puthash "bdti" "border-top-image:url(|);" tbl)
@@ -608,8 +618,8 @@ tbl) tbl)
 (puthash "fst:ue" "font-stretch:ultra-expanded;" tbl)
 (puthash "fst:uc" "font-stretch:ultra-condensed;" tbl)
 (puthash "pgbb:al" "page-break-before:always;" tbl)
-(puthash "c" "color:#${1:000};" tbl)
-(puthash "bdrc" "border-right-color:#${1:000};" tbl)
+(puthash "c" "color:${1:#000};" tbl)
+(puthash "bdrc" "border-right-color:${1:#000};" tbl)
 (puthash "bdtli:n" "border-top-left-image:none;" tbl)
 (puthash "bdtli:c" "border-top-left-image:continue;" tbl)
 (puthash "list:ur" "list-style-type:upper-roman;" tbl)
@@ -760,7 +770,7 @@ tbl) tbl)
 (puthash "fs:i" "font-style:italic;" tbl)
 (puthash "ct:oq" "content:open-quote;" tbl)
 (puthash "bds:g" "border-style:groove;" tbl)
-(puthash "olc" "outline-color:#${1:000};" tbl)
+(puthash "olc" "outline-color:${1:#000};" tbl)
 (puthash "bds:r" "border-style:ridge;" tbl)
 (puthash "bds:s" "border-style:solid;" tbl)
 (puthash "bds:w" "border-style:wave;" tbl)
@@ -2340,6 +2350,16 @@ tbl) tbl)
  tbl)
 (puthash "floatUnit" "em" tbl)
 (puthash "intUnit" "px" tbl)
+(puthash "color" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "case" "auto" tbl)
+(puthash "shortenIfPossible" t tbl)
+(puthash "trailingAliases" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "h" "hidden" tbl)
+(puthash "s" "solid" tbl)
+(puthash "t" "dotted" tbl)
+(puthash "n" "none" tbl)
+tbl) tbl)
+tbl) tbl)
 (puthash "keywordAliases" (let ((tbl (make-hash-table :test 'equal)))
 (puthash "a" "auto" tbl)
 (puthash "do" "dotted" tbl)
@@ -2354,10 +2374,11 @@ tbl) tbl)
 )
  tbl)
 (puthash "unitAliases" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "p" "%" tbl)
-(puthash "r" "rem" tbl)
 (puthash "e" "em" tbl)
+(puthash "r" "rem" tbl)
+(puthash "-" "px" tbl)
 (puthash "x" "ex" tbl)
+(puthash "p" "%" tbl)
 tbl) tbl)
 tbl) tbl)
 tbl))
@@ -2608,7 +2629,7 @@ tbl))
                                         (input (elt it 2)))
                                     `((,(read name) ,value) . ,input)))
                  it
-                 (zencoding-parse "=\\([^\\,\\+\\>\\ )]*\\)" 2
+                 (zencoding-parse "=\\([^\\,\\+\\>\\{\\}\\ )]*\\)" 2
                                   "=property value"
                                   (let ((value (elt it 1))
                                         (input (elt it 2)))
@@ -3030,19 +3051,33 @@ tbl))
  (gethash "unitAliases" (gethash "css" zencoding-preferences)))
 (defun zencoding-css-arg-number (input)
   (zencoding-parse
-   " *\\(\\(?:-\\|\\)[0-9.]+\\)\\(\\(?:-\\|e\\|p\\|x\\)\\|\\)" 3 "css number arguments"
+   " *\\(\\(?:-\\|\\)[0-9.]+\\)\\(-\\|[A-Za-z]*\\)" 3 "css number arguments"
    (cons (list (elt it 1)
                (let ((unit (elt it 2)))
-                 (gethash unit zencoding-css-unit-aliases "px")))
+                 (if (= (length unit) 0)
+                     (if (find ?. (elt it 1)) "em" "px")
+                   (gethash unit zencoding-css-unit-aliases unit))))
          input)))
 
+(zencoding-defparameter
+ zencoding-css-color-shorten-if-possible
+ (gethash "shortenIfPossible" (gethash "color" (gethash "css" zencoding-preferences))))
+(zencoding-defparameter
+ zencoding-css-color-case
+ (gethash "case" (gethash "color" (gethash "css" zencoding-preferences))))
+(zencoding-defparameter
+ zencoding-css-color-trailing-aliases
+ (gethash "trailingAliases" (gethash "color" (gethash "css" zencoding-preferences))))
 (defun zencoding-css-arg-color (input)
   (zencoding-parse
-   " *#\\([0-9a-fA-F]\\{1,6\\}\\)" 2 "css color argument"
-   (cons (let* ((n (elt it 1))
+   (concat " *#\\([0-9a-fA-F]\\{1,6\\}\\)\\(rgb\\|\\)\\(["
+           (zencoding-join-string
+            (zencoding-get-keys-of-hash zencoding-css-color-trailing-aliases) "")
+           "]\\|\\)")
+   4 "css color argument"
+   (let ((color
+          (let* ((n (elt it 1))
                 (l (length n)))
-           (concat
-            "#"
             (substring
              (cond ((= l 1) (concat (make-list 6 (string-to-char n))))
                    ((= l 2) (concat n n n))
@@ -3050,8 +3085,30 @@ tbl))
                              (loop for c in (string-to-list n)
                                    append (list c c))))
                    (t (concat n n)))
-             0 6)))
-         input)))
+             0 6))))
+     (cons
+      (let ((rgb-mode (string= (elt it 2) "rgb")))
+        (if rgb-mode
+            (format "rgb(%d,%d,%d)"
+                    (string-to-int (substring color 0 2) 16)
+                    (string-to-int (substring color 2 4) 16)
+                    (string-to-int (substring color 4 6) 16))
+          (concat
+           "#"
+           (let ((filter (cond ((string= zencoding-css-color-case "auto") #'identity)
+                               ((string= zencoding-css-color-case "up")   #'upcase)
+                               (t                                         #'downcase))))
+             (funcall
+              filter
+              (if (and zencoding-css-color-shorten-if-possible
+                       (eql (aref color 0) (aref color 1))
+                       (eql (aref color 2) (aref color 3))
+                       (eql (aref color 4) (aref color 5)))
+                  (concat (mapcar #'(lambda (i) (aref color i)) '(0 2 4)))
+                color))))))
+      (if (< 0 (length (elt it 3)))
+          (cons (gethash (elt it 3) zencoding-css-color-trailing-aliases) input)
+        input)))))
 
 (defun zencoding-css-arg-something (input)
   (zencoding-parse
@@ -3075,10 +3132,12 @@ tbl))
   (when args
     (let ((rt nil))
       (loop
-       (zencoding-pif (zencoding-css-parse-arg args)
-                      (progn (push (car it) rt)
-                             (setf args (cdr it)))
-                      (return (nreverse rt)))))))
+       (zencoding-pif
+        (zencoding-css-parse-arg args)
+        (loop for i on it do (push (car i) rt)
+              while (consp (cdr i))
+              finally (setq args (cdr i)))
+        (return (nreverse rt)))))))
 
 (defun zencoding-css-split-args (exp)
   (zencoding-aif
