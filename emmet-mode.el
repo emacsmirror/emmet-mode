@@ -1,11 +1,12 @@
-;;; zencoding-mode.el --- Unfold CSS-selector-like expressions to markup
+;;; emmet-mode.el --- Unofficial Emmet's support for emacs.
 
+;; Copyright (C) 2013, Shin Aoyama
 ;; Copyright (C) 2009, Chris Done
 
-;; Version: 0.5.1
-;; Author: Chris Done <chrisdone@gmail.com>
-;; URL: https://github.com/rooney/zencoding
-;; Last-Updated: 2011-12-31 Sat
+;; Version: 0.1.0
+;; Author: Shin Aoyama <smihica@gmail.com>
+;; URL: https://github.com/smihica/emmet
+;; Last-Updated: 2013-06-23 Sun
 ;; Keywords: convenience
 
 ;; This file is free software; you can redistribute it and/or modify
@@ -30,25 +31,25 @@
 ;; Unfold CSS-selector-like expressions to markup. Intended to be used
 ;; with sgml-like languages; xml, html, xhtml, xsl, etc.
 ;;
-;; See `zencoding-mode' for more information.
+;; See `emmet-mode' for more information.
 ;;
-;; Copy zencoding-mode.el to your load-path and add to your .emacs:
+;; Copy emmet-mode.el to your load-path and add to your .emacs:
 ;;
-;;    (require 'zencoding-mode)
+;;    (require 'emmet-mode)
 ;;
 ;; Example setup:
 ;;
-;;    (add-to-list 'load-path "~/Emacs/zencoding/")
-;;    (require 'zencoding-mode)
-;;    (add-hook 'sgml-mode-hook 'zencoding-mode) ;; Auto-start on any markup modes
-;;    (add-hook 'html-mode-hook 'zencoding-mode)
-;;    (add-hook 'css-mode-hook  'zencoding-mode)
+;;    (add-to-list 'load-path "~/Emacs/emmet/")
+;;    (require 'emmet-mode)
+;;    (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+;;    (add-hook 'html-mode-hook 'emmet-mode)
+;;    (add-hook 'css-mode-hook  'emmet-mode)
 ;;
-;; Enable the minor mode with M-x zencoding-mode.
+;; Enable the minor mode with M-x emmet-mode.
 ;;
 ;; See ``Test cases'' section for a complete set of expression types.
 ;;
-;; If you are hacking on this project, eval (zencoding-test-cases) to
+;; If you are hacking on this project, eval (emmet-test-cases) to
 ;; ensure that your changes have not broken anything. Feel free to add
 ;; new test cases if you add new features.
 ;;
@@ -56,35 +57,32 @@
 ;;
 ;;; History:
 ;;
-;; Modified by Lennart Borgman.
-;;
-;;
+;; This is a fork of zencoding-mode to support Emmet's feature.
+;; zencoding-mode (https://github.com/rooney/zencoding)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;; Code:
 
-(defconst zencoding-mode:version "0.5.1")
+(defconst emmet-mode:version "0.1.0")
 
-;; Include the trie data structure for caching
-;(require 'zencoding-trie)
+(eval-when-compile (require 'cl))
 
-(require 'cl)
-
-(defmacro zencoding-defparameter (symbol &optional initvalue docstring)
+(defmacro emmet-defparameter (symbol &optional initvalue docstring)
   `(progn
      (defvar ,symbol nil ,docstring)
      (setq   ,symbol ,initvalue)))
 
-(defun zencoding-join-string (lis joiner)
+(defun emmet-join-string (lis joiner)
   (mapconcat 'identity lis joiner))
 
-(defun zencoding-get-keys-of-hash (hash)
+(defun emmet-get-keys-of-hash (hash)
   (let ((ks nil))
     (maphash #'(lambda (k v) (setq ks (cons k ks))) hash)
     ks))
 
-(defun zencoding-get-vals-of-hash (hash)
+(defun emmet-get-vals-of-hash (hash)
   (let ((vs nil))
     (maphash #'(lambda (k v) (setq vs (cons v vs))) hash)
     vs))
@@ -92,45 +90,45 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic parsing macros and utilities
 
-(defmacro zencoding-aif (test-form then-form &rest else-forms)
+(defmacro emmet-aif (test-form then-form &rest else-forms)
   "Anaphoric if. Temporary variable `it' is the result of test-form."
   `(let ((it ,test-form))
      (if it ,then-form ,@(or else-forms '(it)))))
 
-(defmacro zencoding-pif (test-form then-form &rest else-forms)
+(defmacro emmet-pif (test-form then-form &rest else-forms)
   "Parser anaphoric if. Temporary variable `it' is the result of test-form."
   `(let ((it ,test-form))
      (if (not (eq 'error (car it))) ,then-form ,@(or else-forms '(it)))))
 
-(defmacro zencoding-parse (regex nums label &rest body)
+(defmacro emmet-parse (regex nums label &rest body)
   "Parse according to a regex and update the `input' variable."
-  `(zencoding-aif (zencoding-regex ,regex input ',(number-sequence 0 nums))
+  `(emmet-aif (emmet-regex ,regex input ',(number-sequence 0 nums))
                   (let ((input (elt it ,nums)))
                     ,@body)
                   `,`(error ,(concat "expected " ,label))))
 
-(defmacro zencoding-run (parser then-form &rest else-forms)
+(defmacro emmet-run (parser then-form &rest else-forms)
   "Run a parser and update the input properly, extract the parsed
    expression."
-  `(zencoding-pif (,parser input)
+  `(emmet-pif (,parser input)
                   (let ((input (cdr it))
                         (expr (car it)))
                     ,then-form)
                   ,@(or else-forms '(it))))
 
-(defmacro zencoding-por (parser1 parser2 then-form &rest else-forms)
+(defmacro emmet-por (parser1 parser2 then-form &rest else-forms)
   "OR two parsers. Try one parser, if it fails try the next."
-  `(zencoding-pif (,parser1 input)
+  `(emmet-pif (,parser1 input)
                   (let ((input (cdr it))
                         (expr (car it)))
                     ,then-form)
-                  (zencoding-pif (,parser2 input)
+                  (emmet-pif (,parser2 input)
                                  (let ((input (cdr it))
                                        (expr (car it)))
                                    ,then-form)
                                  ,@else-forms)))
 
-(defun zencoding-regex (regexp string refs)
+(defun emmet-regex (regexp string refs)
   "Return a list of (`ref') matches for a `regex' on a `string' or nil."
   (if (string-match (concat "^" regexp "\\([^\n]*\\)$") string)
       (mapcar (lambda (ref) (match-string ref string))
@@ -139,7 +137,7 @@
 ;; src/snippets.el
 ;; This file is generated from conf/snippets.json
 ;; Don't edit.
-(zencoding-defparameter zencoding-snippets
+(emmet-defparameter emmet-snippets
 (let ((tbl (make-hash-table :test 'equal)))
 (puthash "html" (let ((tbl (make-hash-table :test 'equal)))
 (puthash "snippets" (let ((tbl (make-hash-table :test 'equal)))
@@ -837,7 +835,7 @@ tbl))
 ;; src/preferences.el
 ;; This file is generated from conf/preferences.json
 ;; Don't edit.
-(zencoding-defparameter zencoding-preferences
+(emmet-defparameter emmet-preferences
 (let ((tbl (make-hash-table :test 'equal)))
 (puthash "html" (let ((tbl (make-hash-table :test 'equal)))
 (puthash "tags" (let ((tbl (make-hash-table :test 'equal)))
@@ -2385,57 +2383,57 @@ tbl))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; XML abbrev
 
-(zencoding-defparameter
- zencoding-tag-aliases-table
- (gethash "aliases" (gethash "html" zencoding-snippets)))
+(emmet-defparameter
+ emmet-tag-aliases-table
+ (gethash "aliases" (gethash "html" emmet-snippets)))
 
-(defun zencoding-expr (input)
+(defun emmet-expr (input)
   "Parse a zen coding expression with optional filters."
-  (zencoding-pif (zencoding-parse "\\(.*?\\)|" 2 "expr|filter" it)
+  (emmet-pif (emmet-parse "\\(.*?\\)|" 2 "expr|filter" it)
                  (let ((input (elt it 1))
                        (filters (elt it 2)))
-                   (zencoding-pif (zencoding-extract-filters filters)
-                                  (zencoding-filter input it)
+                   (emmet-pif (emmet-extract-filters filters)
+                                  (emmet-filter input it)
                                   it))
-                 (zencoding-filter input (zencoding-default-filter))))
+                 (emmet-filter input (emmet-default-filter))))
 
-(defun zencoding-subexpr (input)
+(defun emmet-subexpr (input)
   "Parse a zen coding expression with no filter. This pretty much defines precedence."
-  (zencoding-run zencoding-siblings
+  (emmet-run emmet-siblings
                  it
-                 (zencoding-run zencoding-parent-child
+                 (emmet-run emmet-parent-child
                                 it
-                                (zencoding-run zencoding-multiplier
+                                (emmet-run emmet-multiplier
                                                it
-                                               (zencoding-run zencoding-pexpr
+                                               (emmet-run emmet-pexpr
                                                               it
-                                                              (zencoding-run zencoding-text
+                                                              (emmet-run emmet-text
                                                                              it
-                                                                             (zencoding-run zencoding-tag
+                                                                             (emmet-run emmet-tag
                                                                                             it
                                                                                             '(error "no match, expecting ( or a-zA-Z0-9"))))))))
 
-(defun zencoding-extract-filters (input)
+(defun emmet-extract-filters (input)
   "Extract filters from expression."
-  (zencoding-pif (zencoding-parse "\\([^\\|]+?\\)|" 2 "" it)
+  (emmet-pif (emmet-parse "\\([^\\|]+?\\)|" 2 "" it)
                  (let ((filter-name (elt it 1))
                        (more-filters (elt it 2)))
-                   (zencoding-pif (zencoding-extract-filters more-filters)
+                   (emmet-pif (emmet-extract-filters more-filters)
                                   (cons filter-name it)
                                   it))
-                 (zencoding-parse "\\([^\\|]+\\)" 1 "filter name" `(,(elt it 1)))))
+                 (emmet-parse "\\([^\\|]+\\)" 1 "filter name" `(,(elt it 1)))))
 
-(defun zencoding-filter (input filters)
+(defun emmet-filter (input filters)
   "Construct AST with specified filters."
-  (zencoding-pif (zencoding-subexpr input)
+  (emmet-pif (emmet-subexpr input)
                  (let ((result (car it))
                        (rest (cdr it)))
                    `((filter ,filters ,result) . ,rest))
                  it))
 
-(defun zencoding-default-filter ()
+(defun emmet-default-filter ()
   "Default filter(s) to be used if none is specified."
-  (let* ((file-ext (car (zencoding-regex ".*\\(\\..*\\)" (or (buffer-file-name) "") 1)))
+  (let* ((file-ext (car (emmet-regex ".*\\(\\..*\\)" (or (buffer-file-name) "") 1)))
          (defaults '(".html" ("html")
                      ".htm"  ("html")
                      ".haml" ("haml")
@@ -2446,11 +2444,11 @@ tbl))
         (cadr selected-default)
       default-else)))
 
-(defun zencoding-numbering (input)
-  (zencoding-parse
+(defun emmet-numbering (input)
+  (emmet-parse
    "\\(\\$+\\)" 2 "numbering, $"
    (let ((doller (elt it 1)))
-     (zencoding-pif (zencoding-parse
+     (emmet-pif (emmet-parse
                      "@\\([0-9-][0-9]*\\)" 2 "numbering args"
                      (let* ((args (read (elt it 1)))
                             (direction  (not (or (eq '- args) (minusp args))))
@@ -2459,17 +2457,17 @@ tbl))
                     it
                     `((n ,(length doller) t 1) . ,input)))))
 
-(defun zencoding-split-numbering-expressions (input)
+(defun emmet-split-numbering-expressions (input)
   (labels
       ((iter (input)
-             (zencoding-aif (zencoding-regex "\\([^$]*\\)\\(\\$.*\\)" input '(1 2))
+             (emmet-aif (emmet-regex "\\([^$]*\\)\\(\\$.*\\)" input '(1 2))
                 (let ((prefix (car it))
                       (input (cadr it)))
                   (if (and (< 0 (length prefix)) ; check if ..\\$... or ...$...
                            (string-equal (substring prefix -1) "\\"))
                       `(,(store-substring prefix (- (length prefix) 1) ?$)
                         ,@(iter (substring input 1)))
-                    (let ((res (zencoding-numbering input)))
+                    (let ((res (emmet-numbering input)))
                       `(,prefix ,(car res) ,@(iter (cdr res))))))
                 (list input))))
     (let ((res (iter input)))
@@ -2477,7 +2475,7 @@ tbl))
           (apply #'concat res)
         `(numberings ,@res)))))
 
-(defun zencoding-instantiate-numbering-expression (i lim exp)
+(defun emmet-instantiate-numbering-expression (i lim exp)
   (labels ((instantiate
             (i lim exps)
             (apply #'concat
@@ -2504,70 +2502,70 @@ tbl))
               exp)))
     (search i lim exp)))
 
-(defun zencoding-multiply-expression (multiplicand exp)
+(defun emmet-multiply-expression (multiplicand exp)
   (loop for i to (- multiplicand 1) collect
-        (zencoding-instantiate-numbering-expression i multiplicand exp)))
+        (emmet-instantiate-numbering-expression i multiplicand exp)))
 
-(defun zencoding-multiplier (input)
-  (zencoding-pif (zencoding-run zencoding-pexpr
+(defun emmet-multiplier (input)
+  (emmet-pif (emmet-run emmet-pexpr
                                 it
-                                (zencoding-run zencoding-tag
+                                (emmet-run emmet-tag
                                                it
-                                               (zencoding-run zencoding-text
+                                               (emmet-run emmet-text
                                                               it
                                                               '(error "expected *n multiplier"))))
                  (let* ((expr (car it)) (input (cdr it))
                         (multiplier expr))
-                   (zencoding-parse "\\*\\([0-9]+\\)" 2 "*n where n is a number"
+                   (emmet-parse "\\*\\([0-9]+\\)" 2 "*n where n is a number"
                                     (let ((multiplicand (read (elt it 1))))
-                                      `((list ,(zencoding-multiply-expression
+                                      `((list ,(emmet-multiply-expression
                                                 multiplicand
                                                 multiplier)) . ,input))))))
 
-(defun zencoding-tag (input)
+(defun emmet-tag (input)
   "Parse a tag."
-  (zencoding-run
-   zencoding-tagname
+  (emmet-run
+   emmet-tagname
    (let ((tagname (cadr expr))
          (has-body? (cddr expr)))
-     (zencoding-pif
-      (zencoding-run zencoding-identifier
-                     (zencoding-tag-classes
+     (emmet-pif
+      (emmet-run emmet-identifier
+                     (emmet-tag-classes
                       `(tag (,tagname ,has-body? ,(cddr expr))) input)
-                     (zencoding-tag-classes
+                     (emmet-tag-classes
                       `(tag (,tagname ,has-body? nil)) input))
       (let ((tag-data (cadar it)) (input (cdr it)))
-        (zencoding-pif (zencoding-run
-                        zencoding-props
+        (emmet-pif (emmet-run
+                        emmet-props
                         (let ((props (cdr expr)))
                           `((tag ,(append tag-data (list props))) . ,input))
                         `((tag ,(append tag-data '(nil))) . ,input))
                        (let ((expr (car it)) (input (cdr it)))
                          (destructuring-bind (expr . input)
-                             (zencoding-tag-text expr input)
-                           (zencoding-expand-tag-alias expr input)))))))
-   (zencoding-default-tag input)))
+                             (emmet-tag-text expr input)
+                           (emmet-expand-tag-alias expr input)))))))
+   (emmet-default-tag input)))
 
-(defun zencoding-get-first-tag (expr)
+(defun emmet-get-first-tag (expr)
   (if (listp expr)
       (if (listp (car expr))
-          (zencoding-get-first-tag (car expr))
+          (emmet-get-first-tag (car expr))
         (if (eql (car expr) 'tag)
             expr
-          (zencoding-get-first-tag (cdr expr))))
+          (emmet-get-first-tag (cdr expr))))
     nil))
 
-(defun zencoding-expand-tag-alias (tag input)
+(defun emmet-expand-tag-alias (tag input)
   (let ((tag-data (cadr tag)))
     (let ((tag-name (car tag-data)))
-      (zencoding-aif
-       (gethash tag-name zencoding-tag-aliases-table)
+      (emmet-aif
+       (gethash tag-name emmet-tag-aliases-table)
        (let ((expr (if (stringp it)
-                       (zencoding-subexpr it)
+                       (emmet-subexpr it)
                      it)))
          (prog1
              (let ((rt (copy-tree expr)))
-               (let ((first-tag-data (cadr (zencoding-get-first-tag rt))))
+               (let ((first-tag-data (cadr (emmet-get-first-tag rt))))
                  (setf (second first-tag-data) (second tag-data))
                  (setf (third first-tag-data)  (third tag-data))
                  (setf (fourth first-tag-data)
@@ -2583,90 +2581,90 @@ tbl))
                  (setf (sixth first-tag-data) (sixth tag-data))
                  (setf (cdr rt) (concat (cdr rt) input))
                  rt))
-           (puthash tag-name expr zencoding-tag-aliases-table)))
+           (puthash tag-name expr emmet-tag-aliases-table)))
        `(,tag . ,input)))))
 
-(defun zencoding-default-tag (input)
+(defun emmet-default-tag (input)
   "Parse a #id or .class"
-  (zencoding-parse "\\([#|\\.]\\)" 1 "tagname"
-                   (zencoding-tag (concat "div" (elt it 0)))))
+  (emmet-parse "\\([#|\\.]\\)" 1 "tagname"
+                   (emmet-tag (concat "div" (elt it 0)))))
 
-(defun zencoding-tag-text (tag input)
+(defun emmet-tag-text (tag input)
   (let ((tag-data (cadr tag)))
-    (zencoding-run zencoding-text
+    (emmet-run emmet-text
                    (let ((txt (cadr expr)))
                      `((tag ,(append tag-data (list txt))) . ,input))
                    `((tag ,(append tag-data '(nil))) . ,input))))
 
-(defun zencoding-tag-props (tag input)
+(defun emmet-tag-props (tag input)
   (let ((tag-data (cadr tag)))
-    (zencoding-run zencoding-props
+    (emmet-run emmet-props
                    (let ((props (cdr expr)))
                      `((tag ,(append tag-data (list props))) . ,input))
                    `((tag ,(append tag-data '(nil))) . ,input))))
 
-(defun zencoding-props (input)
+(defun emmet-props (input)
   "Parse many props."
-    (zencoding-run zencoding-prop
-                   (zencoding-pif (zencoding-props input)
+    (emmet-run emmet-prop
+                   (emmet-pif (emmet-props input)
                                   `((props . ,(cons expr (cdar it))) . ,(cdr it))
                                   `((props . ,(list expr)) . ,input))))
 
-(defun zencoding-prop (input)
-  (zencoding-parse
+(defun emmet-prop (input)
+  (emmet-parse
    " " 1 "space"
-   (zencoding-run
-    zencoding-name
+   (emmet-run
+    emmet-name
     (let ((name (cdr expr)))
-      (zencoding-pif (zencoding-prop-value name input)
+      (emmet-pif (emmet-prop-value name input)
                      it
                      `((,(read name) "") . ,input))))))
 
-(defun zencoding-prop-value (name input)
-  (zencoding-pif (zencoding-parse "=\"\\(.*?\\)\"" 2
+(defun emmet-prop-value (name input)
+  (emmet-pif (emmet-parse "=\"\\(.*?\\)\"" 2
                                   "=\"property value\""
                                   (let ((value (elt it 1))
                                         (input (elt it 2)))
                                     `((,(read name) ,value) . ,input)))
                  it
-                 (zencoding-parse "=\\([^\\,\\+\\>\\{\\}\\ )]*\\)" 2
+                 (emmet-parse "=\\([^\\,\\+\\>\\{\\}\\ )]*\\)" 2
                                   "=property value"
                                   (let ((value (elt it 1))
                                         (input (elt it 2)))
                                     `((,(read name) ,value) . ,input)))))
 
-(defun zencoding-tag-classes (tag input)
+(defun emmet-tag-classes (tag input)
   (let ((tag-data (cadr tag)))
-    (zencoding-run zencoding-classes
+    (emmet-run emmet-classes
                    (let ((classes (mapcar (lambda (cls) (cdadr cls))
                                           (cdr expr))))
                      `((tag ,(append tag-data (list classes))) . ,input))
                    `((tag ,(append tag-data '(nil))) . ,input))))
 
-(defun zencoding-tagname (input)
+(defun emmet-tagname (input)
   "Parse a tagname a-zA-Z0-9 tagname (e.g. html/head/xsl:if/br)."
-  (zencoding-parse "\\([a-zA-Z!][a-zA-Z0-9:!$@-]*\/?\\)" 2 "tagname, a-zA-Z0-9"
+  (emmet-parse "\\([a-zA-Z!][a-zA-Z0-9:!$@-]*\/?\\)" 2 "tagname, a-zA-Z0-9"
                    (let* ((tag-spec (elt it 1))
-                          (empty-tag (zencoding-regex "\\([^\/]*\\)\/" tag-spec 1))
-                          (tag (zencoding-split-numbering-expressions
+                          (empty-tag (emmet-regex "\\([^\/]*\\)\/" tag-spec 1))
+                          (tag (emmet-split-numbering-expressions
                                 (if empty-tag (car empty-tag) tag-spec))))
                      `((tagname . (,tag . ,(not empty-tag))) . ,input))))
 
-(defun zencoding-text (input)
+(defun emmet-text (input)
   "A zen coding expression innertext."
-  (zencoding-parse "{\\(.*?\\)}" 2 "inner text"
-                   (let ((txt (zencoding-split-numbering-expressions (elt it 1))))
+  (emmet-parse "{\\(.*?\\)}" 2 "inner text"
+                   (let ((txt (emmet-split-numbering-expressions (elt it 1))))
                      `((text ,txt) . ,input))))
 
-(defun zencoding-pexpr (input)
+(defun emmet-pexpr (input)
   "A zen coding expression with parentheses around it."
-  (zencoding-parse "(" 1 "("
-                   (zencoding-run zencoding-subexpr
-                                  (zencoding-aif (zencoding-regex ")" input '(0 1))
+  (emmet-parse "(" 1 "("
+                   (emmet-run emmet-subexpr
+                                  (emmet-aif (emmet-regex ")" input '(0 1))
                                                  `(,expr . ,(elt it 1))
                                                  '(error "expecting `)'")))))
 
-(defun zencoding-parent-child (input)
+(defun emmet-parent-child (input)
   "Parse an tag>e expression, where `n' is an tag and `e' is any
    expression."
   (defun listing (parents child input)
@@ -2674,100 +2672,100 @@ tbl))
       `((list ,(map 'list
                     (lambda (parent i)
                       `(parent-child ,parent
-                                     ,(zencoding-instantiate-numbering-expression i len child)))
+                                     ,(emmet-instantiate-numbering-expression i len child)))
                     parents
                     (loop for i to (- len 1) collect i))) . ,input)))
-  (zencoding-run zencoding-multiplier
+  (emmet-run emmet-multiplier
                  (let* ((items (cadr expr))
-                        (rest (zencoding-child-sans expr input)))
+                        (rest (emmet-child-sans expr input)))
                    (if (not (eq (car rest) 'error))
                        (let ((child (car rest))
                              (input (cdr rest)))
 
-                         (zencoding-aif (zencoding-regex "^" input '(0 1))
+                         (emmet-aif (emmet-regex "^" input '(0 1))
                                                    (let ((input (elt it 1)))
-                                                     (zencoding-run zencoding-subexpr
+                                                     (emmet-run emmet-subexpr
                                                                     `((sibling ,(car (listing items child "")) ,expr) . ,input)
                                                                     (listing items child input)))
                                                    (listing items child input)))
                      '(error "expected child")))
-                 (zencoding-run zencoding-tag
-                                (zencoding-child expr input)
+                 (emmet-run emmet-tag
+                                (emmet-child expr input)
                                 '(error "expected parent"))))
 
-(defun zencoding-child-sans (parent input)
-  (zencoding-parse ">" 1 ">"
-                   (zencoding-run zencoding-subexpr
+(defun emmet-child-sans (parent input)
+  (emmet-parse ">" 1 ">"
+                   (emmet-run emmet-subexpr
                                   it
                                   '(error "expected child"))))
 
-(defun zencoding-child (parent input)
-  (zencoding-parse ">" 1 ">"
-                   (zencoding-run zencoding-subexpr
+(defun emmet-child (parent input)
+  (emmet-parse ">" 1 ">"
+                   (emmet-run emmet-subexpr
                                   (let ((child expr))
-                                    (zencoding-aif (zencoding-regex "^" input '(0 1))
+                                    (emmet-aif (emmet-regex "^" input '(0 1))
                                                    (let ((input (elt it 1)))
-                                                     (zencoding-run zencoding-subexpr
+                                                     (emmet-run emmet-subexpr
                                                                     `((sibling (parent-child ,parent ,child) ,expr) . ,input)
                                                                     `((parent-child ,parent ,child) . ,input)))
                                                    `((parent-child ,parent ,child) . ,input)))
                                   '(error "expected child"))))
 
-(defun zencoding-sibling (input)
-  (zencoding-por zencoding-pexpr zencoding-multiplier
+(defun emmet-sibling (input)
+  (emmet-por emmet-pexpr emmet-multiplier
                  it
-                 (zencoding-run zencoding-tag
+                 (emmet-run emmet-tag
                                 it
-                                (zencoding-run zencoding-text
+                                (emmet-run emmet-text
                                                it
                                                '(error "expected sibling")))))
 
-(defun zencoding-siblings (input)
+(defun emmet-siblings (input)
   "Parse an e+e expression, where e is an tag or a pexpr."
-  (zencoding-run zencoding-sibling
+  (emmet-run emmet-sibling
                  (let ((parent expr))
-                   (zencoding-parse
+                   (emmet-parse
                     "\\+" 1 "+"
-                    (zencoding-run
-                     zencoding-subexpr
+                    (emmet-run
+                     emmet-subexpr
                      (let ((child expr))
                        `((sibling ,parent ,child) . ,input))
-                     (zencoding-expand parent input))))
+                     (emmet-expand parent input))))
                  '(error "expected first sibling")))
 
-(defun zencoding-expand (parent input)
+(defun emmet-expand (parent input)
   "Parse an e+ expression, where e is an expandable tag"
   (let* ((parent-tag (car (cadr parent))))
     (setf (caadr parent) (concat parent-tag "+"))
     (destructuring-bind (parent . input)
-        (zencoding-expand-tag-alias parent input)
-      (zencoding-pif (zencoding-parse "+\\(.*\\)" 1 "+expr"
-                                      (zencoding-subexpr (elt it 1)))
+        (emmet-expand-tag-alias parent input)
+      (emmet-pif (emmet-parse "+\\(.*\\)" 1 "+expr"
+                                      (emmet-subexpr (elt it 1)))
                      `((sibling ,parent ,@it))
                      `(,parent . ,input)))))
 
-(defun zencoding-name (input)
+(defun emmet-name (input)
   "Parse a class or identifier name, e.g. news, footer, mainimage"
-  (zencoding-parse "\\([a-zA-Z$@][a-zA-Z0-9$@_:-]*\\)" 2 "class or identifer name"
-                   `((name . ,(zencoding-split-numbering-expressions
+  (emmet-parse "\\([a-zA-Z$@][a-zA-Z0-9$@_:-]*\\)" 2 "class or identifer name"
+                   `((name . ,(emmet-split-numbering-expressions
                                (elt it 1))) . ,input)))
 
-(defun zencoding-class (input)
+(defun emmet-class (input)
   "Parse a classname expression, e.g. .foo"
-  (zencoding-parse "\\." 1 "."
-                   (zencoding-run zencoding-name
+  (emmet-parse "\\." 1 "."
+                   (emmet-run emmet-name
                                   `((class ,expr) . ,input)
                                   '(error "expected class name"))))
-(defun zencoding-identifier (input)
+(defun emmet-identifier (input)
   "Parse an identifier expression, e.g. #foo"
-  (zencoding-parse "#" 1 "#"
-                   (zencoding-run zencoding-name
+  (emmet-parse "#" 1 "#"
+                   (emmet-run emmet-name
                                   `((identifier . ,expr) . ,input))))
 
-(defun zencoding-classes (input)
+(defun emmet-classes (input)
   "Parse many classes."
-  (zencoding-run zencoding-class
-                 (zencoding-pif (zencoding-classes input)
+  (emmet-run emmet-class
+                 (emmet-pif (emmet-classes input)
                                 `((classes . ,(cons expr (cdar it))) . ,(cdr it))
                                 `((classes . ,(list expr)) . ,input))
                  '(error "expected class")))
@@ -2775,46 +2773,46 @@ tbl))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Zen coding transformer from AST to string
 
-(defvar zencoding-leaf-function nil
+(defvar emmet-leaf-function nil
   "Function to execute when expanding a leaf node in the
-  Zencoding AST.")
+  Emmet AST.")
 
-(zencoding-defparameter
- zencoding-tag-settings-table
- (gethash "tags" (gethash "html" zencoding-preferences)))
+(emmet-defparameter
+ emmet-tag-settings-table
+ (gethash "tags" (gethash "html" emmet-preferences)))
 
-(zencoding-defparameter
- zencoding-tag-snippets-table
- (gethash "snippets" (gethash "html" zencoding-snippets)))
+(emmet-defparameter
+ emmet-tag-snippets-table
+ (gethash "snippets" (gethash "html" emmet-snippets)))
 
-(defvar zencoding-filters
-  '("html" (zencoding-primary-filter zencoding-make-html-tag)
-    "c"    (zencoding-primary-filter zencoding-make-commented-html-tag)
-    "haml" (zencoding-primary-filter zencoding-make-haml-tag)
-    "hic"  (zencoding-primary-filter zencoding-make-hiccup-tag)
-    "e"    (zencoding-escape-xml)))
+(defvar emmet-filters
+  '("html" (emmet-primary-filter emmet-make-html-tag)
+    "c"    (emmet-primary-filter emmet-make-commented-html-tag)
+    "haml" (emmet-primary-filter emmet-make-haml-tag)
+    "hic"  (emmet-primary-filter emmet-make-hiccup-tag)
+    "e"    (emmet-escape-xml)))
 
-(defun zencoding-primary-filter (input proc)
+(defun emmet-primary-filter (input proc)
   "Process filter that needs to be executed first, ie. not given output from other filter."
   (if (listp input)
       (let ((tag-maker (cadr proc)))
-        (zencoding-transform-ast input tag-maker))
+        (emmet-transform-ast input tag-maker))
     nil))
 
-(defun zencoding-process-filter (filters input)
+(defun emmet-process-filter (filters input)
   "Process filters, chain one filter output as the input of the next filter."
-  (let ((filter-data (member (car filters) zencoding-filters))
+  (let ((filter-data (member (car filters) emmet-filters))
         (more-filters (cdr filters)))
     (if filter-data
         (let* ((proc   (cadr filter-data))
                (fun    (car proc))
                (filter-output (funcall fun input proc)))
           (if more-filters
-              (zencoding-process-filter more-filters filter-output)
+              (emmet-process-filter more-filters filter-output)
             filter-output))
       nil)))
 
-(defun zencoding-make-tag (tag-maker tag-info &optional content)
+(defun emmet-make-tag (tag-maker tag-info &optional content)
   "Extract tag info and pass them to tag-maker."
   (let* ((name      (pop tag-info))
          (has-body? (pop tag-info))
@@ -2822,25 +2820,25 @@ tbl))
          (classes   (pop tag-info))
          (props     (pop tag-info))
          (txt       (pop tag-info))
-         (settings  (gethash name zencoding-tag-settings-table)))
+         (settings  (gethash name emmet-tag-settings-table)))
     (funcall tag-maker name has-body? id classes props txt settings
              (if content content
-               (if zencoding-leaf-function (funcall zencoding-leaf-function))))))
+               (if emmet-leaf-function (funcall emmet-leaf-function))))))
 
-(defun zencoding-hash-to-list (hash &optional proc)
+(defun emmet-hash-to-list (hash &optional proc)
   (unless proc (setq proc #'cons))
   (loop for key being the hash-keys of hash using (hash-values val)
         collect (funcall proc key val)))
 
-(defun zencoding-merge-tag-props (default-table tag-props)
+(defun emmet-merge-tag-props (default-table tag-props)
   (if default-table
       (let ((tbl (copy-hash-table default-table)))
         (loop for prop in tag-props do
               (puthash (symbol-name (car prop)) (cadr prop) tbl))
-        (zencoding-hash-to-list tbl 'list))
+        (emmet-hash-to-list tbl 'list))
     tag-props))
 
-(defun zencoding-html-snippets-instantiate-lambda (src)
+(defun emmet-html-snippets-instantiate-lambda (src)
   (let ((lines (mapcar
                 #'(lambda (src)
                     (if (string-match "^\\(.*\\)${child}\\(.*\\)$" src)
@@ -2864,36 +2862,36 @@ tbl))
             (if b
                 `(lambda (contents)
                    (concat
-                    ,(zencoding-join-string (reverse a) "\n")
+                    ,(emmet-join-string (reverse a) "\n")
                     contents
-                    ,(zencoding-join-string (reverse b) "\n")))
+                    ,(emmet-join-string (reverse b) "\n")))
               `(lambda (contents)
                  (concat
-                  ,(zencoding-join-string (reverse a) "\n")
+                  ,(emmet-join-string (reverse a) "\n")
                   contents))))))
       (eval (iter lines 'a nil nil)))))
 
-(defun zencoding-make-html-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
+(defun emmet-make-html-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
   "Create HTML markup string"
-  (zencoding-aif
-   (gethash tag-name zencoding-tag-snippets-table)
+  (emmet-aif
+   (gethash tag-name emmet-tag-snippets-table)
 
    (let ((fn (if (stringp it)
-                 (zencoding-html-snippets-instantiate-lambda it)
+                 (emmet-html-snippets-instantiate-lambda it)
                it)))
      (prog1
          (funcall fn content)
-       (puthash tag-name fn zencoding-tag-snippets-table)))
+       (puthash tag-name fn emmet-tag-snippets-table)))
 
-   (let* ((id           (zencoding-concat-or-empty " id=\"" tag-id "\""))
-          (classes      (zencoding-mapconcat-or-empty " class=\"" tag-classes " " "\""))
+   (let* ((id           (emmet-concat-or-empty " id=\"" tag-id "\""))
+          (classes      (emmet-mapconcat-or-empty " class=\"" tag-classes " " "\""))
           (props        (let* ((tag-props-default
                                 (and settings (gethash "defaultAttr" settings)))
                                (merged-tag-props
-                                (zencoding-merge-tag-props
+                                (emmet-merge-tag-props
                                  tag-props-default
                                  tag-props)))
-                          (zencoding-mapconcat-or-empty
+                          (emmet-mapconcat-or-empty
                            " " merged-tag-props " " nil
                            (lambda (prop)
                              (let ((key (car prop)))
@@ -2910,49 +2908,49 @@ tbl))
                (concat ">"
                        (if tag-txt
                            (if (or content-multiline? block-tag?)
-                               (zencoding-indent tag-txt)
+                               (emmet-indent tag-txt)
                              tag-txt))
                        (if content
                            (if (or content-multiline? block-tag?)
-                               (zencoding-indent content)
+                               (emmet-indent content)
                              content))
                        lf
                        "</" tag-name ">"))))))
 
-(defun zencoding-make-commented-html-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
+(defun emmet-make-commented-html-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
   "Create HTML markup string with extra comments for elements with #id or .classes"
-  (let ((body (zencoding-make-html-tag tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)))
+  (let ((body (emmet-make-html-tag tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)))
     (if (or tag-id tag-classes)
-        (let ((id      (zencoding-concat-or-empty "#" tag-id))
-              (classes (zencoding-mapconcat-or-empty "." tag-classes ".")))
+        (let ((id      (emmet-concat-or-empty "#" tag-id))
+              (classes (emmet-mapconcat-or-empty "." tag-classes ".")))
           (concat "<!-- " id classes " -->\n"
                   body
                   "\n<!-- /" id classes " -->"))
       body)))
 
-(defun zencoding-make-haml-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
+(defun emmet-make-haml-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
   "Create HAML string"
   (let ((name    (if (and (equal tag-name "div")
                           (or tag-id tag-classes))
                      ""
                    (concat "%" tag-name)))
-        (id      (zencoding-concat-or-empty "#" tag-id))
-        (classes (zencoding-mapconcat-or-empty "." tag-classes "."))
-        (props   (zencoding-mapconcat-or-empty
+        (id      (emmet-concat-or-empty "#" tag-id))
+        (classes (emmet-mapconcat-or-empty "." tag-classes "."))
+        (props   (emmet-mapconcat-or-empty
                   "{" tag-props ", " "}"
                   (lambda (prop)
                     (concat ":" (symbol-name (car prop)) " => \"" (cadr prop) "\"")))))
     (concat name id classes props
             (if tag-txt
-                (zencoding-indent tag-txt))
+                (emmet-indent tag-txt))
             (if content
-                (zencoding-indent content)))))
+                (emmet-indent content)))))
 
-(defun zencoding-make-hiccup-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
+(defun emmet-make-hiccup-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
   "Create Hiccup string"
-  (let* ((id      (zencoding-concat-or-empty "#" tag-id))
-         (classes (zencoding-mapconcat-or-empty "." tag-classes "."))
-         (props   (zencoding-mapconcat-or-empty
+  (let* ((id      (emmet-concat-or-empty "#" tag-id))
+         (classes (emmet-mapconcat-or-empty "." tag-classes "."))
+         (props   (emmet-mapconcat-or-empty
                    " {" tag-props ", " "}"
                    (lambda (prop)
                      (concat ":" (symbol-name (car prop)) " \"" (cadr prop) "\""))))
@@ -2962,27 +2960,27 @@ tbl))
             (if tag-txt
                 (let ((tag-txt-quoted (concat "\"" tag-txt "\"")))
                   (if (or content-multiline? block-tag?)
-                      (zencoding-indent tag-txt-quoted)
+                      (emmet-indent tag-txt-quoted)
                     (concat " " tag-txt-quoted))))
             (if content
                 (if (or content-multiline? block-tag?)
-                    (zencoding-indent content)
+                    (emmet-indent content)
                   (concat " " content)))
             "]")))
 
-(defun zencoding-make-text (tag-maker text)
+(defun emmet-make-text (tag-maker text)
   (cond
-   ((eq tag-maker 'zencoding-make-hiccup-tag)
+   ((eq tag-maker 'emmet-make-hiccup-tag)
     (concat "\"" text "\""))
    (t text)))
 
-(defun zencoding-concat-or-empty (prefix body &optional suffix)
+(defun emmet-concat-or-empty (prefix body &optional suffix)
   "Return prefixed suffixed text or empty string."
   (if body
       (concat prefix body suffix)
     ""))
 
-(defun zencoding-mapconcat-or-empty (prefix list-body delimiter &optional suffix map-fun)
+(defun emmet-mapconcat-or-empty (prefix list-body delimiter &optional suffix map-fun)
   "Return prefixed suffixed mapconcated text or empty string."
   (if list-body
       (let* ((mapper (if map-fun map-fun 'identity))
@@ -2990,7 +2988,7 @@ tbl))
         (concat prefix body suffix))
     ""))
 
-(defun zencoding-escape-xml (input proc)
+(defun emmet-escape-xml (input proc)
   "Escapes XML-unsafe characters: <, > and &."
   (replace-regexp-in-string
    "<" "&lt;"
@@ -3000,43 +2998,43 @@ tbl))
      "&" "&amp;"
      (if (stringp input)
          input
-       (zencoding-process-filter (zencoding-default-filter) input))))))
+       (emmet-process-filter (emmet-default-filter) input))))))
 
-(defun zencoding-html-transform (input)
-  (let ((ast (car (zencoding-expr input))))
+(defun emmet-html-transform (input)
+  (let ((ast (car (emmet-expr input))))
     (when (not (eq ast 'error))
-      (zencoding-transform-ast-with-filters ast))))
+      (emmet-transform-ast-with-filters ast))))
 
-(defun zencoding-transform-ast-with-filters (ast-with-filters)
+(defun emmet-transform-ast-with-filters (ast-with-filters)
   "Transform AST (containing filter data) into string."
   (let ((filters (cadr ast-with-filters))
         (ast (caddr ast-with-filters)))
-    (zencoding-process-filter filters ast)))
+    (emmet-process-filter filters ast)))
 
-(defun zencoding-transform-ast (ast tag-maker)
+(defun emmet-transform-ast (ast tag-maker)
   "Transform AST (without filter data) into string."
   (let ((type (car ast)))
     (cond
      ((eq type 'list)
       (mapconcat (lexical-let ((make-tag-fun tag-maker))
                    #'(lambda (sub-ast)
-                       (zencoding-transform-ast sub-ast make-tag-fun)))
+                       (emmet-transform-ast sub-ast make-tag-fun)))
                  (cadr ast)
                  "\n"))
      ((eq type 'tag)
-      (zencoding-make-tag tag-maker (cadr ast)))
+      (emmet-make-tag tag-maker (cadr ast)))
      ((eq type 'text)
-      (zencoding-make-text tag-maker (cadr ast)))
+      (emmet-make-text tag-maker (cadr ast)))
      ((eq type 'parent-child)
       (let ((parent (cadadr ast))
-            (children (zencoding-transform-ast (caddr ast) tag-maker)))
-        (zencoding-make-tag tag-maker parent children)))
+            (children (emmet-transform-ast (caddr ast) tag-maker)))
+        (emmet-make-tag tag-maker parent children)))
      ((eq type 'sibling)
-      (let ((sib1 (zencoding-transform-ast (cadr ast) tag-maker))
-            (sib2 (zencoding-transform-ast (caddr ast) tag-maker)))
+      (let ((sib1 (emmet-transform-ast (cadr ast) tag-maker))
+            (sib2 (emmet-transform-ast (caddr ast) tag-maker)))
         (concat sib1 "\n" sib2))))))
 
-(defun zencoding-indent (text)
+(defun emmet-indent (text)
   "Indent the text"
   (if text
       (replace-regexp-in-string "\n" "\n    " (concat "\n" text))
@@ -3046,33 +3044,33 @@ tbl))
 ;;
 ;;; CSS abbrev:
 
-(zencoding-defparameter
- zencoding-css-unit-aliases
- (gethash "unitAliases" (gethash "css" zencoding-preferences)))
-(defun zencoding-css-arg-number (input)
-  (zencoding-parse
+(emmet-defparameter
+ emmet-css-unit-aliases
+ (gethash "unitAliases" (gethash "css" emmet-preferences)))
+(defun emmet-css-arg-number (input)
+  (emmet-parse
    " *\\(\\(?:-\\|\\)[0-9.]+\\)\\(-\\|[A-Za-z]*\\)" 3 "css number arguments"
    (cons (list (elt it 1)
                (let ((unit (elt it 2)))
                  (if (= (length unit) 0)
                      (if (find ?. (elt it 1)) "em" "px")
-                   (gethash unit zencoding-css-unit-aliases unit))))
+                   (gethash unit emmet-css-unit-aliases unit))))
          input)))
 
-(zencoding-defparameter
- zencoding-css-color-shorten-if-possible
- (gethash "shortenIfPossible" (gethash "color" (gethash "css" zencoding-preferences))))
-(zencoding-defparameter
- zencoding-css-color-case
- (gethash "case" (gethash "color" (gethash "css" zencoding-preferences))))
-(zencoding-defparameter
- zencoding-css-color-trailing-aliases
- (gethash "trailingAliases" (gethash "color" (gethash "css" zencoding-preferences))))
-(defun zencoding-css-arg-color (input)
-  (zencoding-parse
+(emmet-defparameter
+ emmet-css-color-shorten-if-possible
+ (gethash "shortenIfPossible" (gethash "color" (gethash "css" emmet-preferences))))
+(emmet-defparameter
+ emmet-css-color-case
+ (gethash "case" (gethash "color" (gethash "css" emmet-preferences))))
+(emmet-defparameter
+ emmet-css-color-trailing-aliases
+ (gethash "trailingAliases" (gethash "color" (gethash "css" emmet-preferences))))
+(defun emmet-css-arg-color (input)
+  (emmet-parse
    (concat " *#\\([0-9a-fA-F]\\{1,6\\}\\)\\(rgb\\|\\)\\(["
-           (zencoding-join-string
-            (zencoding-get-keys-of-hash zencoding-css-color-trailing-aliases) "")
+           (emmet-join-string
+            (emmet-get-keys-of-hash emmet-css-color-trailing-aliases) "")
            "]\\|\\)")
    4 "css color argument"
    (let ((color
@@ -3095,58 +3093,58 @@ tbl))
                     (string-to-int (substring color 4 6) 16))
           (concat
            "#"
-           (let ((filter (cond ((string= zencoding-css-color-case "auto") #'identity)
-                               ((string= zencoding-css-color-case "up")   #'upcase)
+           (let ((filter (cond ((string= emmet-css-color-case "auto") #'identity)
+                               ((string= emmet-css-color-case "up")   #'upcase)
                                (t                                         #'downcase))))
              (funcall
               filter
-              (if (and zencoding-css-color-shorten-if-possible
+              (if (and emmet-css-color-shorten-if-possible
                        (eql (aref color 0) (aref color 1))
                        (eql (aref color 2) (aref color 3))
                        (eql (aref color 4) (aref color 5)))
                   (concat (mapcar #'(lambda (i) (aref color i)) '(0 2 4)))
                 color))))))
       (if (< 0 (length (elt it 3)))
-          (cons (gethash (elt it 3) zencoding-css-color-trailing-aliases) input)
+          (cons (gethash (elt it 3) emmet-css-color-trailing-aliases) input)
         input)))))
 
-(defun zencoding-css-arg-something (input)
-  (zencoding-parse
+(defun emmet-css-arg-something (input)
+  (emmet-parse
    " *\\([^ ]+\\)" 2 "css argument"
    (cons (elt it 1) input)))
 
-(defun zencoding-css-parse-arg (input)
-  (zencoding-run zencoding-css-arg-number it
-                 (zencoding-run zencoding-css-arg-color it
-                                (zencoding-run zencoding-css-arg-something it
+(defun emmet-css-parse-arg (input)
+  (emmet-run emmet-css-arg-number it
+                 (emmet-run emmet-css-arg-color it
+                                (emmet-run emmet-css-arg-something it
                                                (if (equal input "")
                                                    it
                                                  (cons input ""))))))
 
-(defun zencoding-css-important-p (input)
+(defun emmet-css-important-p (input)
   (let ((len (length input)))
     (and (< 0 len)
          (char-equal (aref input (1- len)) ?!))))
 
-(defun zencoding-css-parse-args (args)
+(defun emmet-css-parse-args (args)
   (when args
     (let ((rt nil))
       (loop
-       (zencoding-pif
-        (zencoding-css-parse-arg args)
+       (emmet-pif
+        (emmet-css-parse-arg args)
         (loop for i on it do (push (car i) rt)
               while (consp (cdr i))
               finally (setq args (cdr i)))
         (return (nreverse rt)))))))
 
-(defun zencoding-css-split-args (exp)
-  (zencoding-aif
+(defun emmet-css-split-args (exp)
+  (emmet-aif
    (string-match "\\(?:[ #0-9$]\\|-[0-9]\\)" exp)
    (list (substring exp 0 it) (substring exp it))
    (list exp nil)))
 
-(defun zencoding-css-split-vendor-prefixes (input)
-  (zencoding-parse
+(defun emmet-css-split-vendor-prefixes (input)
+  (emmet-parse
    "\\(-[wmso]+-\\|-\\|\\)\\(.*\\)" 3 "css vendor prefixes"
    (list (elt it 2)
          (let ((vp (elt it 1)))
@@ -3154,17 +3152,17 @@ tbl))
                (if (string= vp "-") 'auto
                  (string-to-list (subseq vp 1 -1))))))))
 
-(defun zencoding-css-subexpr (exp)
-  (let* ((importantp (zencoding-css-important-p exp)))
+(defun emmet-css-subexpr (exp)
+  (let* ((importantp (emmet-css-important-p exp)))
     (destructuring-bind (exp vp)
-        (zencoding-css-split-vendor-prefixes exp)
+        (emmet-css-split-vendor-prefixes exp)
       (destructuring-bind (key args)
-          (zencoding-css-split-args (if importantp (subseq exp 0 -1) exp))
+          (emmet-css-split-args (if importantp (subseq exp 0 -1) exp))
         `(,key ,vp
                ,importantp
-               ,@(zencoding-css-parse-args args))))))
+               ,@(emmet-css-parse-args args))))))
 
-(defun zencoding-css-toknize (str)
+(defun emmet-css-toknize (str)
   (let* ((i (split-string str "+"))
          (rt nil))
     (loop
@@ -3181,36 +3179,36 @@ tbl))
                (setf i (cdr i))))
          (return (nreverse rt)))))))
 
-(defun zencoding-css-expr (input)
-  (mapcar #'zencoding-css-subexpr
-          (zencoding-css-toknize input)))
+(defun emmet-css-expr (input)
+  (mapcar #'emmet-css-subexpr
+          (emmet-css-toknize input)))
 
-(zencoding-defparameter
- zencoding-css-snippets
- (gethash "snippets" (gethash "css" zencoding-snippets)))
+(emmet-defparameter
+ emmet-css-snippets
+ (gethash "snippets" (gethash "css" emmet-snippets)))
 
-(zencoding-defparameter
- zencoding-css-unitless-properties
- (gethash "unitlessProperties" (gethash "css" zencoding-preferences)))
+(emmet-defparameter
+ emmet-css-unitless-properties
+ (gethash "unitlessProperties" (gethash "css" emmet-preferences)))
 
-(zencoding-defparameter
- zencoding-css-unitless-properties-regex
- (concat "^\\(:?" (zencoding-join-string
-                   zencoding-css-unitless-properties "\\|")
+(emmet-defparameter
+ emmet-css-unitless-properties-regex
+ (concat "^\\(:?" (emmet-join-string
+                   emmet-css-unitless-properties "\\|")
          "\\):.*$"))
 
-(defun zencoding-css-instantiate-lambda (str)
+(defun emmet-css-instantiate-lambda (str)
   (flet ((insert-space-between-name-and-body
           (str)
           (if (string-match "^\\([a-z-]+:\\)\\(.+\\)$" str)
-              (zencoding-join-string
+              (emmet-join-string
                (mapcar (lambda (ref) (match-string ref str)) '(1 2)) " ")
             str))
          (split-string-to-body
           (str args-sym)
           (let ((rt '(concat)) (idx-max 0))
             (loop for i from 0 to 255 do
-                  (zencoding-aif
+                  (emmet-aif
                    (string-match "\\(?:|\\|${\\(?:\\([0-9]\\)\\|\\)\\(?::\\(.+?\\)\\|\\)}\\)" str)
                    (destructuring-bind (mat idx def)
                        (mapcar (lambda (ref) (match-string ref str)) '(0 1 2))
@@ -3233,52 +3231,52 @@ tbl))
             (progn
               (when (nthcdr ,idx-max ,args)
                 (setf (nthcdr ,idx-max ,args)
-                      (list (zencoding-join-string
+                      (list (emmet-join-string
                              (nthcdr ,idx-max ,args) " "))))
               ,body)))))))
 
-(zencoding-defparameter
- zencoding-vendor-prefixes-properties
- (gethash "vendorPrefixesProperties" (gethash "css" zencoding-preferences)))
-(zencoding-defparameter
- zencoding-vendor-prefixes-default
+(emmet-defparameter
+ emmet-vendor-prefixes-properties
+ (gethash "vendorPrefixesProperties" (gethash "css" emmet-preferences)))
+(emmet-defparameter
+ emmet-vendor-prefixes-default
  (list "webkit" "moz" "ms" "o"))
-(defun zencoding-css-transform-vendor-prefixes (line vp)
+(defun emmet-css-transform-vendor-prefixes (line vp)
   (let ((key (subseq line 0 (or (position ?: line) (length line)))))
     (let ((vps (if (eql vp 'auto)
                    (gethash key
-                            zencoding-vendor-prefixes-properties
-                            zencoding-vendor-prefixes-default)
+                            emmet-vendor-prefixes-properties
+                            emmet-vendor-prefixes-default)
                  (mapcar (lambda (v)
                            (cond ((= v ?w) "webkit")
                                  ((= v ?m) "moz")
                                  ((= v ?s) "ms")
                                  ((= v ?o) "o")))
                          vp))))
-      (zencoding-join-string
+      (emmet-join-string
        (append (mapcar (lambda (v) (concat "-" v "-" line)) vps)
                (list line))
        "\n"))))
 
-(defun zencoding-css-transform-exprs (exprs)
-  (zencoding-join-string
+(defun emmet-css-transform-exprs (exprs)
+  (emmet-join-string
    (mapcar
     #'(lambda (expr)
         (let ((basement
-               (zencoding-aif
-                (gethash (car expr) zencoding-css-snippets)
+               (emmet-aif
+                (gethash (car expr) emmet-css-snippets)
                 (let ((set it) (fn nil) (unitlessp nil))
                   (if (stringp set)
                       (progn
                         ;; new pattern
                         ;; creating print function
-                        (setf fn (zencoding-css-instantiate-lambda set))
+                        (setf fn (emmet-css-instantiate-lambda set))
                         ;; get unitless or no
                         (setf unitlessp
                               (not (null (string-match
-                                          zencoding-css-unitless-properties-regex set))))
+                                          emmet-css-unitless-properties-regex set))))
                         ;; caching
-                        (puthash (car expr) (cons fn unitlessp) zencoding-css-snippets))
+                        (puthash (car expr) (cons fn unitlessp) emmet-css-snippets))
                     (progn
                       ;; cache hit.
                       (setf fn (car set))
@@ -3292,7 +3290,7 @@ tbl))
                                 arg))
                           (cdddr expr))))
                 (concat (car expr) ": "
-                        (zencoding-join-string
+                        (emmet-join-string
                          (mapcar #'(lambda (arg)
                                      (if (listp arg) (apply #'concat arg) arg))
                                  (cdddr expr)) " ")
@@ -3301,60 +3299,61 @@ tbl))
                  (if (caddr expr)
                      (concat (subseq basement 0 -1) " !important;")
                    basement)))
-            (zencoding-aif
+            (emmet-aif
              (cadr expr)
-             (zencoding-css-transform-vendor-prefixes line it)
+             (emmet-css-transform-vendor-prefixes line it)
              line))))
     exprs)
    "\n"))
 
-(defun zencoding-css-transform (input)
-  (zencoding-css-transform-exprs (zencoding-css-expr input)));;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Zencoding minor mode
+(defun emmet-css-transform (input)
+  (emmet-css-transform-exprs (emmet-css-expr input)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Emmet minor mode
 
-(defgroup zencoding nil
-  "Customization group for zencoding-mode."
+(defgroup emmet nil
+  "Customization group for emmet-mode."
   :group 'convenience)
 
-(defun zencoding-expr-on-line ()
-  "Extract a zencoding expression and the corresponding bounds
+(defun emmet-expr-on-line ()
+  "Extract a emmet expression and the corresponding bounds
    for the current line."
   (let* ((start (line-beginning-position))
          (end (line-end-position))
          (line (buffer-substring-no-properties start end))
-         (expr (zencoding-regex "\\([ \t]*\\)\\([^\n]+\\)" line 2)))
+         (expr (emmet-regex "\\([ \t]*\\)\\([^\n]+\\)" line 2)))
     (if (first expr)
         (list (first expr) start end))))
 
-(defcustom zencoding-indentation 4
+(defcustom emmet-indentation 4
   "Number of spaces used for indentation."
   :type '(number :tag "Spaces")
-  :group 'zencoding)
+  :group 'emmet)
 
-(defun zencoding-prettify (markup indent)
+(defun emmet-prettify (markup indent)
   (let ((first-col (format (format "%%%ds" indent) ""))
-        (tab       (format (format "%%%ds" zencoding-indentation) "")))
+        (tab       (format (format "%%%ds" emmet-indentation) "")))
     (concat first-col
             (replace-regexp-in-string "\n" (concat "\n" first-col)
                                       (replace-regexp-in-string "    " tab markup)))))
 
-(defun zencoding-transform (input)
+(defun emmet-transform (input)
   (if (eql major-mode 'css-mode)
-      (zencoding-css-transform input)
-    (zencoding-html-transform input)))
+      (emmet-css-transform input)
+    (emmet-html-transform input)))
 
 ;;;###autoload
-(defun zencoding-expand-line (arg)
-  "Replace the current line's zencode expression with the corresponding expansion.
-If prefix ARG is given or region is visible call `zencoding-preview' to start an
+(defun emmet-expand-line (arg)
+  "Replace the current line's emmet expression with the corresponding expansion.
+If prefix ARG is given or region is visible call `emmet-preview' to start an
 interactive preview.
 
 Otherwise expand line directly.
 
-For more information see `zencoding-mode'."
+For more information see `emmet-mode'."
   (interactive "P")
   (let* ((here (point))
-         (preview (if zencoding-preview-default (not arg) arg))
+         (preview (if emmet-preview-default (not arg) arg))
          (beg (if preview
                   (progn
                     (beginning-of-line)
@@ -3370,30 +3369,30 @@ For more information see `zencoding-mode'."
     (if beg
         (progn
           (goto-char here)
-          (zencoding-preview beg end))
-      (let ((expr (zencoding-expr-on-line)))
+          (emmet-preview beg end))
+      (let ((expr (emmet-expr-on-line)))
         (if expr
-            (let ((markup (zencoding-transform (first expr))))
+            (let ((markup (emmet-transform (first expr))))
               (when markup
-                (let ((pretty (zencoding-prettify markup (current-indentation))))
+                (let ((pretty (emmet-prettify markup (current-indentation))))
                   (save-excursion
                     (delete-region (second expr) (third expr))
-                    (zencoding-insert-and-flash pretty))))))))))
+                    (emmet-insert-and-flash pretty))))))))))
 
-(defvar zencoding-mode-keymap nil
-  "Keymap for zencode minor mode.")
+(defvar emmet-mode-keymap nil
+  "Keymap for emmet minor mode.")
 
-(if zencoding-mode-keymap
+(if emmet-mode-keymap
     nil
   (progn
-    (setq zencoding-mode-keymap (make-sparse-keymap))
-    (define-key zencoding-mode-keymap (kbd "C-j") 'zencoding-expand-line)
-    (define-key zencoding-mode-keymap (kbd "<C-return>") 'zencoding-expand-line)))
+    (setq emmet-mode-keymap (make-sparse-keymap))
+    (define-key emmet-mode-keymap (kbd "C-j") 'emmet-expand-line)
+    (define-key emmet-mode-keymap (kbd "<C-return>") 'emmet-expand-line)))
 
 ;;;###autoload
-(define-minor-mode zencoding-mode
+(define-minor-mode emmet-mode
   "Minor mode for writing HTML and CSS markup.
-With zen coding for HTML and CSS you can write a line like
+With emmet for HTML and CSS you can write a line like
 
   ul#name>li.item*2
 
@@ -3406,30 +3405,30 @@ and have it expanded to
 
 This minor mode defines keys for quick access:
 
-\\{zencoding-mode-keymap}
+\\{emmet-mode-keymap}
 
-Home page URL `http://www.emacswiki.org/emacs/ZenCoding'.
+Home page URL `http://www.emacswiki.org/emacs/Emmet'.
 
-See also `zencoding-expand-line'."
-  :lighter " Zen"
-  :keymap zencoding-mode-keymap)
+See also `emmet-expand-line'."
+  :lighter " Emmet"
+  :keymap emmet-mode-keymap)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Zencoding yasnippet integration
+;; Emmet yasnippet integration
 
-(defun zencoding-transform-yas (input)
+(defun emmet-transform-yas (input)
   (let* ((leaf-count 0)
-         (zencoding-leaf-function
+         (emmet-leaf-function
           (lambda ()
             (format "$%d" (incf leaf-count)))))
-    (zencoding-transform input)))
+    (emmet-transform input)))
 
 ;;;###autoload
-(defun zencoding-expand-yas ()
+(defun emmet-expand-yas ()
   (interactive)
-  (let ((expr (zencoding-expr-on-line)))
+  (let ((expr (emmet-expr-on-line)))
     (if expr
-        (let* ((markup (zencoding-transform-yas (first expr)))
+        (let* ((markup (emmet-transform-yas (first expr)))
                (filled (replace-regexp-in-string "><" ">\n<" markup)))
           (delete-region (second expr) (third expr))
           (insert filled)
@@ -3447,87 +3446,87 @@ See also `zencoding-expand-line'."
 ;;;;;;;;;;
 ;; Lennart's version
 
-(defvar zencoding-preview-input nil)
-(make-local-variable 'zencoding-preview-input)
-(defvar zencoding-preview-output nil)
-(make-local-variable 'zencoding-preview-output)
-(defvar zencoding-old-show-paren nil)
-(make-local-variable 'zencoding-old-show-paren)
+(defvar emmet-preview-input nil)
+(make-local-variable 'emmet-preview-input)
+(defvar emmet-preview-output nil)
+(make-local-variable 'emmet-preview-output)
+(defvar emmet-old-show-paren nil)
+(make-local-variable 'emmet-old-show-paren)
 
-(defface zencoding-preview-input
+(defface emmet-preview-input
   '((default :box t :inherit secondary-selection))
   "Face for preview input field."
-  :group 'zencoding)
+  :group 'emmet)
 
-(defface zencoding-preview-output
+(defface emmet-preview-output
   '((default :inherit highlight))
   "Face for preview output field."
-  :group 'zencoding)
+  :group 'emmet)
 
-(defvar zencoding-preview-keymap
+(defvar emmet-preview-keymap
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "RET") 'zencoding-preview-accept)
-    (define-key map (kbd "<return>") 'zencoding-preview-accept)
-    (define-key map [(control ?g)] 'zencoding-preview-abort)
+    (define-key map (kbd "RET") 'emmet-preview-accept)
+    (define-key map (kbd "<return>") 'emmet-preview-accept)
+    (define-key map [(control ?g)] 'emmet-preview-abort)
     map))
 
-(defun zencoding-preview-accept ()
+(defun emmet-preview-accept ()
   (interactive)
-  (let ((ovli zencoding-preview-input))
+  (let ((ovli emmet-preview-input))
     (if (not (and (overlayp ovli)
                   (bufferp (overlay-buffer ovli))))
         (message "Preview is not active")
       (let* ((indent (current-indentation))
-             (markup (zencoding-preview-transformed indent)))
+             (markup (emmet-preview-transformed indent)))
         (when markup
           (delete-region (line-beginning-position) (overlay-end ovli))
-          (zencoding-insert-and-flash markup)))))
-  (zencoding-preview-abort))
+          (emmet-insert-and-flash markup)))))
+  (emmet-preview-abort))
 
-(defvar zencoding-flash-ovl nil)
-(make-variable-buffer-local 'zencoding-flash-ovl)
+(defvar emmet-flash-ovl nil)
+(make-variable-buffer-local 'emmet-flash-ovl)
 
-(defun zencoding-remove-flash-ovl (buf)
+(defun emmet-remove-flash-ovl (buf)
   (with-current-buffer buf
-    (when (overlayp zencoding-flash-ovl)
-      (delete-overlay zencoding-flash-ovl))
-    (setq zencoding-flash-ovl nil)))
+    (when (overlayp emmet-flash-ovl)
+      (delete-overlay emmet-flash-ovl))
+    (setq emmet-flash-ovl nil)))
 
-(defcustom zencoding-preview-default t
+(defcustom emmet-preview-default t
   "If non-nil then preview is the default action.
-This determines how `zencoding-expand-line' works by default."
+This determines how `emmet-expand-line' works by default."
   :type 'boolean
-  :group 'zencoding)
+  :group 'emmet)
 
-(defcustom zencoding-insert-flash-time 0.5
+(defcustom emmet-insert-flash-time 0.5
   "Time to flash insertion.
 Set this to a negative number if you do not want flashing the
 expansion after insertion."
   :type '(number :tag "Seconds")
-  :group 'zencoding)
+  :group 'emmet)
 
-(defun zencoding-insert-and-flash (markup)
-  (zencoding-remove-flash-ovl (current-buffer))
+(defun emmet-insert-and-flash (markup)
+  (emmet-remove-flash-ovl (current-buffer))
   (let ((here (point)))
     (insert markup)
-    (setq zencoding-flash-ovl (make-overlay here (point)))
-    (overlay-put zencoding-flash-ovl 'face 'zencoding-preview-output)
-    (when (< 0 zencoding-insert-flash-time)
-      (run-with-idle-timer zencoding-insert-flash-time
-                           nil 'zencoding-remove-flash-ovl (current-buffer)))))
+    (setq emmet-flash-ovl (make-overlay here (point)))
+    (overlay-put emmet-flash-ovl 'face 'emmet-preview-output)
+    (when (< 0 emmet-insert-flash-time)
+      (run-with-idle-timer emmet-insert-flash-time
+                           nil 'emmet-remove-flash-ovl (current-buffer)))))
 
 ;;;###autoload
-(defun zencoding-preview (beg end)
-  "Expand zencode between BEG and END interactively.
-This will show a preview of the expanded zen code and you can
+(defun emmet-preview (beg end)
+  "Expand emmet between BEG and END interactively.
+This will show a preview of the expanded emmet code and you can
 accept it or skip it."
   (interactive (if mark-active
                    (list (region-beginning) (region-end))
                  (list nil nil)))
-  (zencoding-preview-abort)
+  (emmet-preview-abort)
   (if (not beg)
       (message "Region not active")
-    (setq zencoding-old-show-paren show-paren-mode)
+    (setq emmet-old-show-paren show-paren-mode)
     (show-paren-mode -1)
     (let ((here (point)))
       (goto-char beg)
@@ -3537,71 +3536,71 @@ accept it or skip it."
       (let* ((opos (point))
              (ovli (make-overlay beg end nil nil t))
              (ovlo (make-overlay opos opos))
-             (info (propertize " Zen preview. Choose with RET. Cancel by stepping out. \n"
+             (info (propertize " Emmet preview. Choose with RET. Cancel by stepping out. \n"
                                'face 'tooltip)))
-        (overlay-put ovli 'face 'zencoding-preview-input)
-        (overlay-put ovli 'keymap zencoding-preview-keymap)
-        (overlay-put ovlo 'face 'zencoding-preview-output)
+        (overlay-put ovli 'face 'emmet-preview-input)
+        (overlay-put ovli 'keymap emmet-preview-keymap)
+        (overlay-put ovlo 'face 'emmet-preview-output)
         (overlay-put ovlo 'before-string info)
-        (setq zencoding-preview-input  ovli)
-        (setq zencoding-preview-output ovlo)
-        (add-hook 'before-change-functions 'zencoding-preview-before-change t t)
+        (setq emmet-preview-input  ovli)
+        (setq emmet-preview-output ovlo)
+        (add-hook 'before-change-functions 'emmet-preview-before-change t t)
         (goto-char here)
-        (add-hook 'post-command-hook 'zencoding-preview-post-command t t)))))
+        (add-hook 'post-command-hook 'emmet-preview-post-command t t)))))
 
-(defvar zencoding-preview-pending-abort nil)
-(make-variable-buffer-local 'zencoding-preview-pending-abort)
+(defvar emmet-preview-pending-abort nil)
+(make-variable-buffer-local 'emmet-preview-pending-abort)
 
-(defun zencoding-preview-before-change (beg end)
+(defun emmet-preview-before-change (beg end)
   (when
-      (or (> beg (overlay-end zencoding-preview-input))
-          (< beg (overlay-start zencoding-preview-input))
-          (> end (overlay-end zencoding-preview-input))
-          (< end (overlay-start zencoding-preview-input)))
-    (setq zencoding-preview-pending-abort t)))
+      (or (> beg (overlay-end emmet-preview-input))
+          (< beg (overlay-start emmet-preview-input))
+          (> end (overlay-end emmet-preview-input))
+          (< end (overlay-start emmet-preview-input)))
+    (setq emmet-preview-pending-abort t)))
 
-(defun zencoding-preview-abort ()
-  "Abort zen code preview."
+(defun emmet-preview-abort ()
+  "Abort emmet code preview."
   (interactive)
-  (setq zencoding-preview-pending-abort nil)
-  (remove-hook 'before-change-functions 'zencoding-preview-before-change t)
-  (when (overlayp zencoding-preview-input)
-    (delete-overlay zencoding-preview-input))
-  (setq zencoding-preview-input nil)
-  (when (overlayp zencoding-preview-output)
-    (delete-overlay zencoding-preview-output))
-  (setq zencoding-preview-output nil)
-  (remove-hook 'post-command-hook 'zencoding-preview-post-command t)
-  (when zencoding-old-show-paren (show-paren-mode 1)))
+  (setq emmet-preview-pending-abort nil)
+  (remove-hook 'before-change-functions 'emmet-preview-before-change t)
+  (when (overlayp emmet-preview-input)
+    (delete-overlay emmet-preview-input))
+  (setq emmet-preview-input nil)
+  (when (overlayp emmet-preview-output)
+    (delete-overlay emmet-preview-output))
+  (setq emmet-preview-output nil)
+  (remove-hook 'post-command-hook 'emmet-preview-post-command t)
+  (when emmet-old-show-paren (show-paren-mode 1)))
 
-(defun zencoding-preview-post-command ()
+(defun emmet-preview-post-command ()
   (condition-case err
-      (zencoding-preview-post-command-1)
-    (error (message "zencoding-preview-post: %s" err))))
+      (emmet-preview-post-command-1)
+    (error (message "emmet-preview-post: %s" err))))
 
-(defun zencoding-preview-post-command-1 ()
-  (if (and (not zencoding-preview-pending-abort)
-           (<= (point) (overlay-end zencoding-preview-input))
-           (>= (point) (overlay-start zencoding-preview-input)))
-      (zencoding-update-preview (current-indentation))
-    (zencoding-preview-abort)))
+(defun emmet-preview-post-command-1 ()
+  (if (and (not emmet-preview-pending-abort)
+           (<= (point) (overlay-end emmet-preview-input))
+           (>= (point) (overlay-start emmet-preview-input)))
+      (emmet-update-preview (current-indentation))
+    (emmet-preview-abort)))
 
-(defun zencoding-preview-transformed (indent)
+(defun emmet-preview-transformed (indent)
   (let* ((string (buffer-substring-no-properties
-		  (overlay-start zencoding-preview-input)
-		  (overlay-end zencoding-preview-input))))
-    (let ((output (zencoding-transform string)))
+		  (overlay-start emmet-preview-input)
+		  (overlay-end emmet-preview-input))))
+    (let ((output (emmet-transform string)))
       (when output
-        (zencoding-prettify output indent)))))
+        (emmet-prettify output indent)))))
 
-(defun zencoding-update-preview (indent)
-  (let* ((pretty (zencoding-preview-transformed indent))
+(defun emmet-update-preview (indent)
+  (let* ((pretty (emmet-preview-transformed indent))
          (show (when pretty
                  (propertize pretty 'face 'highlight))))
     (when show
-      (overlay-put zencoding-preview-output 'after-string
+      (overlay-put emmet-preview-output 'after-string
                    (concat show "\n")))))
 
-(provide 'zencoding-mode)
+(provide 'emmet-mode)
 
-;;; zencoding-mode.el ends here
+;;; emmet-mode.el ends here

@@ -1,7 +1,7 @@
 ;; src/preferences.el
 ;; This file is generated from conf/preferences.json
 ;; Don't edit.
-(zencoding-defparameter zencoding-preferences
+(emmet-defparameter emmet-preferences
 (let ((tbl (make-hash-table :test 'equal)))
 (puthash "html" (let ((tbl (make-hash-table :test 'equal)))
 (puthash "tags" (let ((tbl (make-hash-table :test 'equal)))

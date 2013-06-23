@@ -1,11 +1,12 @@
-;;; zencoding-mode.el --- Unfold CSS-selector-like expressions to markup
+;;; emmet-mode.el --- Unofficial Emmet's support for emacs.
 
+;; Copyright (C) 2013, Shin Aoyama
 ;; Copyright (C) 2009, Chris Done
 
-;; Version: 0.5.1
-;; Author: Chris Done <chrisdone@gmail.com>
-;; URL: https://github.com/rooney/zencoding
-;; Last-Updated: 2011-12-31 Sat
+;; Version: 0.1.0
+;; Author: Shin Aoyama <smihica@gmail.com>
+;; URL: https://github.com/smihica/emmet
+;; Last-Updated: 2013-06-23 Sun
 ;; Keywords: convenience
 
 ;; This file is free software; you can redistribute it and/or modify
@@ -30,25 +31,25 @@
 ;; Unfold CSS-selector-like expressions to markup. Intended to be used
 ;; with sgml-like languages; xml, html, xhtml, xsl, etc.
 ;;
-;; See `zencoding-mode' for more information.
+;; See `emmet-mode' for more information.
 ;;
-;; Copy zencoding-mode.el to your load-path and add to your .emacs:
+;; Copy emmet-mode.el to your load-path and add to your .emacs:
 ;;
-;;    (require 'zencoding-mode)
+;;    (require 'emmet-mode)
 ;;
 ;; Example setup:
 ;;
-;;    (add-to-list 'load-path "~/Emacs/zencoding/")
-;;    (require 'zencoding-mode)
-;;    (add-hook 'sgml-mode-hook 'zencoding-mode) ;; Auto-start on any markup modes
-;;    (add-hook 'html-mode-hook 'zencoding-mode)
-;;    (add-hook 'css-mode-hook  'zencoding-mode)
+;;    (add-to-list 'load-path "~/Emacs/emmet/")
+;;    (require 'emmet-mode)
+;;    (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+;;    (add-hook 'html-mode-hook 'emmet-mode)
+;;    (add-hook 'css-mode-hook  'emmet-mode)
 ;;
-;; Enable the minor mode with M-x zencoding-mode.
+;; Enable the minor mode with M-x emmet-mode.
 ;;
 ;; See ``Test cases'' section for a complete set of expression types.
 ;;
-;; If you are hacking on this project, eval (zencoding-test-cases) to
+;; If you are hacking on this project, eval (emmet-test-cases) to
 ;; ensure that your changes have not broken anything. Feel free to add
 ;; new test cases if you add new features.
 ;;
@@ -56,7 +57,7 @@
 ;;
 ;;; History:
 ;;
-;; Modified by Lennart Borgman.
-;;
-;;
+;; This is a fork of zencoding-mode to support Emmet's feature.
+;; zencoding-mode (https://github.com/rooney/zencoding)
+
 

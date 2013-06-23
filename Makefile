@@ -1,8 +1,8 @@
-DST=zencoding-mode.el
+DST=emmet-mode.el
 
-all:	zencoding-mode.el
+all:	emmet-mode.el emmet-mode.elc
 
-zencoding-mode.el: src/snippets.el src/preferences.el src/*
+emmet-mode.el: src/snippets.el src/preferences.el src/*
 	rm -f $(DST)
 	touch $(DST)
 	cat src/comments.el >> $(DST)
@@ -13,14 +13,17 @@ zencoding-mode.el: src/snippets.el src/preferences.el src/*
 	cat src/css-abbrev.el >> $(DST)
 	cat src/mode-def.el >> $(DST)
 
+emmet-mode.elc: emmet-mode.el
+	/usr/bin/env emacs --batch --eval '(byte-compile-file "emmet-mode.el")'
+
 src/snippets.el: conf/snippets.json
-	tools/json2hash conf/snippets.json -o src/snippets.el --defvar 'zencoding-snippets'
+	tools/json2hash conf/snippets.json -o src/snippets.el --defvar 'emmet-snippets'
 
 src/preferences.el: conf/preferences.json
-	tools/json2hash conf/preferences.json -o src/preferences.el --defvar 'zencoding-preferences'
+	tools/json2hash conf/preferences.json -o src/preferences.el --defvar 'emmet-preferences'
 
 clean:
-	rm -f zencoding-mode.el src/snippets.el src/preferences.el
+	rm -f emmet-mode.elc emmet-mode.el src/snippets.el src/preferences.el
 
 test:
 	/usr/bin/env emacs --script src/test.el

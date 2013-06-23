@@ -1,49 +1,49 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Zencoding minor mode
+;; Emmet minor mode
 
-(defgroup zencoding nil
-  "Customization group for zencoding-mode."
+(defgroup emmet nil
+  "Customization group for emmet-mode."
   :group 'convenience)
 
-(defun zencoding-expr-on-line ()
-  "Extract a zencoding expression and the corresponding bounds
+(defun emmet-expr-on-line ()
+  "Extract a emmet expression and the corresponding bounds
    for the current line."
   (let* ((start (line-beginning-position))
          (end (line-end-position))
          (line (buffer-substring-no-properties start end))
-         (expr (zencoding-regex "\\([ \t]*\\)\\([^\n]+\\)" line 2)))
+         (expr (emmet-regex "\\([ \t]*\\)\\([^\n]+\\)" line 2)))
     (if (first expr)
         (list (first expr) start end))))
 
-(defcustom zencoding-indentation 4
+(defcustom emmet-indentation 4
   "Number of spaces used for indentation."
   :type '(number :tag "Spaces")
-  :group 'zencoding)
+  :group 'emmet)
 
-(defun zencoding-prettify (markup indent)
+(defun emmet-prettify (markup indent)
   (let ((first-col (format (format "%%%ds" indent) ""))
-        (tab       (format (format "%%%ds" zencoding-indentation) "")))
+        (tab       (format (format "%%%ds" emmet-indentation) "")))
     (concat first-col
             (replace-regexp-in-string "\n" (concat "\n" first-col)
                                       (replace-regexp-in-string "    " tab markup)))))
 
-(defun zencoding-transform (input)
+(defun emmet-transform (input)
   (if (eql major-mode 'css-mode)
-      (zencoding-css-transform input)
-    (zencoding-html-transform input)))
+      (emmet-css-transform input)
+    (emmet-html-transform input)))
 
 ;;;###autoload
-(defun zencoding-expand-line (arg)
-  "Replace the current line's zencode expression with the corresponding expansion.
-If prefix ARG is given or region is visible call `zencoding-preview' to start an
+(defun emmet-expand-line (arg)
+  "Replace the current line's emmet expression with the corresponding expansion.
+If prefix ARG is given or region is visible call `emmet-preview' to start an
 interactive preview.
 
 Otherwise expand line directly.
 
-For more information see `zencoding-mode'."
+For more information see `emmet-mode'."
   (interactive "P")
   (let* ((here (point))
-         (preview (if zencoding-preview-default (not arg) arg))
+         (preview (if emmet-preview-default (not arg) arg))
          (beg (if preview
                   (progn
                     (beginning-of-line)
@@ -59,30 +59,30 @@ For more information see `zencoding-mode'."
     (if beg
         (progn
           (goto-char here)
-          (zencoding-preview beg end))
-      (let ((expr (zencoding-expr-on-line)))
+          (emmet-preview beg end))
+      (let ((expr (emmet-expr-on-line)))
         (if expr
-            (let ((markup (zencoding-transform (first expr))))
+            (let ((markup (emmet-transform (first expr))))
               (when markup
-                (let ((pretty (zencoding-prettify markup (current-indentation))))
+                (let ((pretty (emmet-prettify markup (current-indentation))))
                   (save-excursion
                     (delete-region (second expr) (third expr))
-                    (zencoding-insert-and-flash pretty))))))))))
+                    (emmet-insert-and-flash pretty))))))))))
 
-(defvar zencoding-mode-keymap nil
-  "Keymap for zencode minor mode.")
+(defvar emmet-mode-keymap nil
+  "Keymap for emmet minor mode.")
 
-(if zencoding-mode-keymap
+(if emmet-mode-keymap
     nil
   (progn
-    (setq zencoding-mode-keymap (make-sparse-keymap))
-    (define-key zencoding-mode-keymap (kbd "C-j") 'zencoding-expand-line)
-    (define-key zencoding-mode-keymap (kbd "<C-return>") 'zencoding-expand-line)))
+    (setq emmet-mode-keymap (make-sparse-keymap))
+    (define-key emmet-mode-keymap (kbd "C-j") 'emmet-expand-line)
+    (define-key emmet-mode-keymap (kbd "<C-return>") 'emmet-expand-line)))
 
 ;;;###autoload
-(define-minor-mode zencoding-mode
+(define-minor-mode emmet-mode
   "Minor mode for writing HTML and CSS markup.
-With zen coding for HTML and CSS you can write a line like
+With emmet for HTML and CSS you can write a line like
 
   ul#name>li.item*2
 
@@ -95,30 +95,30 @@ and have it expanded to
 
 This minor mode defines keys for quick access:
 
-\\{zencoding-mode-keymap}
+\\{emmet-mode-keymap}
 
-Home page URL `http://www.emacswiki.org/emacs/ZenCoding'.
+Home page URL `http://www.emacswiki.org/emacs/Emmet'.
 
-See also `zencoding-expand-line'."
-  :lighter " Zen"
-  :keymap zencoding-mode-keymap)
+See also `emmet-expand-line'."
+  :lighter " Emmet"
+  :keymap emmet-mode-keymap)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Zencoding yasnippet integration
+;; Emmet yasnippet integration
 
-(defun zencoding-transform-yas (input)
+(defun emmet-transform-yas (input)
   (let* ((leaf-count 0)
-         (zencoding-leaf-function
+         (emmet-leaf-function
           (lambda ()
             (format "$%d" (incf leaf-count)))))
-    (zencoding-transform input)))
+    (emmet-transform input)))
 
 ;;;###autoload
-(defun zencoding-expand-yas ()
+(defun emmet-expand-yas ()
   (interactive)
-  (let ((expr (zencoding-expr-on-line)))
+  (let ((expr (emmet-expr-on-line)))
     (if expr
-        (let* ((markup (zencoding-transform-yas (first expr)))
+        (let* ((markup (emmet-transform-yas (first expr)))
                (filled (replace-regexp-in-string "><" ">\n<" markup)))
           (delete-region (second expr) (third expr))
           (insert filled)
@@ -136,87 +136,87 @@ See also `zencoding-expand-line'."
 ;;;;;;;;;;
 ;; Lennart's version
 
-(defvar zencoding-preview-input nil)
-(make-local-variable 'zencoding-preview-input)
-(defvar zencoding-preview-output nil)
-(make-local-variable 'zencoding-preview-output)
-(defvar zencoding-old-show-paren nil)
-(make-local-variable 'zencoding-old-show-paren)
+(defvar emmet-preview-input nil)
+(make-local-variable 'emmet-preview-input)
+(defvar emmet-preview-output nil)
+(make-local-variable 'emmet-preview-output)
+(defvar emmet-old-show-paren nil)
+(make-local-variable 'emmet-old-show-paren)
 
-(defface zencoding-preview-input
+(defface emmet-preview-input
   '((default :box t :inherit secondary-selection))
   "Face for preview input field."
-  :group 'zencoding)
+  :group 'emmet)
 
-(defface zencoding-preview-output
+(defface emmet-preview-output
   '((default :inherit highlight))
   "Face for preview output field."
-  :group 'zencoding)
+  :group 'emmet)
 
-(defvar zencoding-preview-keymap
+(defvar emmet-preview-keymap
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "RET") 'zencoding-preview-accept)
-    (define-key map (kbd "<return>") 'zencoding-preview-accept)
-    (define-key map [(control ?g)] 'zencoding-preview-abort)
+    (define-key map (kbd "RET") 'emmet-preview-accept)
+    (define-key map (kbd "<return>") 'emmet-preview-accept)
+    (define-key map [(control ?g)] 'emmet-preview-abort)
     map))
 
-(defun zencoding-preview-accept ()
+(defun emmet-preview-accept ()
   (interactive)
-  (let ((ovli zencoding-preview-input))
+  (let ((ovli emmet-preview-input))
     (if (not (and (overlayp ovli)
                   (bufferp (overlay-buffer ovli))))
         (message "Preview is not active")
       (let* ((indent (current-indentation))
-             (markup (zencoding-preview-transformed indent)))
+             (markup (emmet-preview-transformed indent)))
         (when markup
           (delete-region (line-beginning-position) (overlay-end ovli))
-          (zencoding-insert-and-flash markup)))))
-  (zencoding-preview-abort))
+          (emmet-insert-and-flash markup)))))
+  (emmet-preview-abort))
 
-(defvar zencoding-flash-ovl nil)
-(make-variable-buffer-local 'zencoding-flash-ovl)
+(defvar emmet-flash-ovl nil)
+(make-variable-buffer-local 'emmet-flash-ovl)
 
-(defun zencoding-remove-flash-ovl (buf)
+(defun emmet-remove-flash-ovl (buf)
   (with-current-buffer buf
-    (when (overlayp zencoding-flash-ovl)
-      (delete-overlay zencoding-flash-ovl))
-    (setq zencoding-flash-ovl nil)))
+    (when (overlayp emmet-flash-ovl)
+      (delete-overlay emmet-flash-ovl))
+    (setq emmet-flash-ovl nil)))
 
-(defcustom zencoding-preview-default t
+(defcustom emmet-preview-default t
   "If non-nil then preview is the default action.
-This determines how `zencoding-expand-line' works by default."
+This determines how `emmet-expand-line' works by default."
   :type 'boolean
-  :group 'zencoding)
+  :group 'emmet)
 
-(defcustom zencoding-insert-flash-time 0.5
+(defcustom emmet-insert-flash-time 0.5
   "Time to flash insertion.
 Set this to a negative number if you do not want flashing the
 expansion after insertion."
   :type '(number :tag "Seconds")
-  :group 'zencoding)
+  :group 'emmet)
 
-(defun zencoding-insert-and-flash (markup)
-  (zencoding-remove-flash-ovl (current-buffer))
+(defun emmet-insert-and-flash (markup)
+  (emmet-remove-flash-ovl (current-buffer))
   (let ((here (point)))
     (insert markup)
-    (setq zencoding-flash-ovl (make-overlay here (point)))
-    (overlay-put zencoding-flash-ovl 'face 'zencoding-preview-output)
-    (when (< 0 zencoding-insert-flash-time)
-      (run-with-idle-timer zencoding-insert-flash-time
-                           nil 'zencoding-remove-flash-ovl (current-buffer)))))
+    (setq emmet-flash-ovl (make-overlay here (point)))
+    (overlay-put emmet-flash-ovl 'face 'emmet-preview-output)
+    (when (< 0 emmet-insert-flash-time)
+      (run-with-idle-timer emmet-insert-flash-time
+                           nil 'emmet-remove-flash-ovl (current-buffer)))))
 
 ;;;###autoload
-(defun zencoding-preview (beg end)
-  "Expand zencode between BEG and END interactively.
-This will show a preview of the expanded zen code and you can
+(defun emmet-preview (beg end)
+  "Expand emmet between BEG and END interactively.
+This will show a preview of the expanded emmet code and you can
 accept it or skip it."
   (interactive (if mark-active
                    (list (region-beginning) (region-end))
                  (list nil nil)))
-  (zencoding-preview-abort)
+  (emmet-preview-abort)
   (if (not beg)
       (message "Region not active")
-    (setq zencoding-old-show-paren show-paren-mode)
+    (setq emmet-old-show-paren show-paren-mode)
     (show-paren-mode -1)
     (let ((here (point)))
       (goto-char beg)
@@ -226,71 +226,71 @@ accept it or skip it."
       (let* ((opos (point))
              (ovli (make-overlay beg end nil nil t))
              (ovlo (make-overlay opos opos))
-             (info (propertize " Zen preview. Choose with RET. Cancel by stepping out. \n"
+             (info (propertize " Emmet preview. Choose with RET. Cancel by stepping out. \n"
                                'face 'tooltip)))
-        (overlay-put ovli 'face 'zencoding-preview-input)
-        (overlay-put ovli 'keymap zencoding-preview-keymap)
-        (overlay-put ovlo 'face 'zencoding-preview-output)
+        (overlay-put ovli 'face 'emmet-preview-input)
+        (overlay-put ovli 'keymap emmet-preview-keymap)
+        (overlay-put ovlo 'face 'emmet-preview-output)
         (overlay-put ovlo 'before-string info)
-        (setq zencoding-preview-input  ovli)
-        (setq zencoding-preview-output ovlo)
-        (add-hook 'before-change-functions 'zencoding-preview-before-change t t)
+        (setq emmet-preview-input  ovli)
+        (setq emmet-preview-output ovlo)
+        (add-hook 'before-change-functions 'emmet-preview-before-change t t)
         (goto-char here)
-        (add-hook 'post-command-hook 'zencoding-preview-post-command t t)))))
+        (add-hook 'post-command-hook 'emmet-preview-post-command t t)))))
 
-(defvar zencoding-preview-pending-abort nil)
-(make-variable-buffer-local 'zencoding-preview-pending-abort)
+(defvar emmet-preview-pending-abort nil)
+(make-variable-buffer-local 'emmet-preview-pending-abort)
 
-(defun zencoding-preview-before-change (beg end)
+(defun emmet-preview-before-change (beg end)
   (when
-      (or (> beg (overlay-end zencoding-preview-input))
-          (< beg (overlay-start zencoding-preview-input))
-          (> end (overlay-end zencoding-preview-input))
-          (< end (overlay-start zencoding-preview-input)))
-    (setq zencoding-preview-pending-abort t)))
+      (or (> beg (overlay-end emmet-preview-input))
+          (< beg (overlay-start emmet-preview-input))
+          (> end (overlay-end emmet-preview-input))
+          (< end (overlay-start emmet-preview-input)))
+    (setq emmet-preview-pending-abort t)))
 
-(defun zencoding-preview-abort ()
-  "Abort zen code preview."
+(defun emmet-preview-abort ()
+  "Abort emmet code preview."
   (interactive)
-  (setq zencoding-preview-pending-abort nil)
-  (remove-hook 'before-change-functions 'zencoding-preview-before-change t)
-  (when (overlayp zencoding-preview-input)
-    (delete-overlay zencoding-preview-input))
-  (setq zencoding-preview-input nil)
-  (when (overlayp zencoding-preview-output)
-    (delete-overlay zencoding-preview-output))
-  (setq zencoding-preview-output nil)
-  (remove-hook 'post-command-hook 'zencoding-preview-post-command t)
-  (when zencoding-old-show-paren (show-paren-mode 1)))
+  (setq emmet-preview-pending-abort nil)
+  (remove-hook 'before-change-functions 'emmet-preview-before-change t)
+  (when (overlayp emmet-preview-input)
+    (delete-overlay emmet-preview-input))
+  (setq emmet-preview-input nil)
+  (when (overlayp emmet-preview-output)
+    (delete-overlay emmet-preview-output))
+  (setq emmet-preview-output nil)
+  (remove-hook 'post-command-hook 'emmet-preview-post-command t)
+  (when emmet-old-show-paren (show-paren-mode 1)))
 
-(defun zencoding-preview-post-command ()
+(defun emmet-preview-post-command ()
   (condition-case err
-      (zencoding-preview-post-command-1)
-    (error (message "zencoding-preview-post: %s" err))))
+      (emmet-preview-post-command-1)
+    (error (message "emmet-preview-post: %s" err))))
 
-(defun zencoding-preview-post-command-1 ()
-  (if (and (not zencoding-preview-pending-abort)
-           (<= (point) (overlay-end zencoding-preview-input))
-           (>= (point) (overlay-start zencoding-preview-input)))
-      (zencoding-update-preview (current-indentation))
-    (zencoding-preview-abort)))
+(defun emmet-preview-post-command-1 ()
+  (if (and (not emmet-preview-pending-abort)
+           (<= (point) (overlay-end emmet-preview-input))
+           (>= (point) (overlay-start emmet-preview-input)))
+      (emmet-update-preview (current-indentation))
+    (emmet-preview-abort)))
 
-(defun zencoding-preview-transformed (indent)
+(defun emmet-preview-transformed (indent)
   (let* ((string (buffer-substring-no-properties
-		  (overlay-start zencoding-preview-input)
-		  (overlay-end zencoding-preview-input))))
-    (let ((output (zencoding-transform string)))
+		  (overlay-start emmet-preview-input)
+		  (overlay-end emmet-preview-input))))
+    (let ((output (emmet-transform string)))
       (when output
-        (zencoding-prettify output indent)))))
+        (emmet-prettify output indent)))))
 
-(defun zencoding-update-preview (indent)
-  (let* ((pretty (zencoding-preview-transformed indent))
+(defun emmet-update-preview (indent)
+  (let* ((pretty (emmet-preview-transformed indent))
          (show (when pretty
                  (propertize pretty 'face 'highlight))))
     (when show
-      (overlay-put zencoding-preview-output 'after-string
+      (overlay-put emmet-preview-output 'after-string
                    (concat show "\n")))))
 
-(provide 'zencoding-mode)
+(provide 'emmet-mode)
 
-;;; zencoding-mode.el ends here
+;;; emmet-mode.el ends here

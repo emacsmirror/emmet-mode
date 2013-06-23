@@ -73,7 +73,7 @@ def main():
         out.write(';; This file is generated from ' + ','.join(options.file) + '\n')
         out.write(';; Don\'t edit.\n')
         if options.defvar:
-            out.write(u'(zencoding-defparameter ' + options.defvar + u'\n')
+            out.write(u'(emmet-defparameter ' + options.defvar + u'\n')
         p.write(out)
         if options.defvar:
             out.write(')\n')

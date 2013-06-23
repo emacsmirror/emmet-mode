@@ -1,7 +1,7 @@
 ;; src/snippets.el
 ;; This file is generated from conf/snippets.json
 ;; Don't edit.
-(zencoding-defparameter zencoding-snippets
+(emmet-defparameter emmet-snippets
 (let ((tbl (make-hash-table :test 'equal)))
 (puthash "html" (let ((tbl (make-hash-table :test 'equal)))
 (puthash "snippets" (let ((tbl (make-hash-table :test 'equal)))

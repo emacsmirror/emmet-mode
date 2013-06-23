@@ -10,34 +10,34 @@ Zen Coding has been renamed to [Emmet](http://emmet.io/) and includes an expande
 
 ## Abbreviation Examples
 
-- [HTML abbreviations](https://github.com/smihica/zencoding#html-abbreviations)
-- [CSS abbreviations](https://github.com/smihica/zencoding#css-abbreviations)
+- [HTML abbreviations](https://github.com/smihica/emmet#html-abbreviations)
+- [CSS abbreviations](https://github.com/smihica/emmet#css-abbreviations)
 
 ## Installation
 
-Just make sure zencoding-mode.el is in your `load-path`, if you
-extracted zencoding-mode to a directory:
+Just make sure emmet-mode.el is in your `load-path`, if you
+extracted emmet-mode to a directory:
 
-    (add-to-list 'load-path "~/emacs.d/zencoding-mode")
+    (add-to-list 'load-path "~/emacs.d/emmet-mode")
 
 And then just require as normal:
 
-    (require 'zencoding-mode)
+    (require 'emmet-mode)
 
 ## Usage
 
-Enable it by running `M-x zencoding-mode`. You probably want to add it
+Enable it by running `M-x emmet-mode`. You probably want to add it
 to auto-load on your sgml modes:
 
-    (add-hook 'sgml-mode-hook 'zencoding-mode) ;; Auto-start on any markup modes
-    (add-hook 'css-mode-hook  'zencoding-mode) ;; enable Emmet's css abbreviation.
+    (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+    (add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
 
 And you can set default indent depth of HTML abbreviation.
 
-    (add-hook 'zencoding-mode-hook (lambda () (setq zencoding-indentation 2))) ;indent 2 spaces.
+    (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2))) ;indent 2 spaces.
 
-Good to go: place point in a zencoding snippet and press C-j to expand it (or
-alternatively, alias your preferred keystroke to M-x zencoding-expand-line) and
+Good to go: place point in a emmet snippet and press C-j to expand it (or
+alternatively, alias your preferred keystroke to M-x emmet-expand-line) and
 you'll transform your snippet into the appropriate tag structure.
 
 ## HTML abbreviations

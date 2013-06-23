@@ -1,11 +1,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Test-cases
 
-(load-file (concat (file-name-directory load-file-name) "../zencoding-mode.el"))
+(load-file (concat (file-name-directory load-file-name) "../emmet-mode.el"))
 
-(zencoding-defparameter *zencoding-test-cases* nil)
+(emmet-defparameter *emmet-test-cases* nil)
 
-(defun zencoding-test-cases (&rest args)
+(defun emmet-test-cases (&rest args)
   (let ((cmd (car args)))
     (flet
         ((run-cases
@@ -24,13 +24,13 @@
              (let ((name (cadr args))
                    (fn   (caddr args))
                    (defs (cadddr args)))
-               (let ((place (assoc name *zencoding-test-cases*)))
+               (let ((place (assoc name *emmet-test-cases*)))
                  (if place
                      (setf (cdr place) (cons fn defs))
-                   (setq *zencoding-test-cases*
-                         (cons (cons name (cons fn defs)) *zencoding-test-cases*))))))
+                   (setq *emmet-test-cases*
+                         (cons (cons name (cons fn defs)) *emmet-test-cases*))))))
             (t
-             (loop for test in (reverse *zencoding-test-cases*) do
+             (loop for test in (reverse *emmet-test-cases*) do
                    (let ((name  (symbol-name (car test)))
                          (fn    (cadr test))
                          (cases (cddr test)))
@@ -39,23 +39,23 @@
                            (princ (concat "    [PASS] | \"" name "\" "
                                           (number-to-string (length cases)) " tests.\n")))))))))))
 
-(defmacro define-zencoding-transform-test-case (name fn &rest tests)
-  `(zencoding-test-cases 'assign ',name
+(defmacro define-emmet-transform-test-case (name fn &rest tests)
+  `(emmet-test-cases 'assign ',name
                          ,fn
                          ',(loop for x on tests by #'cddr collect
                                  (cons (car x)
-                                       (zencoding-join-string (cadr x)
+                                       (emmet-join-string (cadr x)
                                                               "\n")))))
 
-(defmacro define-zencoding-transform-html-test-case (name &rest tests)
-  `(define-zencoding-transform-test-case ,name
-     'zencoding-html-transform
+(defmacro define-emmet-transform-html-test-case (name &rest tests)
+  `(define-emmet-transform-test-case ,name
+     'emmet-html-transform
      ,@tests))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; XML-abbrev tests
 
-(define-zencoding-transform-html-test-case Tags
+(define-emmet-transform-html-test-case Tags
   "a"                      ("<a href=\"\"></a>")
   "a.x"                    ("<a class=\"x\" href=\"\"></a>")
   "a#q.x"                  ("<a id=\"q\" class=\"x\" href=\"\"></a>")
@@ -69,13 +69,13 @@
   "#q.x.y.z"               ("<div id=\"q\" class=\"x y z\">"
                             "</div>"))
 
-(define-zencoding-transform-html-test-case Empty-tags
+(define-emmet-transform-html-test-case Empty-tags
   "a/"                     ("<a href=\"\"/>")
   "a/.x"                   ("<a class=\"x\" href=\"\"/>")
   "a/#q.x"                 ("<a id=\"q\" class=\"x\" href=\"\"/>")
   "a/#q.x.y.z"             ("<a id=\"q\" class=\"x y z\" href=\"\"/>"))
 
-(define-zencoding-transform-html-test-case Self-closing-tags
+(define-emmet-transform-html-test-case Self-closing-tags
   "input type=text"        ("<input type=\"text\" name=\"\" value=\"\"/>")
   "img"                    ("<img src=\"\" alt=\"\"/>")
   "img>metadata/*2"        ("<img src=\"\" alt=\"\">"
@@ -83,7 +83,7 @@
                             "    <metadata/>"
                             "</img>"))
 
-(define-zencoding-transform-html-test-case Siblings
+(define-emmet-transform-html-test-case Siblings
   "a+b"                    ("<a href=\"\"></a>"
                             "<b></b>")
   "a+b+c"                  ("<a href=\"\"></a>"
@@ -98,7 +98,7 @@
   "a#q.x.y.z+b#p.l.m.n"    ("<a id=\"q\" class=\"x y z\" href=\"\"></a>"
                             "<b id=\"p\" class=\"l m n\"></b>"))
 
-(define-zencoding-transform-html-test-case Tag-expansion
+(define-emmet-transform-html-test-case Tag-expansion
   "table+"                 ("<table>"
                             "    <tr>"
                             "        <td></td>"
@@ -121,7 +121,7 @@
                             "    <li></li>"
                             "</ul>"))
 
-(define-zencoding-transform-html-test-case Parent-child
+(define-emmet-transform-html-test-case Parent-child
   "a>b"                    ("<a href=\"\"><b></b></a>")
   "a>b>c"                  ("<a href=\"\"><b><c></c></b></a>")
   "a.x>b"                  ("<a class=\"x\" href=\"\"><b></b></a>")
@@ -141,7 +141,7 @@
                             "    <c><d></d></c>"
                             "</a>"))
 
-(define-zencoding-transform-html-test-case Climb-up
+(define-emmet-transform-html-test-case Climb-up
   "a>b>c^d"                ("<a href=\"\">"
                             "    <b><c></c></b>"
                             "    <d></d>"
@@ -183,7 +183,7 @@
    "    </blockquote>"
    "</div>"))
 
-(define-zencoding-transform-html-test-case Multiplication
+(define-emmet-transform-html-test-case Multiplication
   "a*1"                    ("<a href=\"\"></a>")
   "a*2"                    ("<a href=\"\"></a>"
                             "<a href=\"\"></a>")
@@ -214,7 +214,7 @@
                             "    <b id=\"q\" class=\"x\"/>"
                             "</a>"))
 
-(define-zencoding-transform-html-test-case Numbering
+(define-emmet-transform-html-test-case Numbering
   "a.$x*3"                 ("<a class=\"1x\" href=\"\"></a>"
                             "<a class=\"2x\" href=\"\"></a>"
                             "<a class=\"3x\" href=\"\"></a>")
@@ -273,7 +273,7 @@
    "    <li class=\"item3\">name: item3 price: 3$</li>"
    "</ul>"))
 
-(define-zencoding-transform-html-test-case Properties
+(define-emmet-transform-html-test-case Properties
   "a x"                    ("<a href=\"\" x=\"\"></a>")
   "a x="                   ("<a href=\"\" x=\"\"></a>")
   "a x=\"\""               ("<a href=\"\" x=\"\"></a>")
@@ -299,7 +299,7 @@
                             "    <c x=\"y\"></c>"
                             "</a>"))
 
-(define-zencoding-transform-html-test-case Parentheses
+(define-emmet-transform-html-test-case Parentheses
   "(a)"                    ("<a href=\"\"></a>")
   "(a)+(b)"                ("<a href=\"\"></a>"
                             "<b></b>")
@@ -324,7 +324,7 @@
                             "<a href=\"\"></a>"
                             "<b></b>"))
 
-(define-zencoding-transform-html-test-case Text
+(define-emmet-transform-html-test-case Text
   "a{Click me}"            ("<a href=\"\">Click me</a>")
   "a>{Click me}*3"         ("<a href=\"\">"
                             "    Click me"
@@ -354,7 +354,7 @@
   ("<xxx id=\"id\" class=\"cls\" p=\"1\">txt</xxx>"))
 
 
-(define-zencoding-transform-html-test-case Filter-comment
+(define-emmet-transform-html-test-case Filter-comment
   "a.b|c"                  ("<!-- .b -->"
                             "<a class=\"b\" href=\"\"></a>"
                             "<!-- /.b -->")
@@ -367,7 +367,7 @@
                             "</div>"
                             "<!-- /#a -->"))
 
-(define-zencoding-transform-html-test-case Filter-HAML
+(define-emmet-transform-html-test-case Filter-HAML
   "a|haml"                 ("%a")
   "a#q.x.y.z|haml"         ("%a#q.x.y.z")
   "a#q.x x=y m=l|haml"     ("%a#q.x{:x => \"y\", :m => \"l\"}")
@@ -382,7 +382,7 @@
    "    %a{:href => \"#\"}"
    "    %br"))
 
-(define-zencoding-transform-html-test-case Filter-Hiccup
+(define-emmet-transform-html-test-case Filter-Hiccup
   "a|hic"                  ("[:a]")
   "a#q.x.y.z|hic"          ("[:a#q.x.y.z]")
   "a#q.x x=y m=l|hic"      ("[:a#q.x {:x \"y\", :m \"l\"}]")
@@ -399,21 +399,21 @@
    "        \"m\""
    "        [:b]]]"))
 
-(define-zencoding-transform-html-test-case Filter-escape
+(define-emmet-transform-html-test-case Filter-escape
   "script src=&quot;|e"    ("&lt;script src=\"&amp;quot;\"&gt;"
                             "&lt;/script&gt;"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; CSS-abbrev tests
 
-(defmacro define-zencoding-unit-test-case (name fn &rest tests)
-  `(zencoding-test-cases 'assign ',name
+(defmacro define-emmet-unit-test-case (name fn &rest tests)
+  `(emmet-test-cases 'assign ',name
                          ,fn
                          ',(loop for x on tests by #'cddr collect
                                  (cons (car x) (cadr x)))))
 
-(define-zencoding-unit-test-case CSS-toknize
-  #'zencoding-css-toknize
+(define-emmet-unit-test-case CSS-toknize
+  #'emmet-css-toknize
   ""                     ("")
   "abc"                  ("abc")
   "abc+"                 ("abc+")
@@ -427,8 +427,8 @@
   "-abc+-xyz"            ("-abc" "-xyz")
   "-abc+-10"             ("-abc+-10"))
 
-(define-zencoding-unit-test-case CSS-parse-arg-number
-  #'zencoding-css-arg-number
+(define-emmet-unit-test-case CSS-parse-arg-number
+  #'emmet-css-arg-number
   ""                     (error "expected css number arguments")
   "0"                    (("0" "px") . "")
   "0-1-2"                (("0" "px") . "1-2")
@@ -437,8 +437,8 @@
   "35p#a"                (("35" "%") . "#a")
   " 0p"                  (("0" "%") . ""))
 
-(define-zencoding-unit-test-case CSS-parse-arg-color
-  #'zencoding-css-arg-color
+(define-emmet-unit-test-case CSS-parse-arg-color
+  #'emmet-css-arg-color
   ""                     (error "expected css color argument")
   "abc"                  (error "expected css color argument")
   "#x"                   (error "expected css color argument")
@@ -451,29 +451,29 @@
   "#1A2B3C4D-2"          ("#1A2B3C" . "4D-2")
   " #abc"                ("#abc" . ""))
 
-(define-zencoding-unit-test-case CSS-parse-arg-something
-  #'zencoding-css-arg-something
+(define-emmet-unit-test-case CSS-parse-arg-something
+  #'emmet-css-arg-something
   ""                         (error "expected css argument")
   "abc"                      ("abc" . "")
   "abc def"                  ("abc" . " def")
   "url(http://abc.com) auto" ("url(http://abc.com)" . " auto"))
 
-(define-zencoding-unit-test-case CSS-parse-args
-  #'zencoding-css-parse-args
+(define-emmet-unit-test-case CSS-parse-args
+  #'emmet-css-parse-args
   ""                     nil
   "1-2--3-4"             (("1" "px") ("2" "px") ("-3" "px") ("4" "px"))
   "-10-2p-30#abc"        (("-10" "px") ("2" "%") ("-30" "px") "#abc")
   "1p2x3-4e5x"           (("1" "%") ("2" "ex") ("3" "px") ("4" "em") ("5" "ex"))
   "#abc#de#f-3"          ("#abc" "#dedede" "#fff" ("-3" "px")))
 
-(define-zencoding-unit-test-case CSS-split-vendor-prefixes
-  #'zencoding-css-split-vendor-prefixes
+(define-emmet-unit-test-case CSS-split-vendor-prefixes
+  #'emmet-css-split-vendor-prefixes
   ""                     ("" nil)
   "-abc"                 ("abc" auto)
   "-wmso-abc"            ("abc" (119 109 115 111)))
 
-(define-zencoding-unit-test-case CSS-exprs
-  #'zencoding-css-expr
+(define-emmet-unit-test-case CSS-exprs
+  #'emmet-css-expr
   ""                     (("" nil nil))
   "cl:l+ov:h+bg+"        (("cl:l" nil nil) ("ov:h" nil nil) ("bg+" nil nil))
   "m10-auto!"            (("m" nil t ("10" "px") "auto"))
@@ -482,12 +482,12 @@
                           ("p" nil nil ("0" "px") ("0" "px")))
   "bg+#abc#bc#c-3!"      (("bg+" nil t "#abc" "#bcbcbc" "#ccc" ("-3" "px"))))
 
-(defmacro define-zencoding-transform-css-test-case (name &rest tests)
-  `(define-zencoding-transform-test-case ,name
-     'zencoding-css-transform
+(defmacro define-emmet-transform-css-test-case (name &rest tests)
+  `(define-emmet-transform-test-case ,name
+     'emmet-css-transform
      ,@tests))
 
-(define-zencoding-transform-css-test-case CSS-transform
+(define-emmet-transform-css-test-case CSS-transform
   ;; supplying values with units
   "m10"                    ("margin: 10px;")
   "m1.5"                   ("margin: 1.5em;")
@@ -537,4 +537,4 @@
   )
 
 ;; start
-(zencoding-test-cases)
+(emmet-test-cases)
