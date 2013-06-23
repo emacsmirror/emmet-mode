@@ -1,7 +1,7 @@
 ;;; emmet-mode.el --- Unofficial Emmet's support for emacs.
 
-;; Copyright (C) 2013, Shin Aoyama
-;; Copyright (C) 2009, Chris Done
+;; Copyright (C) 2013-     Shin Aoyama
+;; Copyright (C) 2009-2012 Chris Done
 
 ;; Version: 0.1.0
 ;; Author: Shin Aoyama <smihica@gmail.com>
