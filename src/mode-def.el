@@ -28,7 +28,7 @@
                                       (replace-regexp-in-string "    " tab markup)))))
 
 (defun emmet-transform (input)
-  (if (eql major-mode 'css-mode)
+  (if (memq major-mode '(css-mode scss-mode sass-mode))
       (emmet-css-transform input)
     (emmet-html-transform input)))
 
@@ -170,8 +170,41 @@ See also `emmet-expand-line'."
              (markup (emmet-preview-transformed indent)))
         (when markup
           (delete-region (line-beginning-position) (overlay-end ovli))
-          (emmet-insert-and-flash markup)))))
+          (emmet-insert-and-flash markup)
+          (when (= (elt markup 0) ?<)
+            (let ((p (point)))
+              (goto-char
+               (+ (- p (length markup))
+                  (emmet-html-next-insert-point markup)))))))))
   (emmet-preview-abort))
+
+(defun emmet-html-next-insert-point (str)
+  (let ((intag t)    (instring nil)
+        (last-c nil) (c nil)
+        (rti 0))
+    (loop for i to (1- (length str)) do
+          (setq last-c c)
+          (setq c (elt str i))
+          (case c
+            (?\" (if (not (= last-c ?\\))
+                     (setq instring (not instring))))
+            (?>  (if (not instring)
+                     (if intag
+                         (if (= last-c ?/) (return (1+ i))
+                           (progn (setq intag nil)
+                                  (setq rti (1+ i))))
+                       (return i)))) ;; error?
+            (?<  (if (and (not instring) (not intag))
+                     (setq intag t)))
+            (?/  (if (and intag
+                          (not instring)
+                          (= last-c ?<))
+                     (return rti)))
+            (t
+             (if (memq c '(?\t ?\n ?\r ?\s))
+                 (progn (setq c last-c))
+               (if (and (not intag) (not instring))
+                   (return rti))))))))
 
 (defvar emmet-flash-ovl nil)
 (make-variable-buffer-local 'emmet-flash-ovl)
