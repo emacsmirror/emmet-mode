@@ -60,14 +60,10 @@
   "a.x"                    ("<a class=\"x\" href=\"\"></a>")
   "a#q.x"                  ("<a id=\"q\" class=\"x\" href=\"\"></a>")
   "a#q.x.y.z"              ("<a id=\"q\" class=\"x y z\" href=\"\"></a>")
-  "#q"                     ("<div id=\"q\">"
-                            "</div>")
-  ".x"                     ("<div class=\"x\">"
-                            "</div>")
-  "#q.x"                   ("<div id=\"q\" class=\"x\">"
-                            "</div>")
-  "#q.x.y.z"               ("<div id=\"q\" class=\"x y z\">"
-                            "</div>"))
+  "#q"                     ("<div id=\"q\"></div>")
+  ".x"                     ("<div class=\"x\"></div>")
+  "#q.x"                   ("<div id=\"q\" class=\"x\"></div>")
+  "#q.x.y.z"               ("<div id=\"q\" class=\"x y z\"></div>"))
 
 (define-emmet-transform-html-test-case Empty-tags
   "a/"                     ("<a href=\"\"/>")
@@ -128,10 +124,7 @@
   "a#q.x>b"                ("<a id=\"q\" class=\"x\" href=\"\"><b></b></a>")
   "a#q.x.y.z>b"            ("<a id=\"q\" class=\"x y z\" href=\"\"><b></b></a>")
   "a#q.x.y.z>b#p.l.m.n"    ("<a id=\"q\" class=\"x y z\" href=\"\"><b id=\"p\" class=\"l m n\"></b></a>")
-  "#q>.x"                  ("<div id=\"q\">"
-                            "    <div class=\"x\">"
-                            "    </div>"
-                            "</div>")
+  "#q>.x"                  ("<div id=\"q\"><div class=\"x\"></div></div>")
   "a>b+c"                  ("<a href=\"\">"
                             "    <b></b>"
                             "    <c></c>"
@@ -160,8 +153,7 @@
                             "</a>")
 
   "div+a>p>span{foo}+em>b^^^p"
-  ("<div>"
-   "</div>"
+  ("<div></div>"
    "<a href=\"\">"
    "    <p>"
    "        <span>foo</span>"
@@ -171,8 +163,7 @@
    "<p></p>")
 
   "div+div>p>span+em^blockquote{foo}"
-  ("<div>"
-   "</div>"
+  ("<div></div>"
    "<div>"
    "    <p>"
    "        <span></span>"
@@ -361,8 +352,7 @@
   "#a>.b|c"                ("<!-- #a -->"
                             "<div id=\"a\">"
                             "    <!-- .b -->"
-                            "    <div class=\"b\">"
-                            "    </div>"
+                            "    <div class=\"b\"></div>"
                             "    <!-- /.b -->"
                             "</div>"
                             "<!-- /#a -->"))

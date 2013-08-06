@@ -35,7 +35,7 @@
       "dfn":        {"block": false, "selfClosing": false},
       "dialog":     {"block": false, "selfClosing": false},
       "dir":        {"block": true,  "selfClosing": false},
-      "div":        {"block": true,  "selfClosing": false},
+      "div":        {"block": false, "selfClosing": false},
       "dl":         {"block": true,  "selfClosing": false},
       "dt":         {"block": false, "selfClosing": false},
       "em":         {"block": false, "selfClosing": false},
