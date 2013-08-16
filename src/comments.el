@@ -3,7 +3,7 @@
 ;; Copyright (C) 2013-     Shin Aoyama
 ;; Copyright (C) 2009-2012 Chris Done
 
-;; Version: 1.0.1
+;; Version: 1.0.2
 ;; Author: Shin Aoyama <smihica@gmail.com>
 ;; URL: https://github.com/smihica/emmet
 ;; Last-Updated: 2013-06-23 Sun
