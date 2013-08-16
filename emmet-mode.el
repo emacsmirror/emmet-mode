@@ -3481,7 +3481,7 @@ See also `emmet-expand-line'."
         (when markup
           (delete-region (line-beginning-position) (overlay-end ovli))
           (emmet-insert-and-flash markup)
-          (when (= (elt markup 0) ?<)
+          (when (and emmet-move-cursor-after-expanding (= (elt markup 0) ?<))
             (let ((p (point)))
               (goto-char
                (+ (- p (length markup))
@@ -3497,7 +3497,11 @@ See also `emmet-expand-line'."
           (setq c (elt str i))
           (case c
             (?\" (if (not (= last-c ?\\))
-                     (setq instring (not instring))))
+                     (progn (setq instring (not instring))
+                            (when (and emmet-move-cursor-between-quotes
+                                       (not instring)
+                                       (= last-c ?\"))
+                              (return i)))))
             (?>  (if (not instring)
                      (if intag
                          (if (= last-c ?/) (return (1+ i))
@@ -3536,6 +3540,18 @@ This determines how `emmet-expand-line' works by default."
 Set this to a negative number if you do not want flashing the
 expansion after insertion."
   :type '(number :tag "Seconds")
+  :group 'emmet)
+
+(defcustom emmet-move-cursor-after-expanding t
+  "If non-nil the the cursor position is
+moved to before the first closing tag when the exp was expanded."
+  :type 'boolean
+  :group 'emmet)
+
+(defcustom emmet-move-cursor-between-quotes nil
+  "If emmet-move-cursor-after-expands is non-nil and this is non-nil then
+cursor position will be moved to after the first quote."
+  :type 'boolean
   :group 'emmet)
 
 (defun emmet-insert-and-flash (markup)

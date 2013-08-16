@@ -34,11 +34,19 @@ to auto-load on your sgml modes:
 
 And you can set default indent depth of HTML abbreviation.
 
-    (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2))) ;indent 2 spaces.
+    (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2))) ;; indent 2 spaces.
 
 Good to go: place point in a emmet snippet and press C-j to expand it (or
 alternatively, alias your preferred keystroke to M-x emmet-expand-line) and
 you'll transform your snippet into the appropriate tag structure.
+
+If you want the cursor to be positioned between first empty quotes after expanding.
+
+    (setq emmet-move-cursor-between-quotes t) ;; default nil
+
+If you don't want to move cursor after expanding itself.
+
+    (setq emmet-move-cursor-after-expanding nil) ;; default t
 
 ## HTML abbreviations
 
