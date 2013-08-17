@@ -15,8 +15,18 @@ Zen Coding has been renamed to [Emmet](http://emmet.io/) and includes an expande
 
 ## Installation
 
-Just make sure emmet-mode.el is in your `load-path`, if you
-extracted emmet-mode to a directory:
+### 1. From marmalade
+
+If your emacs has been installed marmalade then type `M-x package-list-packages` search `emmet-mode X.X.X` and install it.
+
+### 1. Manual instalation
+
+Just make sure emmet-mode.el is in your `load-path`.
+
+### 2. Settings to use.
+
+Open your .emacs or init.el and if you extracted emmet-mode to a directory
+(if you installed from marmalade then this setting is needless)
 
     (add-to-list 'load-path "~/emacs.d/emmet-mode")
 
@@ -24,29 +34,32 @@ And then just require as normal:
 
     (require 'emmet-mode)
 
-## Usage
+Enable it by running `M-x emmet-mode`.
 
-Enable it by running `M-x emmet-mode`. You probably want to add it
-to auto-load on your sgml modes:
+### 3. Optional settings
+
+You probably want to add it to auto-load on your sgml modes:
 
     (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
     (add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
 
-And you can set default indent depth of HTML abbreviation.
+You can set default indent depth of HTML abbreviation:
 
     (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2))) ;; indent 2 spaces.
 
-Good to go: place point in a emmet snippet and press C-j to expand it (or
-alternatively, alias your preferred keystroke to M-x emmet-expand-line) and
-you'll transform your snippet into the appropriate tag structure.
-
-If you want the cursor to be positioned between first empty quotes after expanding.
+If you want the cursor to be positioned between first empty quotes after expanding:
 
     (setq emmet-move-cursor-between-quotes t) ;; default nil
 
-If you don't want to move cursor after expanding itself.
+Or if you don't want to move cursor after expandin:
 
     (setq emmet-move-cursor-after-expanding nil) ;; default t
+
+## Usage
+
+Place point in a emmet snippet and press C-j to expand it (or alternatively,
+alias your preferred keystroke to M-x emmet-expand-line) and
+you'll transform your snippet into the appropriate tag structure.
 
 ## HTML abbreviations
 
