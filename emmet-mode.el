@@ -3,10 +3,10 @@
 ;; Copyright (C) 2013-     Shin Aoyama
 ;; Copyright (C) 2009-2012 Chris Done
 
-;; Version: 1.0.2
+;; Version: 1.0.3
 ;; Author: Shin Aoyama <smihica@gmail.com>
 ;; URL: https://github.com/smihica/emmet
-;; Last-Updated: 2013-06-23 Sun
+;; Last-Updated: 2013-09-10 Tue
 ;; Keywords: convenience
 
 ;; This file is free software; you can redistribute it and/or modify
@@ -65,7 +65,7 @@
 ;;
 ;;; Code:
 
-(defconst emmet-mode:version "1.0.2")
+(defconst emmet-mode:version "1.0.3")
 
 (eval-when-compile (require 'cl))
 
@@ -3375,9 +3375,14 @@ For more information see `emmet-mode'."
             (let ((markup (emmet-transform (first expr))))
               (when markup
                 (let ((pretty (emmet-prettify markup (current-indentation))))
-                  (save-excursion
+                  (when pretty
                     (delete-region (second expr) (third expr))
-                    (emmet-insert-and-flash pretty))))))))))
+                    (emmet-insert-and-flash pretty)
+                    (when (and emmet-move-cursor-after-expanding (= (elt pretty 0) ?<))
+                      (let ((p (point)))
+                        (goto-char
+                         (+ (- p (length pretty))
+                            (emmet-html-next-insert-point pretty))))))))))))))
 
 (defvar emmet-mode-keymap nil
   "Keymap for emmet minor mode.")

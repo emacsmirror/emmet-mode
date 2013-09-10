@@ -3,10 +3,10 @@
 ;; Copyright (C) 2013-     Shin Aoyama
 ;; Copyright (C) 2009-2012 Chris Done
 
-;; Version: 1.0.2
+;; Version: 1.0.3
 ;; Author: Shin Aoyama <smihica@gmail.com>
 ;; URL: https://github.com/smihica/emmet
-;; Last-Updated: 2013-06-23 Sun
+;; Last-Updated: 2013-09-10 Tue
 ;; Keywords: convenience
 
 ;; This file is free software; you can redistribute it and/or modify

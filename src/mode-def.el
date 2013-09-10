@@ -65,9 +65,14 @@ For more information see `emmet-mode'."
             (let ((markup (emmet-transform (first expr))))
               (when markup
                 (let ((pretty (emmet-prettify markup (current-indentation))))
-                  (save-excursion
+                  (when pretty
                     (delete-region (second expr) (third expr))
-                    (emmet-insert-and-flash pretty))))))))))
+                    (emmet-insert-and-flash pretty)
+                    (when (and emmet-move-cursor-after-expanding (= (elt pretty 0) ?<))
+                      (let ((p (point)))
+                        (goto-char
+                         (+ (- p (length pretty))
+                            (emmet-html-next-insert-point pretty))))))))))))))
 
 (defvar emmet-mode-keymap nil
   "Keymap for emmet minor mode.")
