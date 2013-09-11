@@ -2,9 +2,9 @@
 ;;
 ;;; Code:
 
-(defconst emmet-mode:version "1.0.3")
+(defconst emmet-mode:version "1.0.4")
 
-(eval-when-compile (require 'cl))
+(require 'cl)
 
 (defmacro emmet-defparameter (symbol &optional initvalue docstring)
   `(progn

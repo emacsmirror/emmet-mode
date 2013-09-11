@@ -3,7 +3,7 @@
 ;; Copyright (C) 2013-     Shin Aoyama
 ;; Copyright (C) 2009-2012 Chris Done
 
-;; Version: 1.0.3
+;; Version: 1.0.4
 ;; Author: Shin Aoyama <smihica@gmail.com>
 ;; URL: https://github.com/smihica/emmet
 ;; Last-Updated: 2013-09-10 Tue
@@ -65,9 +65,9 @@
 ;;
 ;;; Code:
 
-(defconst emmet-mode:version "1.0.3")
+(defconst emmet-mode:version "1.0.4")
 
-(eval-when-compile (require 'cl))
+(require 'cl)
 
 (defmacro emmet-defparameter (symbol &optional initvalue docstring)
   `(progn
