@@ -68,7 +68,7 @@ For more information see `emmet-mode'."
                   (when pretty
                     (delete-region (second expr) (third expr))
                     (emmet-insert-and-flash pretty)
-                    (when (and emmet-move-cursor-after-expanding (= (elt pretty 0) ?<))
+                    (when (and emmet-move-cursor-after-expanding (emmet-html-text-p markup))
                       (let ((p (point)))
                         (goto-char
                          (+ (- p (length pretty))
@@ -132,8 +132,6 @@ See also `emmet-expand-line'."
            (buffer-substring (second expr) (point))
            (second expr) (point))))))
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Real-time preview
 ;;
@@ -165,6 +163,9 @@ See also `emmet-expand-line'."
     (define-key map [(control ?g)] 'emmet-preview-abort)
     map))
 
+(defun emmet-html-text-p (markup)
+  (string-match "^[\s|\t|\n|\r]*<.*$" markup))
+
 (defun emmet-preview-accept ()
   (interactive)
   (let ((ovli emmet-preview-input))
@@ -176,7 +177,7 @@ See also `emmet-expand-line'."
         (when markup
           (delete-region (line-beginning-position) (overlay-end ovli))
           (emmet-insert-and-flash markup)
-          (when (and emmet-move-cursor-after-expanding (= (elt markup 0) ?<))
+          (when (and emmet-move-cursor-after-expanding (emmet-html-text-p markup))
             (let ((p (point)))
               (goto-char
                (+ (- p (length markup))
