@@ -27,8 +27,20 @@
             (replace-regexp-in-string "\n" (concat "\n" first-col)
                                       (replace-regexp-in-string "    " tab markup)))))
 
+(defvar emmet-use-css-transform nil
+  "When true, transform Emmet snippets into CSS, instead of the usual HTML.")
+(make-variable-buffer-local 'emmet-use-css-transform)
+
+(defvar emmet-css-major-modes
+  '(css-mode
+    scss-mode
+    sass-mode
+    less-mode
+    less-css-mode)
+  "Major modes that use emmet for CSS, rather than HTML.")
+
 (defun emmet-transform (input)
-  (if (memq major-mode '(css-mode scss-mode sass-mode))
+  (if emmet-use-css-transform
       (emmet-css-transform input)
     (emmet-html-transform input)))
 
@@ -84,6 +96,11 @@ For more information see `emmet-mode'."
     (define-key emmet-mode-keymap (kbd "C-j") 'emmet-expand-line)
     (define-key emmet-mode-keymap (kbd "<C-return>") 'emmet-expand-line)))
 
+(defun emmet-after-hook ()
+  "Initialize Emmet's buffer-local variables."
+  (if (memq major-mode emmet-css-major-modes)
+      (setq emmet-use-css-transform t)))
+
 ;;;###autoload
 (define-minor-mode emmet-mode
   "Minor mode for writing HTML and CSS markup.
@@ -106,7 +123,8 @@ Home page URL `http://www.emacswiki.org/emacs/Emmet'.
 
 See also `emmet-expand-line'."
   :lighter " Emmet"
-  :keymap emmet-mode-keymap)
+  :keymap emmet-mode-keymap
+  :after-hook (emmet-after-hook))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Emmet yasnippet integration
