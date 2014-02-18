@@ -32,7 +32,7 @@ class Processor(object):
                 self.out.write(' tbl)\n')
             self.out.write('tbl)')
         elif _type is list:
-            self.out.write('(vector \n')
+            self.out.write('(vector\n')
             for v in data:
                 self._print(v)
                 self.out.write('\n')
