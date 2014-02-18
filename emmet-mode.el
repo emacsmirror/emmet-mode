@@ -5,7 +5,7 @@
 
 ;; Version: 1.0.6
 ;; Author: Shin Aoyama <smihica@gmail.com>
-;; URL: https://github.com/smihica/emmet
+;; URL: https://github.com/smihica/emmet-mode
 ;; Last-Updated: 2014-02-19 Wed
 ;; Keywords: convenience
 
