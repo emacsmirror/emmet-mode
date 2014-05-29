@@ -5,7 +5,14 @@ import sys
 import os
 import re
 import argparse
-from cStringIO import StringIO
+
+python2 = sys.version_info[0] == 2
+python3 = sys.version_info[0] == 3
+
+if python2:
+    from cStringIO import StringIO
+if python3:
+    from io import StringIO
 
 class ApplicationException(Exception):
     pass
@@ -89,4 +96,7 @@ if __name__ == '__main__':
     try:
         main()
     except ApplicationException as e:
-        print >>sys.stderr, e.message
+        if python2:
+            print >> sys.stderr, e.message
+        elif python3:
+            print(e.meesage, file=sys.stderr)
