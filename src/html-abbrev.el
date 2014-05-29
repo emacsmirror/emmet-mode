@@ -438,10 +438,15 @@
          (classes   (pop tag-info))
          (props     (pop tag-info))
          (txt       (pop tag-info))
-         (settings  (gethash name emmet-tag-settings-table)))
+         (settings  (gethash name emmet-tag-settings-table))
+         (self-closing?
+          (and (not (or txt content))
+               (or  (not has-body?)
+                    (and settings (gethash "selfClosing" settings))))))
     (funcall tag-maker name has-body? id classes props txt settings
              (if content content
-               (if emmet-leaf-function (funcall emmet-leaf-function))))))
+               (if (and emmet-leaf-function (not self-closing?))
+                   (funcall emmet-leaf-function))))))
 
 (defun emmet-hash-to-list (hash &optional proc)
   (unless proc (setq proc #'cons))
