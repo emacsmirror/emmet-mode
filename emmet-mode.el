@@ -3,7 +3,7 @@
 ;; Copyright (C) 2013-     Shin Aoyama
 ;; Copyright (C) 2009-2012 Chris Done
 
-;; Version: 1.0.7
+;; Version: 1.0.8
 ;; Author: Shin Aoyama <smihica@gmail.com>
 ;; URL: https://github.com/smihica/emmet-mode
 ;; Last-Updated: 2014-02-19 Wed
@@ -65,7 +65,7 @@
 ;;
 ;;; Code:
 
-(defconst emmet-mode:version "1.0.7")
+(defconst emmet-mode:version "1.0.8")
 
 (require 'cl)
 
