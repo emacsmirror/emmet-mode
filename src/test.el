@@ -72,9 +72,9 @@
   "a/#q.x.y.z"             ("<a id=\"q\" class=\"x y z\" href=\"\"/>"))
 
 (define-emmet-transform-html-test-case Self-closing-tags
-  "input type=text"        ("<input type=\"text\" name=\"\" value=\"\"/>")
-  "img"                    ("<img src=\"\" alt=\"\"/>")
-  "img>metadata/*2"        ("<img src=\"\" alt=\"\">"
+  "input type=text"        ("<input name=\"\" type=\"text\" value=\"\"/>")
+  "img"                    ("<img alt=\"\" src=\"\"/>")
+  "img>metadata/*2"        ("<img alt=\"\" src=\"\">"
                             "    <metadata/>"
                             "    <metadata/>"
                             "</img>"))
