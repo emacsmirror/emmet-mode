@@ -139,696 +139,696 @@
 ;; Don't edit.
 (emmet-defparameter emmet-snippets
 (let ((tbl (make-hash-table :test 'equal)))
+(puthash "css" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "snippets" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "!" "!important" tbl)
+(puthash "@f" "@font-face {\n\tfont-family:|;\n\tsrc:url(|);\n}" tbl)
+(puthash "@f+" "@font-face {\n\tfont-family: '${1:FontName}';\n\tsrc: url('${2:FileName}.eot');\n\tsrc: url('${2:FileName}.eot?#iefix') format('embedded-opentype'),\n\t\t url('${2:FileName}.woff') format('woff'),\n\t\t url('${2:FileName}.ttf') format('truetype'),\n\t\t url('${2:FileName}.svg#${1:FontName}') format('svg');\n\tfont-style: ${3:normal};\n\tfont-weight: ${4:normal};\n}" tbl)
+(puthash "@i" "@import url(|);" tbl)
+(puthash "@import" "@import url(|);" tbl)
+(puthash "@kf" "@-webkit-keyframes ${1:identifier} {\n\t${2:from} { ${3} }${6}\n\t${4:to} { ${5} }\n}\n@-o-keyframes ${1:identifier} {\n\t${2:from} { ${3} }${6}\n\t${4:to} { ${5} }\n}\n@-moz-keyframes ${1:identifier} {\n\t${2:from} { ${3} }${6}\n\t${4:to} { ${5} }\n}\n@keyframes ${1:identifier} {\n\t${2:from} { ${3} }${6}\n\t${4:to} { ${5} }\n}" tbl)
+(puthash "@m" "@media ${1:screen} {\n\t|\n}" tbl)
+(puthash "@media" "@media ${1:screen} {\n\t|\n}" tbl)
+(puthash "anim" "animation:|;" tbl)
+(puthash "anim-" "animation:${1:name} ${2:duration} ${3:timing-function} ${4:delay} ${5:iteration-count} ${6:direction} ${7:fill-mode};" tbl)
+(puthash "animdel" "animation-delay:${1:time};" tbl)
+(puthash "animdir" "animation-direction:${1:normal};" tbl)
+(puthash "animdir:a" "animation-direction:alternate;" tbl)
+(puthash "animdir:ar" "animation-direction:alternate-reverse;" tbl)
+(puthash "animdir:n" "animation-direction:normal;" tbl)
+(puthash "animdir:r" "animation-direction:reverse;" tbl)
+(puthash "animdur" "animation-duration:${1:0}s;" tbl)
+(puthash "animfm" "animation-fill-mode:${1:both};" tbl)
+(puthash "animfm:b" "animation-fill-mode:backwards;" tbl)
+(puthash "animfm:bh" "animation-fill-mode:both;" tbl)
+(puthash "animfm:bt" "animation-fill-mode:both;" tbl)
+(puthash "animfm:f" "animation-fill-mode:forwards;" tbl)
+(puthash "animic" "animation-iteration-count:${1:1};" tbl)
+(puthash "animic:i" "animation-iteration-count:infinite;" tbl)
+(puthash "animn" "animation-name:${1:none};" tbl)
+(puthash "animps" "animation-play-state:${1:running};" tbl)
+(puthash "animps:p" "animation-play-state:paused;" tbl)
+(puthash "animps:r" "animation-play-state:running;" tbl)
+(puthash "animtf" "animation-timing-function:${1:linear};" tbl)
+(puthash "animtf:cb" "animation-timing-function:cubic-bezier(${1:0.1}, ${2:0.7}, ${3:1.0}, ${3:0.1});" tbl)
+(puthash "animtf:e" "animation-timing-function:ease;" tbl)
+(puthash "animtf:ei" "animation-timing-function:ease-in;" tbl)
+(puthash "animtf:eio" "animation-timing-function:ease-in-out;" tbl)
+(puthash "animtf:eo" "animation-timing-function:ease-out;" tbl)
+(puthash "animtf:l" "animation-timing-function:linear;" tbl)
+(puthash "ap" "appearance:${1:none};" tbl)
+(puthash "b" "bottom:|;" tbl)
+(puthash "b:a" "bottom:auto;" tbl)
+(puthash "bb" "border-bottom:|;" tbl)
+(puthash "bd" "border:|;" tbl)
+(puthash "bd+" "border:${1:1px} ${2:solid} ${3:#000};" tbl)
+(puthash "bd:n" "border:none;" tbl)
+(puthash "bdb" "border-bottom:|;" tbl)
+(puthash "bdb+" "border-bottom:${1:1px} ${2:solid} ${3:#000};" tbl)
+(puthash "bdb:n" "border-bottom:none;" tbl)
+(puthash "bdbc" "border-bottom-color:${1:#000};" tbl)
+(puthash "bdbc:t" "border-bottom-color:transparent;" tbl)
+(puthash "bdbi" "border-bottom-image:url(|);" tbl)
+(puthash "bdbi:n" "border-bottom-image:none;" tbl)
+(puthash "bdbk" "border-break:${1:close};" tbl)
+(puthash "bdbk:c" "border-break:close;" tbl)
+(puthash "bdbli" "border-bottom-left-image:url(|);" tbl)
+(puthash "bdbli:c" "border-bottom-left-image:continue;" tbl)
+(puthash "bdbli:n" "border-bottom-left-image:none;" tbl)
+(puthash "bdblrs" "border-bottom-left-radius:|;" tbl)
+(puthash "bdbri" "border-bottom-right-image:url(|);" tbl)
+(puthash "bdbri:c" "border-bottom-right-image:continue;" tbl)
+(puthash "bdbri:n" "border-bottom-right-image:none;" tbl)
+(puthash "bdbrrs" "border-bottom-right-radius:|;" tbl)
+(puthash "bdbs" "border-bottom-style:|;" tbl)
+(puthash "bdbs:n" "border-bottom-style:none;" tbl)
+(puthash "bdbw" "border-bottom-width:|;" tbl)
+(puthash "bdc" "border-color:${1:#000};" tbl)
+(puthash "bdc:t" "border-color:transparent;" tbl)
+(puthash "bdci" "border-corner-image:url(|);" tbl)
+(puthash "bdci:c" "border-corner-image:continue;" tbl)
+(puthash "bdci:n" "border-corner-image:none;" tbl)
+(puthash "bdcl" "border-collapse:|;" tbl)
+(puthash "bdcl:c" "border-collapse:collapse;" tbl)
+(puthash "bdcl:s" "border-collapse:separate;" tbl)
+(puthash "bdf" "border-fit:${1:repeat};" tbl)
+(puthash "bdf:c" "border-fit:clip;" tbl)
+(puthash "bdf:of" "border-fit:overflow;" tbl)
+(puthash "bdf:ow" "border-fit:overwrite;" tbl)
+(puthash "bdf:r" "border-fit:repeat;" tbl)
+(puthash "bdf:sc" "border-fit:scale;" tbl)
+(puthash "bdf:sp" "border-fit:space;" tbl)
+(puthash "bdf:st" "border-fit:stretch;" tbl)
+(puthash "bdi" "border-image:url(|);" tbl)
+(puthash "bdi:n" "border-image:none;" tbl)
+(puthash "bdl" "border-left:|;" tbl)
+(puthash "bdl+" "border-left:${1:1px} ${2:solid} ${3:#000};" tbl)
+(puthash "bdl:n" "border-left:none;" tbl)
+(puthash "bdlc" "border-left-color:${1:#000};" tbl)
+(puthash "bdlc:t" "border-left-color:transparent;" tbl)
+(puthash "bdlen" "border-length:|;" tbl)
+(puthash "bdlen:a" "border-length:auto;" tbl)
+(puthash "bdli" "border-left-image:url(|);" tbl)
+(puthash "bdli:n" "border-left-image:none;" tbl)
+(puthash "bdls" "border-left-style:|;" tbl)
+(puthash "bdls:n" "border-left-style:none;" tbl)
+(puthash "bdlw" "border-left-width:|;" tbl)
+(puthash "bdr" "border-right:|;" tbl)
+(puthash "bdr+" "border-right:${1:1px} ${2:solid} ${3:#000};" tbl)
+(puthash "bdr:n" "border-right:none;" tbl)
+(puthash "bdrc" "border-right-color:${1:#000};" tbl)
+(puthash "bdrc:t" "border-right-color:transparent;" tbl)
+(puthash "bdri" "border-right-image:url(|);" tbl)
+(puthash "bdri:n" "border-right-image:none;" tbl)
+(puthash "bdrs" "border-radius:|;" tbl)
+(puthash "bdrst" "border-right-style:|;" tbl)
+(puthash "bdrst:n" "border-right-style:none;" tbl)
+(puthash "bdrw" "border-right-width:|;" tbl)
+(puthash "bds" "border-style:|;" tbl)
+(puthash "bds:db" "border-style:double;" tbl)
+(puthash "bds:ds" "border-style:dashed;" tbl)
+(puthash "bds:dt" "border-style:dotted;" tbl)
+(puthash "bds:dtds" "border-style:dot-dash;" tbl)
+(puthash "bds:dtdtds" "border-style:dot-dot-dash;" tbl)
+(puthash "bds:g" "border-style:groove;" tbl)
+(puthash "bds:h" "border-style:hidden;" tbl)
+(puthash "bds:i" "border-style:inset;" tbl)
+(puthash "bds:n" "border-style:none;" tbl)
+(puthash "bds:o" "border-style:outset;" tbl)
+(puthash "bds:r" "border-style:ridge;" tbl)
+(puthash "bds:s" "border-style:solid;" tbl)
+(puthash "bds:w" "border-style:wave;" tbl)
+(puthash "bdsp" "border-spacing:|;" tbl)
+(puthash "bdt" "border-top:|;" tbl)
+(puthash "bdt+" "border-top:${1:1px} ${2:solid} ${3:#000};" tbl)
+(puthash "bdt:n" "border-top:none;" tbl)
+(puthash "bdtc" "border-top-color:${1:#000};" tbl)
+(puthash "bdtc:t" "border-top-color:transparent;" tbl)
+(puthash "bdti" "border-top-image:url(|);" tbl)
+(puthash "bdti:n" "border-top-image:none;" tbl)
+(puthash "bdtli" "border-top-left-image:url(|);" tbl)
+(puthash "bdtli:c" "border-top-left-image:continue;" tbl)
+(puthash "bdtli:n" "border-top-left-image:none;" tbl)
+(puthash "bdtlrs" "border-top-left-radius:|;" tbl)
+(puthash "bdtri" "border-top-right-image:url(|);" tbl)
+(puthash "bdtri:c" "border-top-right-image:continue;" tbl)
+(puthash "bdtri:n" "border-top-right-image:none;" tbl)
+(puthash "bdtrrs" "border-top-right-radius:|;" tbl)
+(puthash "bdts" "border-top-style:|;" tbl)
+(puthash "bdts:n" "border-top-style:none;" tbl)
+(puthash "bdtw" "border-top-width:|;" tbl)
+(puthash "bdw" "border-width:|;" tbl)
+(puthash "bg" "background:|;" tbl)
+(puthash "bg+" "background:${1:#fff} url(${2}) ${3:0} ${4:0} ${5:no-repeat};" tbl)
+(puthash "bg:ie" "filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='${1:x}.png',sizingMethod='${2:crop}');" tbl)
+(puthash "bg:n" "background:none;" tbl)
+(puthash "bga" "background-attachment:|;" tbl)
+(puthash "bga:f" "background-attachment:fixed;" tbl)
+(puthash "bga:s" "background-attachment:scroll;" tbl)
+(puthash "bgbk" "background-break:|;" tbl)
+(puthash "bgbk:bb" "background-break:bounding-box;" tbl)
+(puthash "bgbk:c" "background-break:continuous;" tbl)
+(puthash "bgbk:eb" "background-break:each-box;" tbl)
+(puthash "bgc" "background-color:${1:#fff};" tbl)
+(puthash "bgc:t" "background-color:transparent;" tbl)
+(puthash "bgcp" "background-clip:${1:padding-box};" tbl)
+(puthash "bgcp:bb" "background-clip:border-box;" tbl)
+(puthash "bgcp:cb" "background-clip:content-box;" tbl)
+(puthash "bgcp:nc" "background-clip:no-clip;" tbl)
+(puthash "bgcp:pb" "background-clip:padding-box;" tbl)
+(puthash "bgi" "background-image:url(|);" tbl)
+(puthash "bgi:n" "background-image:none;" tbl)
+(puthash "bgo" "background-origin:|;" tbl)
+(puthash "bgo:bb" "background-origin:border-box;" tbl)
+(puthash "bgo:cb" "background-origin:content-box;" tbl)
+(puthash "bgo:pb" "background-origin:padding-box;" tbl)
+(puthash "bgp" "background-position:${1:0} ${2:0};" tbl)
+(puthash "bgpx" "background-position-x:|;" tbl)
+(puthash "bgpy" "background-position-y:|;" tbl)
+(puthash "bgr" "background-repeat:|;" tbl)
+(puthash "bgr:n" "background-repeat:no-repeat;" tbl)
+(puthash "bgr:rd" "background-repeat:round;" tbl)
+(puthash "bgr:sp" "background-repeat:space;" tbl)
+(puthash "bgr:x" "background-repeat:repeat-x;" tbl)
+(puthash "bgr:y" "background-repeat:repeat-y;" tbl)
+(puthash "bgsz" "background-size:|;" tbl)
+(puthash "bgsz:a" "background-size:auto;" tbl)
+(puthash "bgsz:ct" "background-size:contain;" tbl)
+(puthash "bgsz:cv" "background-size:cover;" tbl)
+(puthash "bl" "border-left:|;" tbl)
+(puthash "br" "border-right:|;" tbl)
+(puthash "bt" "border-top:|;" tbl)
+(puthash "bxsh" "box-shadow:${1:inset }${2:hoff} ${3:voff} ${4:blur} ${5:color};" tbl)
+(puthash "bxsh:n" "box-shadow:none;" tbl)
+(puthash "bxsh:r" "box-shadow:${1:inset }${2:hoff} ${3:voff} ${4:blur} ${5:spread }rgb(${6:0}, ${7:0}, ${8:0});" tbl)
+(puthash "bxsh:ra" "box-shadow:${1:inset }${2:h} ${3:v} ${4:blur} ${5:spread }rgba(${6:0}, ${7:0}, ${8:0}, .${9:5});" tbl)
+(puthash "bxz" "box-sizing:${1:border-box};" tbl)
+(puthash "bxz:bb" "box-sizing:border-box;" tbl)
+(puthash "bxz:cb" "box-sizing:content-box;" tbl)
+(puthash "c" "color:${1:#000};" tbl)
+(puthash "c:r" "color:rgb(${1:0}, ${2:0}, ${3:0});" tbl)
+(puthash "c:ra" "color:rgba(${1:0}, ${2:0}, ${3:0}, .${4:5});" tbl)
+(puthash "cl" "clear:${1:both};" tbl)
+(puthash "cl:b" "clear:both;" tbl)
+(puthash "cl:l" "clear:left;" tbl)
+(puthash "cl:n" "clear:none;" tbl)
+(puthash "cl:r" "clear:right;" tbl)
+(puthash "cm" "/* |${child} */" tbl)
+(puthash "cnt" "content:'|';" tbl)
+(puthash "cnt:a" "content:attr(|);" tbl)
+(puthash "cnt:c" "content:counter(|);" tbl)
+(puthash "cnt:cq" "content:close-quote;" tbl)
+(puthash "cnt:cs" "content:counters(|);" tbl)
+(puthash "cnt:n" "content:normal;" tbl)
+(puthash "cnt:ncq" "content:no-close-quote;" tbl)
+(puthash "cnt:noq" "content:no-open-quote;" tbl)
+(puthash "cnt:oq" "content:open-quote;" tbl)
+(puthash "coi" "counter-increment:|;" tbl)
+(puthash "colm" "columns:|;" tbl)
+(puthash "colmc" "column-count:|;" tbl)
+(puthash "colmf" "column-fill:|;" tbl)
+(puthash "colmg" "column-gap:|;" tbl)
+(puthash "colmr" "column-rule:|;" tbl)
+(puthash "colmrc" "column-rule-color:|;" tbl)
+(puthash "colmrs" "column-rule-style:|;" tbl)
+(puthash "colmrw" "column-rule-width:|;" tbl)
+(puthash "colms" "column-span:|;" tbl)
+(puthash "colmw" "column-width:|;" tbl)
+(puthash "cor" "counter-reset:|;" tbl)
+(puthash "cp" "clip:|;" tbl)
+(puthash "cp:a" "clip:auto;" tbl)
+(puthash "cp:r" "clip:rect(${1:top} ${2:right} ${3:bottom} ${4:left});" tbl)
+(puthash "cps" "caption-side:|;" tbl)
+(puthash "cps:b" "caption-side:bottom;" tbl)
+(puthash "cps:t" "caption-side:top;" tbl)
+(puthash "ct" "content:|;" tbl)
+(puthash "ct:a" "content:attr(|);" tbl)
+(puthash "ct:c" "content:counter(|);" tbl)
+(puthash "ct:cq" "content:close-quote;" tbl)
+(puthash "ct:cs" "content:counters(|);" tbl)
+(puthash "ct:n" "content:normal;" tbl)
+(puthash "ct:ncq" "content:no-close-quote;" tbl)
+(puthash "ct:noq" "content:no-open-quote;" tbl)
+(puthash "ct:oq" "content:open-quote;" tbl)
+(puthash "cur" "cursor:${1:pointer};" tbl)
+(puthash "cur:a" "cursor:auto;" tbl)
+(puthash "cur:c" "cursor:crosshair;" tbl)
+(puthash "cur:d" "cursor:default;" tbl)
+(puthash "cur:ha" "cursor:hand;" tbl)
+(puthash "cur:he" "cursor:help;" tbl)
+(puthash "cur:m" "cursor:move;" tbl)
+(puthash "cur:p" "cursor:pointer;" tbl)
+(puthash "cur:t" "cursor:text;" tbl)
+(puthash "d" "display:${1:block};" tbl)
+(puthash "d:b" "display:block;" tbl)
+(puthash "d:cp" "display:compact;" tbl)
+(puthash "d:i" "display:inline;" tbl)
+(puthash "d:ib" "display:inline-block;" tbl)
+(puthash "d:itb" "display:inline-table;" tbl)
+(puthash "d:li" "display:list-item;" tbl)
+(puthash "d:n" "display:none;" tbl)
+(puthash "d:rb" "display:ruby;" tbl)
+(puthash "d:rbb" "display:ruby-base;" tbl)
+(puthash "d:rbbg" "display:ruby-base-group;" tbl)
+(puthash "d:rbt" "display:ruby-text;" tbl)
+(puthash "d:rbtg" "display:ruby-text-group;" tbl)
+(puthash "d:ri" "display:run-in;" tbl)
+(puthash "d:tb" "display:table;" tbl)
+(puthash "d:tbc" "display:table-cell;" tbl)
+(puthash "d:tbcl" "display:table-column;" tbl)
+(puthash "d:tbclg" "display:table-column-group;" tbl)
+(puthash "d:tbcp" "display:table-caption;" tbl)
+(puthash "d:tbfg" "display:table-footer-group;" tbl)
+(puthash "d:tbhg" "display:table-header-group;" tbl)
+(puthash "d:tbr" "display:table-row;" tbl)
+(puthash "d:tbrg" "display:table-row-group;" tbl)
+(puthash "ec" "empty-cells:|;" tbl)
+(puthash "ec:h" "empty-cells:hide;" tbl)
+(puthash "ec:s" "empty-cells:show;" tbl)
+(puthash "f" "font:|;" tbl)
+(puthash "f+" "font:${1:1em} ${2:Arial,sans-serif};" tbl)
+(puthash "fef" "font-effect:|;" tbl)
+(puthash "fef:eb" "font-effect:emboss;" tbl)
+(puthash "fef:eg" "font-effect:engrave;" tbl)
+(puthash "fef:n" "font-effect:none;" tbl)
+(puthash "fef:o" "font-effect:outline;" tbl)
+(puthash "fem" "font-emphasize:|;" tbl)
+(puthash "femp" "font-emphasize-position:|;" tbl)
+(puthash "femp:a" "font-emphasize-position:after;" tbl)
+(puthash "femp:b" "font-emphasize-position:before;" tbl)
+(puthash "fems" "font-emphasize-style:|;" tbl)
+(puthash "fems:ac" "font-emphasize-style:accent;" tbl)
+(puthash "fems:c" "font-emphasize-style:circle;" tbl)
+(puthash "fems:ds" "font-emphasize-style:disc;" tbl)
+(puthash "fems:dt" "font-emphasize-style:dot;" tbl)
+(puthash "fems:n" "font-emphasize-style:none;" tbl)
+(puthash "ff" "font-family:|;" tbl)
+(puthash "ff:c" "font-family:cursive;" tbl)
+(puthash "ff:f" "font-family:fantasy;" tbl)
+(puthash "ff:m" "font-family:monospace;" tbl)
+(puthash "ff:s" "font-family:serif;" tbl)
+(puthash "ff:ss" "font-family:sans-serif;" tbl)
+(puthash "fl" "float:${1:left};" tbl)
+(puthash "fl:l" "float:left;" tbl)
+(puthash "fl:n" "float:none;" tbl)
+(puthash "fl:r" "float:right;" tbl)
+(puthash "fs" "font-style:${1:italic};" tbl)
+(puthash "fs:i" "font-style:italic;" tbl)
+(puthash "fs:n" "font-style:normal;" tbl)
+(puthash "fs:o" "font-style:oblique;" tbl)
+(puthash "fsm" "font-smooth:|;" tbl)
+(puthash "fsm:a" "font-smooth:auto;" tbl)
+(puthash "fsm:aw" "font-smooth:always;" tbl)
+(puthash "fsm:n" "font-smooth:never;" tbl)
+(puthash "fst" "font-stretch:|;" tbl)
+(puthash "fst:c" "font-stretch:condensed;" tbl)
+(puthash "fst:e" "font-stretch:expanded;" tbl)
+(puthash "fst:ec" "font-stretch:extra-condensed;" tbl)
+(puthash "fst:ee" "font-stretch:extra-expanded;" tbl)
+(puthash "fst:n" "font-stretch:normal;" tbl)
+(puthash "fst:sc" "font-stretch:semi-condensed;" tbl)
+(puthash "fst:se" "font-stretch:semi-expanded;" tbl)
+(puthash "fst:uc" "font-stretch:ultra-condensed;" tbl)
+(puthash "fst:ue" "font-stretch:ultra-expanded;" tbl)
+(puthash "fv" "font-variant:|;" tbl)
+(puthash "fv:n" "font-variant:normal;" tbl)
+(puthash "fv:sc" "font-variant:small-caps;" tbl)
+(puthash "fw" "font-weight:|;" tbl)
+(puthash "fw:b" "font-weight:bold;" tbl)
+(puthash "fw:br" "font-weight:bolder;" tbl)
+(puthash "fw:lr" "font-weight:lighter;" tbl)
+(puthash "fw:n" "font-weight:normal;" tbl)
+(puthash "fz" "font-size:|;" tbl)
+(puthash "fza" "font-size-adjust:|;" tbl)
+(puthash "fza:n" "font-size-adjust:none;" tbl)
+(puthash "h" "height:|;" tbl)
+(puthash "h:a" "height:auto;" tbl)
+(puthash "l" "left:|;" tbl)
+(puthash "l:a" "left:auto;" tbl)
+(puthash "lh" "line-height:|;" tbl)
+(puthash "lis" "list-style:|;" tbl)
+(puthash "lis:n" "list-style:none;" tbl)
+(puthash "lisi" "list-style-image:|;" tbl)
+(puthash "lisi:n" "list-style-image:none;" tbl)
+(puthash "lisp" "list-style-position:|;" tbl)
+(puthash "lisp:i" "list-style-position:inside;" tbl)
+(puthash "lisp:o" "list-style-position:outside;" tbl)
+(puthash "list" "list-style-type:|;" tbl)
+(puthash "list:c" "list-style-type:circle;" tbl)
+(puthash "list:d" "list-style-type:disc;" tbl)
+(puthash "list:dc" "list-style-type:decimal;" tbl)
+(puthash "list:dclz" "list-style-type:decimal-leading-zero;" tbl)
+(puthash "list:lr" "list-style-type:lower-roman;" tbl)
+(puthash "list:n" "list-style-type:none;" tbl)
+(puthash "list:s" "list-style-type:square;" tbl)
+(puthash "list:ur" "list-style-type:upper-roman;" tbl)
+(puthash "lts" "letter-spacing:|;" tbl)
+(puthash "m" "margin:|;" tbl)
+(puthash "m:a" "margin:auto;" tbl)
+(puthash "mah" "max-height:|;" tbl)
+(puthash "mah:n" "max-height:none;" tbl)
+(puthash "mar" "max-resolution:${1:res};" tbl)
+(puthash "maw" "max-width:|;" tbl)
+(puthash "maw:n" "max-width:none;" tbl)
+(puthash "mb" "margin-bottom:|;" tbl)
+(puthash "mb:a" "margin-bottom:auto;" tbl)
+(puthash "mih" "min-height:|;" tbl)
+(puthash "mir" "min-resolution:${1:res};" tbl)
+(puthash "miw" "min-width:|;" tbl)
+(puthash "ml" "margin-left:|;" tbl)
+(puthash "ml:a" "margin-left:auto;" tbl)
+(puthash "mr" "margin-right:|;" tbl)
+(puthash "mr:a" "margin-right:auto;" tbl)
+(puthash "mt" "margin-top:|;" tbl)
+(puthash "mt:a" "margin-top:auto;" tbl)
+(puthash "ol" "outline:|;" tbl)
+(puthash "ol:n" "outline:none;" tbl)
+(puthash "olc" "outline-color:${1:#000};" tbl)
+(puthash "olc:i" "outline-color:invert;" tbl)
+(puthash "olo" "outline-offset:|;" tbl)
+(puthash "ols" "outline-style:|;" tbl)
+(puthash "olw" "outline-width:|;" tbl)
+(puthash "op" "opacity:|;" tbl)
+(puthash "op:ie" "filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=100);" tbl)
+(puthash "op:ms" "-ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=100)';" tbl)
+(puthash "ori" "orientation:|;" tbl)
+(puthash "ori:l" "orientation:landscape;" tbl)
+(puthash "ori:p" "orientation:portrait;" tbl)
+(puthash "orp" "orphans:|;" tbl)
+(puthash "ov" "overflow:${1:hidden};" tbl)
+(puthash "ov:a" "overflow:auto;" tbl)
+(puthash "ov:h" "overflow:hidden;" tbl)
+(puthash "ov:s" "overflow:scroll;" tbl)
+(puthash "ov:v" "overflow:visible;" tbl)
+(puthash "ovs" "overflow-style:${1:scrollbar};" tbl)
+(puthash "ovs:a" "overflow-style:auto;" tbl)
+(puthash "ovs:m" "overflow-style:move;" tbl)
+(puthash "ovs:mq" "overflow-style:marquee;" tbl)
+(puthash "ovs:p" "overflow-style:panner;" tbl)
+(puthash "ovs:s" "overflow-style:scrollbar;" tbl)
+(puthash "ovx" "overflow-x:${1:hidden};" tbl)
+(puthash "ovx:a" "overflow-x:auto;" tbl)
+(puthash "ovx:h" "overflow-x:hidden;" tbl)
+(puthash "ovx:s" "overflow-x:scroll;" tbl)
+(puthash "ovx:v" "overflow-x:visible;" tbl)
+(puthash "ovy" "overflow-y:${1:hidden};" tbl)
+(puthash "ovy:a" "overflow-y:auto;" tbl)
+(puthash "ovy:h" "overflow-y:hidden;" tbl)
+(puthash "ovy:s" "overflow-y:scroll;" tbl)
+(puthash "ovy:v" "overflow-y:visible;" tbl)
+(puthash "p" "padding:|;" tbl)
+(puthash "pb" "padding-bottom:|;" tbl)
+(puthash "pgba" "page-break-after:|;" tbl)
+(puthash "pgba:al" "page-break-after:always;" tbl)
+(puthash "pgba:au" "page-break-after:auto;" tbl)
+(puthash "pgba:l" "page-break-after:left;" tbl)
+(puthash "pgba:r" "page-break-after:right;" tbl)
+(puthash "pgbb" "page-break-before:|;" tbl)
+(puthash "pgbb:al" "page-break-before:always;" tbl)
+(puthash "pgbb:au" "page-break-before:auto;" tbl)
+(puthash "pgbb:l" "page-break-before:left;" tbl)
+(puthash "pgbb:r" "page-break-before:right;" tbl)
+(puthash "pgbi" "page-break-inside:|;" tbl)
+(puthash "pgbi:au" "page-break-inside:auto;" tbl)
+(puthash "pgbi:av" "page-break-inside:avoid;" tbl)
+(puthash "pl" "padding-left:|;" tbl)
+(puthash "pos" "position:${1:relative};" tbl)
+(puthash "pos:a" "position:absolute;" tbl)
+(puthash "pos:f" "position:fixed;" tbl)
+(puthash "pos:r" "position:relative;" tbl)
+(puthash "pos:s" "position:static;" tbl)
+(puthash "pr" "padding-right:|;" tbl)
+(puthash "pt" "padding-top:|;" tbl)
+(puthash "q" "quotes:|;" tbl)
+(puthash "q:en" "quotes:'\\201C' '\\201D' '\\2018' '\\2019';" tbl)
+(puthash "q:n" "quotes:none;" tbl)
+(puthash "q:ru" "quotes:'\\00AB' '\\00BB' '\\201E' '\\201C';" tbl)
+(puthash "r" "right:|;" tbl)
+(puthash "r:a" "right:auto;" tbl)
+(puthash "rsz" "resize:|;" tbl)
+(puthash "rsz:b" "resize:both;" tbl)
+(puthash "rsz:h" "resize:horizontal;" tbl)
+(puthash "rsz:n" "resize:none;" tbl)
+(puthash "rsz:v" "resize:vertical;" tbl)
+(puthash "t" "top:|;" tbl)
+(puthash "t:a" "top:auto;" tbl)
+(puthash "ta" "text-align:${1:left};" tbl)
+(puthash "ta-lst" "text-align-last:|;" tbl)
+(puthash "ta:c" "text-align:center;" tbl)
+(puthash "ta:j" "text-align:justify;" tbl)
+(puthash "ta:l" "text-align:left;" tbl)
+(puthash "ta:r" "text-align:right;" tbl)
+(puthash "tal:a" "text-align-last:auto;" tbl)
+(puthash "tal:c" "text-align-last:center;" tbl)
+(puthash "tal:l" "text-align-last:left;" tbl)
+(puthash "tal:r" "text-align-last:right;" tbl)
+(puthash "tbl" "table-layout:|;" tbl)
+(puthash "tbl:a" "table-layout:auto;" tbl)
+(puthash "tbl:f" "table-layout:fixed;" tbl)
+(puthash "td" "text-decoration:${1:none};" tbl)
+(puthash "td:l" "text-decoration:line-through;" tbl)
+(puthash "td:n" "text-decoration:none;" tbl)
+(puthash "td:o" "text-decoration:overline;" tbl)
+(puthash "td:u" "text-decoration:underline;" tbl)
+(puthash "te" "text-emphasis:|;" tbl)
+(puthash "te:a" "text-emphasis:after;" tbl)
+(puthash "te:ac" "text-emphasis:accent;" tbl)
+(puthash "te:b" "text-emphasis:before;" tbl)
+(puthash "te:c" "text-emphasis:circle;" tbl)
+(puthash "te:ds" "text-emphasis:disc;" tbl)
+(puthash "te:dt" "text-emphasis:dot;" tbl)
+(puthash "te:n" "text-emphasis:none;" tbl)
+(puthash "th" "text-height:|;" tbl)
+(puthash "th:a" "text-height:auto;" tbl)
+(puthash "th:f" "text-height:font-size;" tbl)
+(puthash "th:m" "text-height:max-size;" tbl)
+(puthash "th:t" "text-height:text-size;" tbl)
+(puthash "ti" "text-indent:|;" tbl)
+(puthash "ti:-" "text-indent:-9999px;" tbl)
+(puthash "tj" "text-justify:|;" tbl)
+(puthash "tj:a" "text-justify:auto;" tbl)
+(puthash "tj:d" "text-justify:distribute;" tbl)
+(puthash "tj:ic" "text-justify:inter-cluster;" tbl)
+(puthash "tj:ii" "text-justify:inter-ideograph;" tbl)
+(puthash "tj:iw" "text-justify:inter-word;" tbl)
+(puthash "tj:k" "text-justify:kashida;" tbl)
+(puthash "tj:t" "text-justify:tibetan;" tbl)
+(puthash "to" "text-outline:|;" tbl)
+(puthash "to+" "text-outline:${1:0} ${2:0} ${3:#000};" tbl)
+(puthash "to:n" "text-outline:none;" tbl)
+(puthash "tov" "text-overflow:${1:ellipsis};" tbl)
+(puthash "tov:c" "text-overflow:clip;" tbl)
+(puthash "tov:e" "text-overflow:ellipsis;" tbl)
+(puthash "tr" "text-replace:|;" tbl)
+(puthash "tr:n" "text-replace:none;" tbl)
+(puthash "trf" "transform:|;" tbl)
+(puthash "trf:r" "transform: rotate(${1:angle});" tbl)
+(puthash "trf:sc" "transform: scale(${1:x}, ${2:y});" tbl)
+(puthash "trf:scx" "transform: scaleX(${1:x});" tbl)
+(puthash "trf:scy" "transform: scaleY(${1:y});" tbl)
+(puthash "trf:skx" "transform: skewX(${1:angle});" tbl)
+(puthash "trf:sky" "transform: skewY(${1:angle});" tbl)
+(puthash "trf:t" "transform: translate(${1:x}, ${2:y});" tbl)
+(puthash "trf:tx" "transform: translateX(${1:x});" tbl)
+(puthash "trf:ty" "transform: translateY(${1:y});" tbl)
+(puthash "trfo" "transform-origin:|;" tbl)
+(puthash "trfs" "transform-style:${1:preserve-3d};" tbl)
+(puthash "trs" "transition:${1:prop} ${2:time};" tbl)
+(puthash "trsde" "transition-delay:${1:time};" tbl)
+(puthash "trsdu" "transition-duration:${1:time};" tbl)
+(puthash "trsp" "transition-property:${1:prop};" tbl)
+(puthash "trstf" "transition-timing-function:${1:tfunc};" tbl)
+(puthash "tsh" "text-shadow:${1:hoff} ${2:voff} ${3:blur} ${4:#000};" tbl)
+(puthash "tsh+" "text-shadow:${1:0} ${2:0} ${3:0} ${4:#000};" tbl)
+(puthash "tsh:n" "text-shadow:none;" tbl)
+(puthash "tsh:r" "text-shadow:${1:h} ${2:v} ${3:blur} rgb(${4:0}, ${5:0}, ${6:0});" tbl)
+(puthash "tsh:ra" "text-shadow:${1:h} ${2:v} ${3:blur} rgba(${4:0}, ${5:0}, ${6:0}, .${7:5});" tbl)
+(puthash "tt" "text-transform:${1:uppercase};" tbl)
+(puthash "tt:c" "text-transform:capitalize;" tbl)
+(puthash "tt:l" "text-transform:lowercase;" tbl)
+(puthash "tt:n" "text-transform:none;" tbl)
+(puthash "tt:u" "text-transform:uppercase;" tbl)
+(puthash "tw" "text-wrap:|;" tbl)
+(puthash "tw:n" "text-wrap:normal;" tbl)
+(puthash "tw:no" "text-wrap:none;" tbl)
+(puthash "tw:s" "text-wrap:suppress;" tbl)
+(puthash "tw:u" "text-wrap:unrestricted;" tbl)
+(puthash "us" "user-select:${1:none};" tbl)
+(puthash "v" "visibility:${1:hidden};" tbl)
+(puthash "v:c" "visibility:collapse;" tbl)
+(puthash "v:h" "visibility:hidden;" tbl)
+(puthash "v:v" "visibility:visible;" tbl)
+(puthash "va" "vertical-align:${1:top};" tbl)
+(puthash "va:b" "vertical-align:bottom;" tbl)
+(puthash "va:bl" "vertical-align:baseline;" tbl)
+(puthash "va:m" "vertical-align:middle;" tbl)
+(puthash "va:sub" "vertical-align:sub;" tbl)
+(puthash "va:sup" "vertical-align:super;" tbl)
+(puthash "va:t" "vertical-align:top;" tbl)
+(puthash "va:tb" "vertical-align:text-bottom;" tbl)
+(puthash "va:tt" "vertical-align:text-top;" tbl)
+(puthash "w" "width:|;" tbl)
+(puthash "w:a" "width:auto;" tbl)
+(puthash "wfsm" "-webkit-font-smoothing:${1:antialiased};" tbl)
+(puthash "wfsm:a" "-webkit-font-smoothing:antialiased;" tbl)
+(puthash "wfsm:n" "-webkit-font-smoothing:none;" tbl)
+(puthash "wfsm:s" "-webkit-font-smoothing:subpixel-antialiased;" tbl)
+(puthash "wfsm:sa" "-webkit-font-smoothing:subpixel-antialiased;" tbl)
+(puthash "whs" "white-space:|;" tbl)
+(puthash "whs:n" "white-space:normal;" tbl)
+(puthash "whs:nw" "white-space:nowrap;" tbl)
+(puthash "whs:p" "white-space:pre;" tbl)
+(puthash "whs:pl" "white-space:pre-line;" tbl)
+(puthash "whs:pw" "white-space:pre-wrap;" tbl)
+(puthash "whsc" "white-space-collapse:|;" tbl)
+(puthash "whsc:ba" "white-space-collapse:break-all;" tbl)
+(puthash "whsc:bs" "white-space-collapse:break-strict;" tbl)
+(puthash "whsc:k" "white-space-collapse:keep-all;" tbl)
+(puthash "whsc:l" "white-space-collapse:loose;" tbl)
+(puthash "whsc:n" "white-space-collapse:normal;" tbl)
+(puthash "wid" "widows:|;" tbl)
+(puthash "wob" "word-break:|;" tbl)
+(puthash "wob:ba" "word-break:break-all;" tbl)
+(puthash "wob:bs" "word-break:break-strict;" tbl)
+(puthash "wob:k" "word-break:keep-all;" tbl)
+(puthash "wob:l" "word-break:loose;" tbl)
+(puthash "wob:n" "word-break:normal;" tbl)
+(puthash "wos" "word-spacing:|;" tbl)
+(puthash "wow" "word-wrap:|;" tbl)
+(puthash "wow:n" "word-wrap:none;" tbl)
+(puthash "wow:nm" "word-wrap:normal;" tbl)
+(puthash "wow:s" "word-wrap:suppress;" tbl)
+(puthash "wow:u" "word-wrap:unrestricted;" tbl)
+(puthash "z" "z-index:|;" tbl)
+(puthash "z:a" "z-index:auto;" tbl)
+(puthash "zm" "zoom:1;" tbl)
+(puthash "zoo" "zoom:1;" tbl)
+tbl) tbl)
+tbl) tbl)
 (puthash "html" (let ((tbl (make-hash-table :test 'equal)))
 (puthash "aliases" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "link:favicon" "link icon rel=shortcut type=image/x-icon href=favicon.ico" tbl)
-(puthash "link:print" "link rel=stylesheet href=print.css media=print" tbl)
-(puthash "leg" "legend" tbl)
-(puthash "datal" "datalist" tbl)
-(puthash "optg" "optgroup" tbl)
-(puthash "figc" "figcaption" tbl)
-(puthash "html:xml" "html xmlns=http://www.w3.org/1999/xhtml" tbl)
-(puthash "ul+" "ul>li" tbl)
+(puthash "!" "html:5" tbl)
+(puthash "a:link" "a href=http://" tbl)
 (puthash "a:mail" "a href=mailto:" tbl)
+(puthash "acr" "acronym" tbl)
+(puthash "adr" "address" tbl)
+(puthash "area:c" "area shape=circle coords href alt" tbl)
+(puthash "area:d" "area shape=default href alt" tbl)
+(puthash "area:p" "area shape=poly coords href alt" tbl)
+(puthash "area:r" "area shape=rect coords href alt" tbl)
+(puthash "art" "article" tbl)
+(puthash "bdo:l" "bdo dir=ltr" tbl)
+(puthash "bdo:r" "bdo dir=rtl" tbl)
+(puthash "bq" "blockquote" tbl)
+(puthash "btn" "button" tbl)
+(puthash "btn:b" "button type=button" tbl)
+(puthash "btn:r" "button type=reset" tbl)
+(puthash "btn:s" "button type=submit" tbl)
+(puthash "cap" "caption" tbl)
+(puthash "cmd" "command" tbl)
+(puthash "colg" "colgroup" tbl)
+(puthash "colg+" "colgroup>col" tbl)
+(puthash "colgroup+" "colgroup>col" tbl)
+(puthash "datag" "datagrid" tbl)
+(puthash "datal" "datalist" tbl)
+(puthash "det" "details" tbl)
+(puthash "dl+" "dl>dt+dd" tbl)
+(puthash "dlg" "dialog" tbl)
+(puthash "doc" "html>(head>meta charset=UTF-8+title{Document})+body" tbl)
+(puthash "doc4" "html>(head>meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\"+title{Document})" tbl)
+(puthash "emb" "embed" tbl)
+(puthash "fig" "figure" tbl)
+(puthash "figc" "figcaption" tbl)
+(puthash "form:get" "form action method=get" tbl)
+(puthash "form:post" "form action method=post" tbl)
+(puthash "fset" "fieldset" tbl)
+(puthash "fst" "fieldset" tbl)
+(puthash "ftr" "footer" tbl)
+(puthash "hdr" "header" tbl)
+(puthash "html:4s" "!!!4s+doc4 lang=en" tbl)
 (puthash "html:4t" "!!!4t+doc4 lang=en" tbl)
 (puthash "html:5" "!!!+doc lang=en" tbl)
-(puthash "ol+" "ol>li" tbl)
-(puthash "input:color" "input type=color" tbl)
-(puthash "datag" "datagrid" tbl)
-(puthash "acr" "acronym" tbl)
-(puthash "ifr" "iframe" tbl)
-(puthash "menu:t" "menu:toolbar" tbl)
-(puthash "input:email" "input type=email" tbl)
-(puthash "html:xxs" "!!!xxs+doc4 xmlns=http://www.w3.org/1999/xhtml xml:lang=en" tbl)
-(puthash "art" "article" tbl)
-(puthash "input:text" "input" tbl)
-(puthash "menu:c" "menu:context" tbl)
-(puthash "btn" "button" tbl)
-(puthash "opt" "option" tbl)
-(puthash "a:link" "a href=http://" tbl)
-(puthash "input:c" "input:checkbox" tbl)
-(puthash "input:b" "input:button" tbl)
-(puthash "input:file" "input type=file" tbl)
-(puthash "btn:b" "button type=button" tbl)
-(puthash "bq" "blockquote" tbl)
-(puthash "input:radio" "input type=radio" tbl)
-(puthash "input:i" "input:image" tbl)
-(puthash "input:h" "input:hidden" tbl)
-(puthash "form:get" "form action method=get" tbl)
-(puthash "input:month" "input type=month" tbl)
-(puthash "obj" "object" tbl)
-(puthash "input:s" "input:submit" tbl)
-(puthash "input:r" "input:radio" tbl)
-(puthash "btn:s" "button type=submit" tbl)
-(puthash "btn:r" "button type=reset" tbl)
-(puthash "link:touch" "link rel=apple-touch-icon href=favicon.png" tbl)
-(puthash "link:atom" "link rel=alternate type=\"application/atom+xml\" title=Atom href=atom.xml" tbl)
-(puthash "input:t" "input" tbl)
-(puthash "link:rss" "link rel=alternate type=application/rss+xml title=RSS href=rss.xml" tbl)
-(puthash "meta:win" "meta http-equiv=Content-Type content=\"text/html;charset=windows-1251\"" tbl)
-(puthash "dlg" "dialog" tbl)
-(puthash "menu:context" "menu type=context" tbl)
-(puthash "adr" "address" tbl)
-(puthash "input:datetime-local" "input type=datetime-local" tbl)
-(puthash "tarea" "textarea" tbl)
-(puthash "input:number" "input type=number" tbl)
-(puthash "out" "output" tbl)
-(puthash "input:week" "input type=week" tbl)
-(puthash "ftr" "footer" tbl)
-(puthash "fst" "fieldset" tbl)
-(puthash "doc" "html>(head>meta charset=UTF-8+title{Document})+body" tbl)
-(puthash "meta:compat" "meta http-equiv=X-UA-Compatible content=\"IE=edge,chrome=1\"" tbl)
-(puthash "html:xt" "!!!xt+doc4 xmlns=http://www.w3.org/1999/xhtml xml:lang=en" tbl)
-(puthash "input:hidden" "input type=hidden" tbl)
-(puthash "input:datetime" "input type=datetime" tbl)
-(puthash "bdo:l" "bdo dir=ltr" tbl)
-(puthash "html:4s" "!!!4s+doc4 lang=en" tbl)
-(puthash "meta:utf" "meta http-equiv=Content-Type content=\"text/html;charset=UTF-8\"" tbl)
-(puthash "script:src" "script src" tbl)
-(puthash "kg" "keygen" tbl)
-(puthash "colgroup+" "colgroup>col" tbl)
-(puthash "sect" "section" tbl)
-(puthash "det" "details" tbl)
-(puthash "link:css" "link rel=stylesheet href=style.css" tbl)
-(puthash "input:range" "input type=range" tbl)
-(puthash "cmd" "command" tbl)
-(puthash "input:submit" "input type=submit" tbl)
-(puthash "bdo:r" "bdo dir=rtl" tbl)
-(puthash "input:f" "input:file" tbl)
-(puthash "doc4" "html>(head>meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\"+title{Document})" tbl)
-(puthash "fig" "figure" tbl)
-(puthash "cap" "caption" tbl)
-(puthash "optg+" "optgroup>option" tbl)
-(puthash "input:time" "input type=time" tbl)
-(puthash "map+" "map>area" tbl)
-(puthash "select+" "select>option" tbl)
-(puthash "optgroup+" "optgroup>option" tbl)
-(puthash "area:r" "area shape=rect coords href alt" tbl)
-(puthash "area:p" "area shape=poly coords href alt" tbl)
-(puthash "input:date" "input type=date" tbl)
-(puthash "tr+" "tr>td" tbl)
-(puthash "area:d" "area shape=default href alt" tbl)
-(puthash "area:c" "area shape=circle coords href alt" tbl)
-(puthash "table+" "table>tr>td" tbl)
-(puthash "hdr" "header" tbl)
-(puthash "!" "html:5" tbl)
-(puthash "str" "strong" tbl)
-(puthash "input:url" "input type=url" tbl)
-(puthash "input:checkbox" "input type=checkbox" tbl)
-(puthash "input:image" "input type=image src alt" tbl)
-(puthash "form:post" "form action method=post" tbl)
-(puthash "input:button" "input type=button" tbl)
-(puthash "menu:toolbar" "menu type=toolbar" tbl)
-(puthash "input:search" "input type=search" tbl)
-(puthash "emb" "embed" tbl)
-(puthash "input:reset" "input type=reset" tbl)
-(puthash "meta:vp" "meta name=viewport content=\"width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0\"" tbl)
+(puthash "html:xml" "html xmlns=http://www.w3.org/1999/xhtml" tbl)
 (puthash "html:xs" "!!!xs+doc4 xmlns=http://www.w3.org/1999/xhtml xml:lang=en" tbl)
-(puthash "input:password" "input type=password" tbl)
-(puthash "src" "source" tbl)
+(puthash "html:xt" "!!!xt+doc4 xmlns=http://www.w3.org/1999/xhtml xml:lang=en" tbl)
+(puthash "html:xxs" "!!!xxs+doc4 xmlns=http://www.w3.org/1999/xhtml xml:lang=en" tbl)
+(puthash "ifr" "iframe" tbl)
+(puthash "input:b" "input:button" tbl)
+(puthash "input:button" "input type=button" tbl)
+(puthash "input:c" "input:checkbox" tbl)
+(puthash "input:checkbox" "input type=checkbox" tbl)
+(puthash "input:color" "input type=color" tbl)
+(puthash "input:date" "input type=date" tbl)
+(puthash "input:datetime" "input type=datetime" tbl)
+(puthash "input:datetime-local" "input type=datetime-local" tbl)
+(puthash "input:email" "input type=email" tbl)
+(puthash "input:f" "input:file" tbl)
+(puthash "input:file" "input type=file" tbl)
+(puthash "input:h" "input:hidden" tbl)
+(puthash "input:hidden" "input type=hidden" tbl)
+(puthash "input:i" "input:image" tbl)
+(puthash "input:image" "input type=image src alt" tbl)
+(puthash "input:month" "input type=month" tbl)
+(puthash "input:number" "input type=number" tbl)
 (puthash "input:p" "input:password" tbl)
-(puthash "dl+" "dl>dt+dd" tbl)
-(puthash "fset" "fieldset" tbl)
-(puthash "colg+" "colgroup>col" tbl)
-(puthash "colg" "colgroup" tbl)
+(puthash "input:password" "input type=password" tbl)
+(puthash "input:r" "input:radio" tbl)
+(puthash "input:radio" "input type=radio" tbl)
+(puthash "input:range" "input type=range" tbl)
+(puthash "input:reset" "input type=reset" tbl)
+(puthash "input:s" "input:submit" tbl)
+(puthash "input:search" "input type=search" tbl)
+(puthash "input:submit" "input type=submit" tbl)
+(puthash "input:t" "input" tbl)
+(puthash "input:text" "input" tbl)
+(puthash "input:time" "input type=time" tbl)
+(puthash "input:url" "input type=url" tbl)
+(puthash "input:week" "input type=week" tbl)
+(puthash "kg" "keygen" tbl)
+(puthash "leg" "legend" tbl)
+(puthash "link:atom" "link rel=alternate type=\"application/atom+xml\" title=Atom href=atom.xml" tbl)
+(puthash "link:css" "link rel=stylesheet href=style.css" tbl)
+(puthash "link:favicon" "link icon rel=shortcut type=image/x-icon href=favicon.ico" tbl)
+(puthash "link:print" "link rel=stylesheet href=print.css media=print" tbl)
+(puthash "link:rss" "link rel=alternate type=application/rss+xml title=RSS href=rss.xml" tbl)
+(puthash "link:touch" "link rel=apple-touch-icon href=favicon.png" tbl)
+(puthash "map+" "map>area" tbl)
+(puthash "menu:c" "menu:context" tbl)
+(puthash "menu:context" "menu type=context" tbl)
+(puthash "menu:t" "menu:toolbar" tbl)
+(puthash "menu:toolbar" "menu type=toolbar" tbl)
+(puthash "meta:compat" "meta http-equiv=X-UA-Compatible content=\"IE=edge,chrome=1\"" tbl)
+(puthash "meta:utf" "meta http-equiv=Content-Type content=\"text/html;charset=UTF-8\"" tbl)
+(puthash "meta:vp" "meta name=viewport content=\"width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0\"" tbl)
+(puthash "meta:win" "meta http-equiv=Content-Type content=\"text/html;charset=windows-1251\"" tbl)
+(puthash "obj" "object" tbl)
+(puthash "ol+" "ol>li" tbl)
+(puthash "opt" "option" tbl)
+(puthash "optg" "optgroup" tbl)
+(puthash "optg+" "optgroup>option" tbl)
+(puthash "optgroup+" "optgroup>option" tbl)
+(puthash "out" "output" tbl)
 (puthash "prog" "progress" tbl)
+(puthash "script:src" "script src" tbl)
+(puthash "sect" "section" tbl)
+(puthash "select+" "select>option" tbl)
+(puthash "src" "source" tbl)
+(puthash "str" "strong" tbl)
+(puthash "table+" "table>tr>td" tbl)
+(puthash "tarea" "textarea" tbl)
+(puthash "tr+" "tr>td" tbl)
+(puthash "ul+" "ul>li" tbl)
 tbl) tbl)
 (puthash "snippets" (let ((tbl (make-hash-table :test 'equal)))
 (puthash "!!!" "<!doctype html>" tbl)
-(puthash "cc:ie" "<!--[if IE]>\n\t${child}\n<![endif]-->" tbl)
-(puthash "!!!xt" "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">" tbl)
-(puthash "!!!xxs" "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">" tbl)
-(puthash "cc:ie6" "<!--[if lte IE 6]>\n\t${child}\n<![endif]-->" tbl)
 (puthash "!!!4s" "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" tbl)
 (puthash "!!!4t" "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">" tbl)
-(puthash "cc:noie" "<!--[if !IE]><!-->\n\t${child}\n<!--<![endif]-->" tbl)
 (puthash "!!!xs" "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">" tbl)
-tbl) tbl)
-tbl) tbl)
-(puthash "css" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "snippets" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "list:ur" "list-style-type:upper-roman;" tbl)
-(puthash "cps:b" "caption-side:bottom;" tbl)
-(puthash "animn" "animation-name:${1:none};" tbl)
-(puthash "mr:a" "margin-right:auto;" tbl)
-(puthash "colmrs" "column-rule-style:|;" tbl)
-(puthash "bdli:n" "border-left-image:none;" tbl)
-(puthash "colmrw" "column-rule-width:|;" tbl)
-(puthash "mir" "min-resolution:${1:res};" tbl)
-(puthash "bdti:n" "border-top-image:none;" tbl)
-(puthash "coi" "counter-increment:|;" tbl)
-(puthash "to:n" "text-outline:none;" tbl)
-(puthash "ta:c" "text-align:center;" tbl)
-(puthash "mih" "min-height:|;" tbl)
-(puthash "colmrc" "column-rule-color:|;" tbl)
-(puthash "d:itb" "display:inline-table;" tbl)
-(puthash "wfsm:sa" "-webkit-font-smoothing:subpixel-antialiased;" tbl)
-(puthash "cur:m" "cursor:move;" tbl)
-(puthash "whs:pw" "white-space:pre-wrap;" tbl)
-(puthash "r" "right:|;" tbl)
-(puthash "us" "user-select:${1:none};" tbl)
-(puthash "z" "z-index:|;" tbl)
-(puthash "mt:a" "margin-top:auto;" tbl)
-(puthash "ori:p" "orientation:portrait;" tbl)
-(puthash "@m" "@media ${1:screen} {\n\t|\n}" tbl)
-(puthash "trf:sky" "transform: skewY(${1:angle});" tbl)
-(puthash "b" "bottom:|;" tbl)
-(puthash "lis" "list-style:|;" tbl)
-(puthash "whs" "white-space:|;" tbl)
-(puthash "animtf" "animation-timing-function:${1:linear};" tbl)
-(puthash "colm" "columns:|;" tbl)
-(puthash "bt" "border-top:|;" tbl)
-(puthash "ta:r" "text-align:right;" tbl)
-(puthash "fef:eg" "font-effect:engrave;" tbl)
-(puthash "tsh+" "text-shadow:${1:0} ${2:0} ${3:0} ${4:#000};" tbl)
-(puthash "fems:ac" "font-emphasize-style:accent;" tbl)
-(puthash "br" "border-right:|;" tbl)
-(puthash "anim-" "animation:${1:name} ${2:duration} ${3:timing-function} ${4:delay} ${5:iteration-count} ${6:direction} ${7:fill-mode};" tbl)
-(puthash "d:cp" "display:compact;" tbl)
-(puthash "pgba:au" "page-break-after:auto;" tbl)
-(puthash "bd" "border:|;" tbl)
-(puthash "@f" "@font-face {\n\tfont-family:|;\n\tsrc:url(|);\n}" tbl)
-(puthash "bg:ie" "filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='${1:x}.png',sizingMethod='${2:crop}');" tbl)
-(puthash "bdsp" "border-spacing:|;" tbl)
-(puthash "bb" "border-bottom:|;" tbl)
-(puthash "animdir" "animation-direction:${1:normal};" tbl)
-(puthash "bl" "border-left:|;" tbl)
-(puthash "ta:j" "text-align:justify;" tbl)
-(puthash "trf:r" "transform: rotate(${1:angle});" tbl)
-(puthash "trf:t" "transform: translate(${1:x}, ${2:y});" tbl)
-(puthash "ta:l" "text-align:left;" tbl)
-(puthash "ct:c" "content:counter(|);" tbl)
-(puthash "ovx:a" "overflow-x:auto;" tbl)
-(puthash "ct:a" "content:attr(|);" tbl)
-(puthash "ti:-" "text-indent:-9999px;" tbl)
-(puthash "ovx:h" "overflow-x:hidden;" tbl)
-(puthash "mt" "margin-top:|;" tbl)
-(puthash "c:r" "color:rgb(${1:0}, ${2:0}, ${3:0});" tbl)
-(puthash "ct:ncq" "content:no-close-quote;" tbl)
-(puthash "cnt:noq" "content:no-open-quote;" tbl)
-(puthash "list:lr" "list-style-type:lower-roman;" tbl)
-(puthash "mr" "margin-right:|;" tbl)
-(puthash "ml" "margin-left:|;" tbl)
-(puthash "rsz" "resize:|;" tbl)
-(puthash "ovx:s" "overflow-x:scroll;" tbl)
-(puthash "ovx:v" "overflow-x:visible;" tbl)
-(puthash "bgr:sp" "background-repeat:space;" tbl)
-(puthash "fst:e" "font-stretch:expanded;" tbl)
-(puthash "animps" "animation-play-state:${1:running};" tbl)
-(puthash "mb" "margin-bottom:|;" tbl)
-(puthash "@import" "@import url(|);" tbl)
-(puthash "rsz:h" "resize:horizontal;" tbl)
-(puthash "bdbrrs" "border-bottom-right-radius:|;" tbl)
-(puthash "fw:lr" "font-weight:lighter;" tbl)
-(puthash "lts" "letter-spacing:|;" tbl)
-(puthash "fems:ds" "font-emphasize-style:disc;" tbl)
-(puthash "pgbi:au" "page-break-inside:auto;" tbl)
-(puthash "d:tbclg" "display:table-column-group;" tbl)
-(puthash "wob" "word-break:|;" tbl)
-(puthash "wob:l" "word-break:loose;" tbl)
-(puthash "bd+" "border:${1:1px} ${2:solid} ${3:#000};" tbl)
-(puthash "bgr:x" "background-repeat:repeat-x;" tbl)
-(puthash "rsz:n" "resize:none;" tbl)
-(puthash "op:ie" "filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=100);" tbl)
-(puthash "cnt:cs" "content:counters(|);" tbl)
-(puthash "cnt:cq" "content:close-quote;" tbl)
-(puthash "whsc:bs" "white-space-collapse:break-strict;" tbl)
-(puthash "trf:sc" "transform: scale(${1:x}, ${2:y});" tbl)
-(puthash "d:tbrg" "display:table-row-group;" tbl)
-(puthash "animfm:f" "animation-fill-mode:forwards;" tbl)
-(puthash "tj:t" "text-justify:tibetan;" tbl)
-(puthash "femp:a" "font-emphasize-position:after;" tbl)
-(puthash "m" "margin:|;" tbl)
-(puthash "bgbk:c" "background-break:continuous;" tbl)
-(puthash "tw:u" "text-wrap:unrestricted;" tbl)
-(puthash "wow:nm" "word-wrap:normal;" tbl)
-(puthash "tw:s" "text-wrap:suppress;" tbl)
-(puthash "v" "visibility:${1:hidden};" tbl)
-(puthash "animtf:ei" "animation-timing-function:ease-in;" tbl)
-(puthash "animfm:b" "animation-fill-mode:backwards;" tbl)
-(puthash "animtf:eo" "animation-timing-function:ease-out;" tbl)
-(puthash "fsm" "font-smooth:|;" tbl)
-(puthash "d:tb" "display:table;" tbl)
-(puthash "bgr:rd" "background-repeat:round;" tbl)
-(puthash "wob:n" "word-break:normal;" tbl)
-(puthash "tw:n" "text-wrap:normal;" tbl)
-(puthash "ovs:mq" "overflow-style:marquee;" tbl)
-(puthash "bds:h" "border-style:hidden;" tbl)
-(puthash "bds:i" "border-style:inset;" tbl)
-(puthash "fst:ue" "font-stretch:ultra-expanded;" tbl)
-(puthash "lisi" "list-style-image:|;" tbl)
-(puthash "bds:n" "border-style:none;" tbl)
-(puthash "bds:o" "border-style:outset;" tbl)
-(puthash "pgba:l" "page-break-after:left;" tbl)
-(puthash "wfsm" "-webkit-font-smoothing:${1:antialiased};" tbl)
-(puthash "bds:g" "border-style:groove;" tbl)
-(puthash "bgbk" "background-break:|;" tbl)
-(puthash "fst:ec" "font-stretch:extra-condensed;" tbl)
-(puthash "ct:cq" "content:close-quote;" tbl)
-(puthash "tov" "text-overflow:${1:ellipsis};" tbl)
-(puthash "ff:c" "font-family:cursive;" tbl)
-(puthash "list" "list-style-type:|;" tbl)
-(puthash "bds:r" "border-style:ridge;" tbl)
-(puthash "bds:s" "border-style:solid;" tbl)
-(puthash "lisp" "list-style-position:|;" tbl)
-(puthash "bgo:pb" "background-origin:padding-box;" tbl)
-(puthash "bgcp:bb" "background-clip:border-box;" tbl)
-(puthash "bdbk:c" "border-break:close;" tbl)
-(puthash "bdts" "border-top-style:|;" tbl)
-(puthash "ct:noq" "content:no-open-quote;" tbl)
-(puthash "bdtw" "border-top-width:|;" tbl)
-(puthash "q:ru" "quotes:'\\00AB' '\\00BB' '\\201E' '\\201C';" tbl)
-(puthash "fst:sc" "font-stretch:semi-condensed;" tbl)
-(puthash "ori" "orientation:|;" tbl)
-(puthash "bgcp" "background-clip:${1:padding-box};" tbl)
-(puthash "bdl:n" "border-left:none;" tbl)
-(puthash "ori:l" "orientation:landscape;" tbl)
-(puthash "bdtc" "border-top-color:${1:#000};" tbl)
-(puthash "d:i" "display:inline;" tbl)
-(puthash "cnt:c" "content:counter(|);" tbl)
-(puthash "d:n" "display:none;" tbl)
-(puthash "td" "text-decoration:${1:none};" tbl)
-(puthash "te" "text-emphasis:|;" tbl)
-(puthash "tj" "text-justify:|;" tbl)
-(puthash "d:b" "display:block;" tbl)
-(puthash "th" "text-height:|;" tbl)
-(puthash "bdti" "border-top-image:url(|);" tbl)
-(puthash "bg:n" "background:none;" tbl)
-(puthash "cnt:n" "content:normal;" tbl)
-(puthash "ov:v" "overflow:visible;" tbl)
-(puthash "cur:c" "cursor:crosshair;" tbl)
-(puthash "ov:s" "overflow:scroll;" tbl)
-(puthash "fems:n" "font-emphasize-style:none;" tbl)
-(puthash "bxsh:ra" "box-shadow:${1:inset }${2:h} ${3:v} ${4:blur} ${5:spread }rgba(${6:0}, ${7:0}, ${8:0}, .${9:5});" tbl)
-(puthash "animfm" "animation-fill-mode:${1:both};" tbl)
-(puthash "va:m" "vertical-align:middle;" tbl)
-(puthash "tal:r" "text-align-last:right;" tbl)
-(puthash "tal:l" "text-align-last:left;" tbl)
-(puthash "d" "display:${1:block};" tbl)
-(puthash "ov:a" "overflow:auto;" tbl)
-(puthash "d:rbtg" "display:ruby-text-group;" tbl)
-(puthash "l" "left:|;" tbl)
-(puthash "ov:h" "overflow:hidden;" tbl)
-(puthash "va:sub" "vertical-align:sub;" tbl)
-(puthash "bdcl:c" "border-collapse:collapse;" tbl)
-(puthash "q:n" "quotes:none;" tbl)
-(puthash "bgp" "background-position:${1:0} ${2:0};" tbl)
-(puthash "whs:p" "white-space:pre;" tbl)
-(puthash "bdbri:n" "border-bottom-right-image:none;" tbl)
-(puthash "fza" "font-size-adjust:|;" tbl)
-(puthash "trf:skx" "transform: skewX(${1:angle});" tbl)
-(puthash "bdbri:c" "border-bottom-right-image:continue;" tbl)
-(puthash "bxsh:n" "box-shadow:none;" tbl)
-(puthash "bdri" "border-right-image:url(|);" tbl)
-(puthash "bdcl:s" "border-collapse:separate;" tbl)
-(puthash "bxsh:r" "box-shadow:${1:inset }${2:hoff} ${3:voff} ${4:blur} ${5:spread }rgb(${6:0}, ${7:0}, ${8:0});" tbl)
-(puthash "bdt+" "border-top:${1:1px} ${2:solid} ${3:#000};" tbl)
-(puthash "bdf:c" "border-fit:clip;" tbl)
-(puthash "whs:n" "white-space:normal;" tbl)
-(puthash "bdbc:t" "border-bottom-color:transparent;" tbl)
-(puthash "pgba:r" "page-break-after:right;" tbl)
-(puthash "wos" "word-spacing:|;" tbl)
-(puthash "cur:t" "cursor:text;" tbl)
-(puthash "fems:c" "font-emphasize-style:circle;" tbl)
-(puthash "wow:u" "word-wrap:unrestricted;" tbl)
-(puthash "anim" "animation:|;" tbl)
-(puthash "tov:e" "text-overflow:ellipsis;" tbl)
-(puthash "fst" "font-stretch:|;" tbl)
-(puthash "cnt:ncq" "content:no-close-quote;" tbl)
-(puthash "bdi:n" "border-image:none;" tbl)
-(puthash "whsc" "white-space-collapse:|;" tbl)
-(puthash "fst:se" "font-stretch:semi-expanded;" tbl)
-(puthash "fst:uc" "font-stretch:ultra-condensed;" tbl)
-(puthash "animdel" "animation-delay:${1:time};" tbl)
-(puthash "c:ra" "color:rgba(${1:0}, ${2:0}, ${3:0}, .${4:5});" tbl)
-(puthash "bxz:cb" "box-sizing:content-box;" tbl)
-(puthash "d:tbc" "display:table-cell;" tbl)
-(puthash "animic" "animation-iteration-count:${1:1};" tbl)
-(puthash "animtf:eio" "animation-timing-function:ease-in-out;" tbl)
-(puthash "bdbs:n" "border-bottom-style:none;" tbl)
-(puthash "bdrc:t" "border-right-color:transparent;" tbl)
-(puthash "d:tbr" "display:table-row;" tbl)
-(puthash "bdci" "border-corner-image:url(|);" tbl)
-(puthash "fza:n" "font-size-adjust:none;" tbl)
-(puthash "bxsh" "box-shadow:${1:inset }${2:hoff} ${3:voff} ${4:blur} ${5:color};" tbl)
-(puthash "w" "width:|;" tbl)
-(puthash "ct:cs" "content:counters(|);" tbl)
-(puthash "cl:n" "clear:none;" tbl)
-(puthash "cl:l" "clear:left;" tbl)
-(puthash "animic:i" "animation-iteration-count:infinite;" tbl)
-(puthash "cl:b" "clear:both;" tbl)
-(puthash "pos:a" "position:absolute;" tbl)
-(puthash "th:m" "text-height:max-size;" tbl)
-(puthash "animdur" "animation-duration:${1:0}s;" tbl)
-(puthash "tr" "text-replace:|;" tbl)
-(puthash "tbl" "table-layout:|;" tbl)
-(puthash "tj:d" "text-justify:distribute;" tbl)
-(puthash "wob:bs" "word-break:break-strict;" tbl)
-(puthash "th:t" "text-height:text-size;" tbl)
-(puthash "bdt:n" "border-top:none;" tbl)
-(puthash "fst:ee" "font-stretch:extra-expanded;" tbl)
-(puthash "pos:s" "position:static;" tbl)
-(puthash "cl:r" "clear:right;" tbl)
-(puthash "bdcl" "border-collapse:|;" tbl)
-(puthash "bdbri" "border-bottom-right-image:url(|);" tbl)
-(puthash "fst:c" "font-stretch:condensed;" tbl)
-(puthash "op:ms" "-ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=100)';" tbl)
-(puthash "bgo:cb" "background-origin:content-box;" tbl)
-(puthash "th:f" "text-height:font-size;" tbl)
-(puthash "animdir:n" "animation-direction:normal;" tbl)
-(puthash "whs:nw" "white-space:nowrap;" tbl)
-(puthash "cur:a" "cursor:auto;" tbl)
-(puthash "bgbk:bb" "background-break:bounding-box;" tbl)
-(puthash "animdir:a" "animation-direction:alternate;" tbl)
-(puthash "bdlen:a" "border-length:auto;" tbl)
-(puthash "ol:n" "outline:none;" tbl)
-(puthash "pgba:al" "page-break-after:always;" tbl)
-(puthash "fz" "font-size:|;" tbl)
-(puthash "te:ac" "text-emphasis:accent;" tbl)
-(puthash "animdir:r" "animation-direction:reverse;" tbl)
-(puthash "bdc" "border-color:${1:#000};" tbl)
-(puthash "bdb" "border-bottom:|;" tbl)
-(puthash "bdbli" "border-bottom-left-image:url(|);" tbl)
-(puthash "d:tbfg" "display:table-footer-group;" tbl)
-(puthash "bdf" "border-fit:${1:repeat};" tbl)
-(puthash "td:u" "text-decoration:underline;" tbl)
-(puthash "trsde" "transition-delay:${1:time};" tbl)
-(puthash "bdtrrs" "border-top-right-radius:|;" tbl)
-(puthash "bgcp:nc" "background-clip:no-clip;" tbl)
-(puthash "th:a" "text-height:auto;" tbl)
-(puthash "bdc:t" "border-color:transparent;" tbl)
-(puthash "mah:n" "max-height:none;" tbl)
-(puthash "bds" "border-style:|;" tbl)
-(puthash "bdr" "border-right:|;" tbl)
-(puthash "fs:i" "font-style:italic;" tbl)
-(puthash "bg" "background:|;" tbl)
-(puthash "bdw" "border-width:|;" tbl)
-(puthash "trf" "transform:|;" tbl)
-(puthash "bdt" "border-top:|;" tbl)
-(puthash "d:ib" "display:inline-block;" tbl)
-(puthash "ta-lst" "text-align-last:|;" tbl)
-(puthash "bga:f" "background-attachment:fixed;" tbl)
-(puthash "cps" "caption-side:|;" tbl)
-(puthash "bgi:n" "background-image:none;" tbl)
-(puthash "list:dc" "list-style-type:decimal;" tbl)
-(puthash "ec" "empty-cells:|;" tbl)
-(puthash "td:n" "text-decoration:none;" tbl)
-(puthash "cnt:a" "content:attr(|);" tbl)
-(puthash "d:tbhg" "display:table-header-group;" tbl)
-(puthash "pos:f" "position:fixed;" tbl)
-(puthash "fef" "font-effect:|;" tbl)
-(puthash "bgsz" "background-size:|;" tbl)
-(puthash "bds:w" "border-style:wave;" tbl)
-(puthash "wob:k" "word-break:keep-all;" tbl)
-(puthash "trf:scy" "transform: scaleY(${1:y});" tbl)
-(puthash "trf:scx" "transform: scaleX(${1:x});" tbl)
-(puthash "fems:dt" "font-emphasize-style:dot;" tbl)
-(puthash "w:a" "width:auto;" tbl)
-(puthash "bdci:c" "border-corner-image:continue;" tbl)
-(puthash "pl" "padding-left:|;" tbl)
-(puthash "rsz:b" "resize:both;" tbl)
-(puthash "tt" "text-transform:${1:uppercase};" tbl)
-(puthash "va:sup" "vertical-align:super;" tbl)
-(puthash "bgr" "background-repeat:|;" tbl)
-(puthash "t:a" "top:auto;" tbl)
-(puthash "pb" "padding-bottom:|;" tbl)
-(puthash "femp:b" "font-emphasize-position:before;" tbl)
-(puthash "tsh:r" "text-shadow:${1:h} ${2:v} ${3:blur} rgb(${4:0}, ${5:0}, ${6:0});" tbl)
-(puthash "wfsm:s" "-webkit-font-smoothing:subpixel-antialiased;" tbl)
-(puthash "f" "font:|;" tbl)
-(puthash "tsh:n" "text-shadow:none;" tbl)
-(puthash "bgi" "background-image:url(|);" tbl)
-(puthash "bgo" "background-origin:|;" tbl)
-(puthash "fsm:a" "font-smooth:auto;" tbl)
-(puthash "bgc" "background-color:${1:#fff};" tbl)
-(puthash "pt" "padding-top:|;" tbl)
-(puthash "bga" "background-attachment:|;" tbl)
-(puthash "pr" "padding-right:|;" tbl)
-(puthash "bxz" "box-sizing:${1:border-box};" tbl)
-(puthash "fw:br" "font-weight:bolder;" tbl)
-(puthash "bgcp:pb" "background-clip:padding-box;" tbl)
-(puthash "ff:s" "font-family:serif;" tbl)
-(puthash "tw" "text-wrap:|;" tbl)
-(puthash "h:a" "height:auto;" tbl)
-(puthash "trsdu" "transition-duration:${1:time};" tbl)
-(puthash "bdtc:t" "border-top-color:transparent;" tbl)
-(puthash "pgbb:r" "page-break-before:right;" tbl)
-(puthash "trf:tx" "transform: translateX(${1:x});" tbl)
-(puthash "trf:ty" "transform: translateY(${1:y});" tbl)
-(puthash "te:n" "text-emphasis:none;" tbl)
-(puthash "l:a" "left:auto;" tbl)
-(puthash "bdr:n" "border-right:none;" tbl)
-(puthash "ff:f" "font-family:fantasy;" tbl)
-(puthash "animtf:cb" "animation-timing-function:cubic-bezier(${1:0.1}, ${2:0.7}, ${3:1.0}, ${3:0.1});" tbl)
-(puthash "pos:r" "position:relative;" tbl)
-(puthash "pgbb:au" "page-break-before:auto;" tbl)
-(puthash "va:bl" "vertical-align:baseline;" tbl)
-(puthash "cur:ha" "cursor:hand;" tbl)
-(puthash "te:c" "text-emphasis:circle;" tbl)
-(puthash "te:b" "text-emphasis:before;" tbl)
-(puthash "te:a" "text-emphasis:after;" tbl)
-(puthash "ff:m" "font-family:monospace;" tbl)
-(puthash "maw" "max-width:|;" tbl)
-(puthash "fems" "font-emphasize-style:|;" tbl)
-(puthash "tt:n" "text-transform:none;" tbl)
-(puthash "mar" "max-resolution:${1:res};" tbl)
-(puthash "tt:l" "text-transform:lowercase;" tbl)
-(puthash "m:a" "margin:auto;" tbl)
-(puthash "tt:c" "text-transform:capitalize;" tbl)
-(puthash "list:dclz" "list-style-type:decimal-leading-zero;" tbl)
-(puthash "wid" "widows:|;" tbl)
-(puthash "cp:a" "clip:auto;" tbl)
-(puthash "f+" "font:${1:1em} ${2:Arial,sans-serif};" tbl)
-(puthash "bg+" "background:${1:#fff} url(${2}) ${3:0} ${4:0} ${5:no-repeat};" tbl)
-(puthash "ct:n" "content:normal;" tbl)
-(puthash "ta" "text-align:${1:left};" tbl)
-(puthash "zoo" "zoom:1;" tbl)
-(puthash "miw" "min-width:|;" tbl)
-(puthash "bgr:y" "background-repeat:repeat-y;" tbl)
-(puthash "op" "opacity:|;" tbl)
-(puthash "pgbi:av" "page-break-inside:avoid;" tbl)
-(puthash "tj:k" "text-justify:kashida;" tbl)
-(puthash "b:a" "bottom:auto;" tbl)
-(puthash "cp:r" "clip:rect(${1:top} ${2:right} ${3:bottom} ${4:left});" tbl)
-(puthash "mah" "max-height:|;" tbl)
-(puthash "wfsm:n" "-webkit-font-smoothing:none;" tbl)
-(puthash "ovs:m" "overflow-style:move;" tbl)
-(puthash "ct" "content:|;" tbl)
-(puthash "cp" "clip:|;" tbl)
-(puthash "trfs" "transform-style:${1:preserve-3d};" tbl)
-(puthash "d:tbcl" "display:table-column;" tbl)
-(puthash "ovs:a" "overflow-style:auto;" tbl)
-(puthash "bdci:n" "border-corner-image:none;" tbl)
-(puthash "ovy:v" "overflow-y:visible;" tbl)
-(puthash "bdlen" "border-length:|;" tbl)
-(puthash "trfo" "transform-origin:|;" tbl)
-(puthash "cm" "/* |${child} */" tbl)
-(puthash "cl" "clear:${1:both};" tbl)
-(puthash "ovs:s" "overflow-style:scrollbar;" tbl)
-(puthash "animps:p" "animation-play-state:paused;" tbl)
-(puthash "ovs:p" "overflow-style:panner;" tbl)
-(puthash "ti" "text-indent:|;" tbl)
-(puthash "whsc:ba" "white-space-collapse:break-all;" tbl)
-(puthash "q" "quotes:|;" tbl)
-(puthash "bdf:of" "border-fit:overflow;" tbl)
-(puthash "fem" "font-emphasize:|;" tbl)
-(puthash "d:tbcp" "display:table-caption;" tbl)
-(puthash "bgsz:ct" "background-size:contain;" tbl)
-(puthash "pgba" "page-break-after:|;" tbl)
-(puthash "bgsz:cv" "background-size:cover;" tbl)
-(puthash "to" "text-outline:|;" tbl)
-(puthash "fef:n" "font-effect:none;" tbl)
-(puthash "bd:n" "border:none;" tbl)
-(puthash "ovs" "overflow-style:${1:scrollbar};" tbl)
-(puthash "bdf:ow" "border-fit:overwrite;" tbl)
-(puthash "@i" "@import url(|);" tbl)
-(puthash "ovx" "overflow-x:${1:hidden};" tbl)
-(puthash "ovy" "overflow-y:${1:hidden};" tbl)
-(puthash "te:dt" "text-emphasis:dot;" tbl)
-(puthash "bgcp:cb" "background-clip:content-box;" tbl)
-(puthash "cps:t" "caption-side:top;" tbl)
-(puthash "tov:c" "text-overflow:clip;" tbl)
-(puthash "bdlc:t" "border-left-color:transparent;" tbl)
-(puthash "bds:dtds" "border-style:dot-dash;" tbl)
-(puthash "maw:n" "max-width:none;" tbl)
-(puthash "pos" "position:${1:relative};" tbl)
-(puthash "cnt" "content:'|';" tbl)
-(puthash "t" "top:|;" tbl)
-(puthash "whsc:n" "white-space-collapse:normal;" tbl)
-(puthash "wow:s" "word-wrap:suppress;" tbl)
-(puthash "animfm:bh" "animation-fill-mode:both;" tbl)
-(puthash "lisi:n" "list-style-image:none;" tbl)
-(puthash "bdtli:c" "border-top-left-image:continue;" tbl)
-(puthash "pgbb:al" "page-break-before:always;" tbl)
-(puthash "animfm:bt" "animation-fill-mode:both;" tbl)
-(puthash "bgbk:eb" "background-break:each-box;" tbl)
-(puthash "bdtli:n" "border-top-left-image:none;" tbl)
-(puthash "trs" "transition:${1:prop} ${2:time};" tbl)
-(puthash "animtf:e" "animation-timing-function:ease;" tbl)
-(puthash "bdts:n" "border-top-style:none;" tbl)
-(puthash "bdrst:n" "border-right-style:none;" tbl)
-(puthash "va:t" "vertical-align:top;" tbl)
-(puthash "colmr" "column-rule:|;" tbl)
-(puthash "colms" "column-span:|;" tbl)
-(puthash "animtf:l" "animation-timing-function:linear;" tbl)
-(puthash "colmw" "column-width:|;" tbl)
-(puthash "pgbi" "page-break-inside:|;" tbl)
-(puthash "va:b" "vertical-align:bottom;" tbl)
-(puthash "bgr:n" "background-repeat:no-repeat;" tbl)
-(puthash "!" "!important" tbl)
-(puthash "wow" "word-wrap:|;" tbl)
-(puthash "colmc" "column-count:|;" tbl)
-(puthash "tt:u" "text-transform:uppercase;" tbl)
-(puthash "colmf" "column-fill:|;" tbl)
-(puthash "colmg" "column-gap:|;" tbl)
-(puthash "bgsz:a" "background-size:auto;" tbl)
-(puthash "ap" "appearance:${1:none};" tbl)
-(puthash "bds:db" "border-style:double;" tbl)
-(puthash "pgbb" "page-break-before:|;" tbl)
-(puthash "bdtri" "border-top-right-image:url(|);" tbl)
-(puthash "cur:he" "cursor:help;" tbl)
-(puthash "r:a" "right:auto;" tbl)
-(puthash "tr:n" "text-replace:none;" tbl)
-(puthash "v:v" "visibility:visible;" tbl)
-(puthash "v:h" "visibility:hidden;" tbl)
-(puthash "rsz:v" "resize:vertical;" tbl)
-(puthash "bds:dt" "border-style:dotted;" tbl)
-(puthash "bds:ds" "border-style:dashed;" tbl)
-(puthash "tw:no" "text-wrap:none;" tbl)
-(puthash "@kf" "@-webkit-keyframes ${1:identifier} {\n\t${2:from} { ${3} }${6}\n\t${4:to} { ${5} }\n}\n@-o-keyframes ${1:identifier} {\n\t${2:from} { ${3} }${6}\n\t${4:to} { ${5} }\n}\n@-moz-keyframes ${1:identifier} {\n\t${2:from} { ${3} }${6}\n\t${4:to} { ${5} }\n}\n@keyframes ${1:identifier} {\n\t${2:from} { ${3} }${6}\n\t${4:to} { ${5} }\n}" tbl)
-(puthash "olw" "outline-width:|;" tbl)
-(puthash "animps:r" "animation-play-state:running;" tbl)
-(puthash "v:c" "visibility:collapse;" tbl)
-(puthash "bdblrs" "border-bottom-left-radius:|;" tbl)
-(puthash "tsh:ra" "text-shadow:${1:h} ${2:v} ${3:blur} rgba(${4:0}, ${5:0}, ${6:0}, .${7:5});" tbl)
-(puthash "bdtri:n" "border-top-right-image:none;" tbl)
-(puthash "to+" "text-outline:${1:0} ${2:0} ${3:#000};" tbl)
-(puthash "trsp" "transition-property:${1:prop};" tbl)
-(puthash "p" "padding:|;" tbl)
-(puthash "bds:dtdtds" "border-style:dot-dot-dash;" tbl)
-(puthash "tj:a" "text-justify:auto;" tbl)
-(puthash "bdtri:c" "border-top-right-image:continue;" tbl)
-(puthash "va:tb" "vertical-align:text-bottom;" tbl)
-(puthash "bdbi" "border-bottom-image:url(|);" tbl)
-(puthash "lh" "line-height:|;" tbl)
-(puthash "fst:n" "font-stretch:normal;" tbl)
-(puthash "bdbli:c" "border-bottom-left-image:continue;" tbl)
-(puthash "bdbli:n" "border-bottom-left-image:none;" tbl)
-(puthash "trstf" "transition-timing-function:${1:tfunc};" tbl)
-(puthash "d:li" "display:list-item;" tbl)
-(puthash "tj:iw" "text-justify:inter-word;" tbl)
-(puthash "h" "height:|;" tbl)
-(puthash "whs:pl" "white-space:pre-line;" tbl)
-(puthash "bgc:t" "background-color:transparent;" tbl)
-(puthash "tbl:a" "table-layout:auto;" tbl)
-(puthash "te:ds" "text-emphasis:disc;" tbl)
-(puthash "tbl:f" "table-layout:fixed;" tbl)
-(puthash "fef:eb" "font-effect:emboss;" tbl)
-(puthash "bdls" "border-left-style:|;" tbl)
-(puthash "fs" "font-style:${1:italic};" tbl)
-(puthash "bdlw" "border-left-width:|;" tbl)
-(puthash "@media" "@media ${1:screen} {\n\t|\n}" tbl)
-(puthash "fw" "font-weight:|;" tbl)
-(puthash "cor" "counter-reset:|;" tbl)
-(puthash "bdl+" "border-left:${1:1px} ${2:solid} ${3:#000};" tbl)
-(puthash "bdli" "border-left-image:url(|);" tbl)
-(puthash "bga:s" "background-attachment:scroll;" tbl)
-(puthash "wfsm:a" "-webkit-font-smoothing:antialiased;" tbl)
-(puthash "bdlc" "border-left-color:${1:#000};" tbl)
-(puthash "list:s" "list-style-type:square;" tbl)
-(puthash "bgpy" "background-position-y:|;" tbl)
-(puthash "bgpx" "background-position-x:|;" tbl)
-(puthash "ff" "font-family:|;" tbl)
-(puthash "ov" "overflow:${1:hidden};" tbl)
-(puthash "ec:h" "empty-cells:hide;" tbl)
-(puthash "bdb:n" "border-bottom:none;" tbl)
-(puthash "bdbi:n" "border-bottom-image:none;" tbl)
-(puthash "ml:a" "margin-left:auto;" tbl)
-(puthash "fv:n" "font-variant:normal;" tbl)
-(puthash "tal:c" "text-align-last:center;" tbl)
-(puthash "list:c" "list-style-type:circle;" tbl)
-(puthash "list:d" "list-style-type:disc;" tbl)
-(puthash "mb:a" "margin-bottom:auto;" tbl)
-(puthash "fw:n" "font-weight:normal;" tbl)
-(puthash "ff:ss" "font-family:sans-serif;" tbl)
-(puthash "ec:s" "empty-cells:show;" tbl)
-(puthash "tal:a" "text-align-last:auto;" tbl)
-(puthash "bdtlrs" "border-top-left-radius:|;" tbl)
-(puthash "list:n" "list-style-type:none;" tbl)
-(puthash "fsm:n" "font-smooth:never;" tbl)
-(puthash "bdi" "border-image:url(|);" tbl)
-(puthash "orp" "orphans:|;" tbl)
-(puthash "q:en" "quotes:'\\201C' '\\201D' '\\2018' '\\2019';" tbl)
-(puthash "bdrc" "border-right-color:${1:#000};" tbl)
-(puthash "ols" "outline-style:|;" tbl)
-(puthash "lisp:o" "list-style-position:outside;" tbl)
-(puthash "lisp:i" "list-style-position:inside;" tbl)
-(puthash "cnt:oq" "content:open-quote;" tbl)
-(puthash "cur:d" "cursor:default;" tbl)
-(puthash "zm" "zoom:1;" tbl)
-(puthash "lis:n" "list-style:none;" tbl)
-(puthash "bdrw" "border-right-width:|;" tbl)
-(puthash "bdtli" "border-top-left-image:url(|);" tbl)
-(puthash "bdrs" "border-radius:|;" tbl)
-(puthash "bdl" "border-left:|;" tbl)
-(puthash "animdir:ar" "animation-direction:alternate-reverse;" tbl)
-(puthash "bdb+" "border-bottom:${1:1px} ${2:solid} ${3:#000};" tbl)
-(puthash "@f+" "@font-face {\n\tfont-family: '${1:FontName}';\n\tsrc: url('${2:FileName}.eot');\n\tsrc: url('${2:FileName}.eot?#iefix') format('embedded-opentype'),\n\t\t url('${2:FileName}.woff') format('woff'),\n\t\t url('${2:FileName}.ttf') format('truetype'),\n\t\t url('${2:FileName}.svg#${1:FontName}') format('svg');\n\tfont-style: ${3:normal};\n\tfont-weight: ${4:normal};\n}" tbl)
-(puthash "cur" "cursor:${1:pointer};" tbl)
-(puthash "fl:l" "float:left;" tbl)
-(puthash "fl:n" "float:none;" tbl)
-(puthash "d:rbbg" "display:ruby-base-group;" tbl)
-(puthash "fv:sc" "font-variant:small-caps;" tbl)
-(puthash "c" "color:${1:#000};" tbl)
-(puthash "bdri:n" "border-right-image:none;" tbl)
-(puthash "femp" "font-emphasize-position:|;" tbl)
-(puthash "fs:o" "font-style:oblique;" tbl)
-(puthash "fl:r" "float:right;" tbl)
-(puthash "wob:ba" "word-break:break-all;" tbl)
-(puthash "tsh" "text-shadow:${1:hoff} ${2:voff} ${3:blur} ${4:#000};" tbl)
-(puthash "fs:n" "font-style:normal;" tbl)
-(puthash "cur:p" "cursor:pointer;" tbl)
-(puthash "olo" "outline-offset:|;" tbl)
-(puthash "bdbw" "border-bottom-width:|;" tbl)
-(puthash "z:a" "z-index:auto;" tbl)
-(puthash "va:tt" "vertical-align:text-top;" tbl)
-(puthash "ovy:s" "overflow-y:scroll;" tbl)
-(puthash "bdbs" "border-bottom-style:|;" tbl)
-(puthash "bxz:bb" "box-sizing:border-box;" tbl)
-(puthash "fef:o" "font-effect:outline;" tbl)
-(puthash "tj:ic" "text-justify:inter-cluster;" tbl)
-(puthash "olc" "outline-color:${1:#000};" tbl)
-(puthash "d:rbb" "display:ruby-base;" tbl)
-(puthash "fsm:aw" "font-smooth:always;" tbl)
-(puthash "ovy:a" "overflow-y:auto;" tbl)
-(puthash "td:o" "text-decoration:overline;" tbl)
-(puthash "ct:oq" "content:open-quote;" tbl)
-(puthash "bdbc" "border-bottom-color:${1:#000};" tbl)
-(puthash "d:rbt" "display:ruby-text;" tbl)
-(puthash "bdf:r" "border-fit:repeat;" tbl)
-(puthash "ovy:h" "overflow-y:hidden;" tbl)
-(puthash "wow:n" "word-wrap:none;" tbl)
-(puthash "bdbk" "border-break:${1:close};" tbl)
-(puthash "bgo:bb" "background-origin:border-box;" tbl)
-(puthash "td:l" "text-decoration:line-through;" tbl)
-(puthash "d:ri" "display:run-in;" tbl)
-(puthash "bdr+" "border-right:${1:1px} ${2:solid} ${3:#000};" tbl)
-(puthash "whsc:k" "white-space-collapse:keep-all;" tbl)
-(puthash "bdf:st" "border-fit:stretch;" tbl)
-(puthash "bdls:n" "border-left-style:none;" tbl)
-(puthash "bdf:sp" "border-fit:space;" tbl)
-(puthash "d:rb" "display:ruby;" tbl)
-(puthash "whsc:l" "white-space-collapse:loose;" tbl)
-(puthash "pgbb:l" "page-break-before:left;" tbl)
-(puthash "fv" "font-variant:|;" tbl)
-(puthash "bdrst" "border-right-style:|;" tbl)
-(puthash "va" "vertical-align:${1:top};" tbl)
-(puthash "olc:i" "outline-color:invert;" tbl)
-(puthash "fl" "float:${1:left};" tbl)
-(puthash "fw:b" "font-weight:bold;" tbl)
-(puthash "tj:ii" "text-justify:inter-ideograph;" tbl)
-(puthash "bdf:sc" "border-fit:scale;" tbl)
-(puthash "ol" "outline:|;" tbl)
+(puthash "!!!xt" "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">" tbl)
+(puthash "!!!xxs" "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">" tbl)
+(puthash "cc:ie" "<!--[if IE]>\n\t${child}\n<![endif]-->" tbl)
+(puthash "cc:ie6" "<!--[if lte IE 6]>\n\t${child}\n<![endif]-->" tbl)
+(puthash "cc:noie" "<!--[if !IE]><!-->\n\t${child}\n<!--<![endif]-->" tbl)
 tbl) tbl)
 tbl) tbl)
 tbl))
@@ -837,939 +837,59 @@ tbl))
 ;; Don't edit.
 (emmet-defparameter emmet-preferences
 (let ((tbl (make-hash-table :test 'equal)))
-(puthash "html" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "tags" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "code" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "meter" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "tbody" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "font" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "noscript" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "style" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "img" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "src" "" tbl)
-(puthash "alt" "" tbl)
-tbl) tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "title" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "menu" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "tt" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "tr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "param" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "name" "" tbl)
-(puthash "value" "" tbl)
-tbl) tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "li" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "source" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "tfoot" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "th" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "input" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "type" "text" tbl)
-(puthash "name" "" tbl)
-(puthash "value" "" tbl)
-tbl) tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "td" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "dl" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "blockquote" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "fieldset" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "big" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "dd" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "kbd" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "optgroup" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "dt" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "wbr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "button" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "summary" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "p" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "small" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "output" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "div" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "dir" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "em" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "datalist" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "frame" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "hgroup" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "meta" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "video" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "src" "" tbl)
-tbl) tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "rt" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "canvas" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "rp" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "sub" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "bdo" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "dir" "" tbl)
-tbl) tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "bdi" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "label" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "for" "" tbl)
-tbl) tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "acronym" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "title" "" tbl)
-tbl) tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "sup" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "progress" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "body" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "basefont" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "base" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "href" "" tbl)
-tbl) tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "br" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "address" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "article" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "strong" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "legend" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "ol" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "script" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "caption" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "s" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "dialog" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "col" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "h2" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "h3" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "h1" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "h6" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "h4" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "h5" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "header" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "table" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "select" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "name" "" tbl)
-(puthash "id" "" tbl)
-tbl) tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "noframes" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "span" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "area" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "shape" "" tbl)
-(puthash "href" "" tbl)
-(puthash "coords" "" tbl)
-(puthash "alt" "" tbl)
-tbl) tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "mark" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "dfn" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "strike" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "cite" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "thead" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "head" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "option" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "value" "" tbl)
-tbl) tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "form" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "action" "" tbl)
-tbl) tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "hr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "var" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "link" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "href" "" tbl)
-(puthash "rel" "stylesheet" tbl)
-tbl) tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "ruby" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "b" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "colgroup" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "keygen" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "ul" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "applet" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "del" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "iframe" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "src" "" tbl)
-(puthash "frameborder" "0" tbl)
-tbl) tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "embed" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "src" "" tbl)
-(puthash "type" "" tbl)
-tbl) tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "pre" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "frameset" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "figure" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "ins" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "aside" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "html" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "nav" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "details" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "u" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "samp" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "map" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "name" "" tbl)
-tbl) tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "track" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" t tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "object" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "type" "" tbl)
-(puthash "data" "" tbl)
-tbl) tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "figcaption" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "a" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "href" "" tbl)
-tbl) tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "center" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "textarea" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "rows" "10" tbl)
-(puthash "cols" "30" tbl)
-(puthash "name" "" tbl)
-(puthash "id" "" tbl)
-tbl) tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "footer" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "i" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "q" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "command" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "time" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-(puthash "audio" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "src" "" tbl)
-tbl) tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "section" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "block" t tbl)
-tbl) tbl)
-(puthash "abbr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "selfClosing" nil tbl)
-(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "title" "" tbl)
-tbl) tbl)
-(puthash "block" nil tbl)
-tbl) tbl)
-tbl) tbl)
-tbl) tbl)
 (puthash "css" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "color" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "case" "auto" tbl)
+(puthash "shortenIfPossible" t tbl)
+(puthash "trailingAliases" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "h" "hidden" tbl)
+(puthash "n" "none" tbl)
+(puthash "s" "solid" tbl)
+(puthash "t" "dotted" tbl)
+tbl) tbl)
+tbl) tbl)
+(puthash "floatUnit" "em" tbl)
+(puthash "intUnit" "px" tbl)
+(puthash "keywordAliases" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "a" "auto" tbl)
+(puthash "da" "dashed" tbl)
+(puthash "do" "dotted" tbl)
+(puthash "i" "inherit" tbl)
+(puthash "s" "solid" tbl)
+(puthash "t" "transparent" tbl)
+tbl) tbl)
+(puthash "keywords" (vector
+"auto"
+"inherit"
+)
+ tbl)
+(puthash "unitAliases" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "-" "px" tbl)
+(puthash "e" "em" tbl)
+(puthash "p" "%" tbl)
+(puthash "r" "rem" tbl)
+(puthash "x" "ex" tbl)
+tbl) tbl)
+(puthash "unitlessProperties" (vector
+"z-index"
+"line-height"
+"opacity"
+"font-weight"
+"zoom"
+)
+ tbl)
 (puthash "vendorPrefixesProperties" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "text-fill-color" (vector
-"webkit"
-)
- tbl)
-(puthash "ime-mode" (vector
+(puthash "accelerator" (vector
 "ms"
-)
- tbl)
-(puthash "grid-layer" (vector
-"ms"
-)
- tbl)
-(puthash "user-drag" (vector
-"webkit"
-)
- tbl)
-(puthash "mask-image" (vector
-"webkit"
-)
- tbl)
-(puthash "font-feature-settings" (vector
-"moz"
-"ms"
-)
- tbl)
-(puthash "outline-radius-topleft" (vector
-"moz"
-)
- tbl)
-(puthash "mask-box-image-slice" (vector
-"webkit"
-)
- tbl)
-(puthash "background-composite" (vector
-"webkit"
-)
- tbl)
-(puthash "text-underline-position" (vector
-"ms"
-)
- tbl)
-(puthash "hyphenate-limit-chars" (vector
-"ms"
-)
- tbl)
-(puthash "marquee-speed" (vector
-"o"
-)
- tbl)
-(puthash "input-required" (vector
-"o"
-)
- tbl)
-(puthash "color-correction" (vector
-"webkit"
-)
- tbl)
-(puthash "background-size" (vector
-"webkit"
-)
- tbl)
-(puthash "background-origin" (vector
-"webkit"
-)
- tbl)
-(puthash "wrap-through" (vector
-"ms"
-)
- tbl)
-(puthash "text-emphasis-position" (vector
-"webkit"
-)
- tbl)
-(puthash "user-select" (vector
-"webkit"
-"moz"
-"ms"
-)
- tbl)
-(puthash "dashboard-region" (vector
-"webkit"
-"o"
 )
  tbl)
 (puthash "accesskey" (vector
 "o"
 )
  tbl)
-(puthash "scrollbar-track-color" (vector
-"ms"
-)
- tbl)
-(puthash "grid-columns" (vector
-"ms"
-)
- tbl)
-(puthash "text-stroke-width" (vector
+(puthash "animation" (vector
 "webkit"
-)
- tbl)
-(puthash "link-source" (vector
 "o"
-)
- tbl)
-(puthash "scrollbar-arrow-color" (vector
-"ms"
-)
- tbl)
-(puthash "border-radius" (vector
-"webkit"
-"moz"
-)
- tbl)
-(puthash "text-stroke-color" (vector
-"webkit"
-)
- tbl)
-(puthash "box-shadow" (vector
-"webkit"
-"moz"
-)
- tbl)
-(puthash "flow-into" (vector
-"ms"
-)
- tbl)
-(puthash "scrollbar-highlight-color" (vector
-"ms"
-)
- tbl)
-(puthash "border-left-colors" (vector
-"moz"
-)
- tbl)
-(puthash "word-wrap" (vector
-"ms"
-)
- tbl)
-(puthash "text-emphasis-color" (vector
-"webkit"
-)
- tbl)
-(puthash "hyphens" (vector
-"webkit"
-"moz"
-"ms"
-)
- tbl)
-(puthash "marquee-direction" (vector
-"webkit"
-)
- tbl)
-(puthash "column-rule-width" (vector
-"webkit"
-"moz"
-)
- tbl)
-(puthash "box-lines" (vector
-"webkit"
-"ms"
-)
- tbl)
-(puthash "column-break-inside" (vector
-"webkit"
-)
- tbl)
-(puthash "scroll-snap-points-x" (vector
-"ms"
-)
- tbl)
-(puthash "grid-row-align" (vector
-"ms"
-)
- tbl)
-(puthash "force-broken-image-icon" (vector
-"moz"
-)
- tbl)
-(puthash "animation-fill-mode" (vector
-"webkit"
-"moz"
-"o"
-)
- tbl)
-(puthash "box-line-progression" (vector
-"ms"
-)
- tbl)
-(puthash "mask-size" (vector
-"webkit"
-)
- tbl)
-(puthash "scroll-boundary-left" (vector
-"ms"
-)
- tbl)
-(puthash "text-combine" (vector
-"webkit"
-)
- tbl)
-(puthash "grid-column-align" (vector
-"ms"
-)
- tbl)
-(puthash "perspective-origin" (vector
-"webkit"
-"moz"
-"ms"
-)
- tbl)
-(puthash "overflow-style" (vector
-"ms"
-)
- tbl)
-(puthash "mask-position" (vector
-"webkit"
-)
- tbl)
-(puthash "content-zoom-chaining" (vector
-"ms"
-)
- tbl)
-(puthash "column-span" (vector
-"webkit"
-)
- tbl)
-(puthash "border-fit" (vector
-"webkit"
-)
- tbl)
-(puthash "outline-radius-topright" (vector
-"moz"
-)
- tbl)
-(puthash "tab-size" (vector
-"moz"
-"o"
-)
- tbl)
-(puthash "layout-grid-type" (vector
-"ms"
-)
- tbl)
-(puthash "mask-clip" (vector
-"webkit"
-)
- tbl)
-(puthash "column-gap" (vector
-"webkit"
-"moz"
-)
- tbl)
-(puthash "text-security" (vector
-"webkit"
-)
- tbl)
-(puthash "text-align-last" (vector
-"ms"
-)
- tbl)
-(puthash "svg-shadow" (vector
-"webkit"
-)
- tbl)
-(puthash "accelerator" (vector
-"ms"
-)
- tbl)
-(puthash "locale" (vector
-"webkit"
-)
- tbl)
-(puthash "line-clamp" (vector
-"webkit"
-)
- tbl)
-(puthash "column-count" (vector
-"webkit"
-"moz"
-)
- tbl)
-(puthash "line-box-contain" (vector
-"webkit"
-)
- tbl)
-(puthash "line-break" (vector
-"webkit"
-"ms"
-)
- tbl)
-(puthash "transform-style" (vector
-"webkit"
-"moz"
-"ms"
-)
- tbl)
-(puthash "perspective" (vector
-"webkit"
-"moz"
-"ms"
-)
- tbl)
-(puthash "orient" (vector
-"moz"
-)
- tbl)
-(puthash "float-edge" (vector
-"moz"
-)
- tbl)
-(puthash "image-region" (vector
-"moz"
-)
- tbl)
-(puthash "mask-box-image-width" (vector
-"webkit"
-)
- tbl)
-(puthash "background-inline-policy" (vector
-"moz"
-)
- tbl)
-(puthash "user-modify" (vector
-"webkit"
-"moz"
-)
- tbl)
-(puthash "content-zoom-snap-type" (vector
-"ms"
-)
- tbl)
-(puthash "outline-radius-bottomright" (vector
-"moz"
-)
- tbl)
-(puthash "wrap-margin" (vector
-"ms"
-)
- tbl)
-(puthash "transform-origin-z" (vector
-"ms"
-)
- tbl)
-(puthash "mask-box-image" (vector
-"webkit"
-)
- tbl)
-(puthash "scroll-chaining" (vector
-"ms"
-)
- tbl)
-(puthash "grid-row" (vector
-"ms"
-)
- tbl)
-(puthash "nbsp-mode" (vector
-"webkit"
-)
- tbl)
-(puthash "mask-box-image-source" (vector
-"webkit"
-)
- tbl)
-(puthash "font-language-override" (vector
-"moz"
 )
  tbl)
 (puthash "animation-delay" (vector
@@ -1778,11 +898,109 @@ tbl) tbl)
 "o"
 )
  tbl)
-(puthash "hyphenate-character" (vector
+(puthash "animation-direction" (vector
+"webkit"
+"moz"
+"o"
+)
+ tbl)
+(puthash "animation-duration" (vector
+"webkit"
+"moz"
+"o"
+)
+ tbl)
+(puthash "animation-fill-mode" (vector
+"webkit"
+"moz"
+"o"
+)
+ tbl)
+(puthash "animation-iteration-count" (vector
+"webkit"
+"moz"
+"o"
+)
+ tbl)
+(puthash "animation-name" (vector
+"webkit"
+"moz"
+"o"
+)
+ tbl)
+(puthash "animation-play-state" (vector
+"webkit"
+"moz"
+"o"
+)
+ tbl)
+(puthash "animation-timing-function" (vector
+"webkit"
+"moz"
+"o"
+)
+ tbl)
+(puthash "appearance" (vector
+"webkit"
+"moz"
+)
+ tbl)
+(puthash "backface-visibility" (vector
+"webkit"
+"moz"
+"ms"
+)
+ tbl)
+(puthash "background-clip" (vector
+"webkit"
+"moz"
+)
+ tbl)
+(puthash "background-composite" (vector
 "webkit"
 )
  tbl)
-(puthash "box-flex-group" (vector
+(puthash "background-inline-policy" (vector
+"moz"
+)
+ tbl)
+(puthash "background-origin" (vector
+"webkit"
+)
+ tbl)
+(puthash "background-position-x" (vector
+"ms"
+)
+ tbl)
+(puthash "background-position-y" (vector
+"ms"
+)
+ tbl)
+(puthash "background-size" (vector
+"webkit"
+)
+ tbl)
+(puthash "behavior" (vector
+"ms"
+)
+ tbl)
+(puthash "binding" (vector
+"moz"
+)
+ tbl)
+(puthash "block-progression" (vector
+"ms"
+)
+ tbl)
+(puthash "border-bottom-colors" (vector
+"moz"
+)
+ tbl)
+(puthash "border-fit" (vector
+"webkit"
+)
+ tbl)
+(puthash "border-horizontal-spacing" (vector
 "webkit"
 )
  tbl)
@@ -1792,16 +1010,25 @@ tbl) tbl)
 "o"
 )
  tbl)
-(puthash "highlight" (vector
-"webkit"
+(puthash "border-left-colors" (vector
+"moz"
 )
  tbl)
-(puthash "marquee-repetition" (vector
+(puthash "border-radius" (vector
 "webkit"
+"moz"
 )
  tbl)
-(puthash "grid-column" (vector
-"ms"
+(puthash "border-right-colors" (vector
+"moz"
+)
+ tbl)
+(puthash "border-top-colors" (vector
+"moz"
+)
+ tbl)
+(puthash "border-vertical-spacing" (vector
+"webkit"
 )
  tbl)
 (puthash "box-align" (vector
@@ -1810,17 +1037,28 @@ tbl) tbl)
 "ms"
 )
  tbl)
-(puthash "user-input" (vector
-"moz"
-)
- tbl)
-(puthash "animation-duration" (vector
+(puthash "box-direction" (vector
 "webkit"
 "moz"
-"o"
+"ms"
 )
  tbl)
-(puthash "transform-origin-y" (vector
+(puthash "box-flex" (vector
+"webkit"
+"moz"
+"ms"
+)
+ tbl)
+(puthash "box-flex-group" (vector
+"webkit"
+)
+ tbl)
+(puthash "box-line-progression" (vector
+"ms"
+)
+ tbl)
+(puthash "box-lines" (vector
+"webkit"
 "ms"
 )
  tbl)
@@ -1836,31 +1074,427 @@ tbl) tbl)
 "ms"
 )
  tbl)
-(puthash "stack-sizing" (vector
-"moz"
-)
- tbl)
-(puthash "transition" (vector
+(puthash "box-pack" (vector
 "webkit"
 "moz"
 "ms"
-"o"
 )
  tbl)
-(puthash "text-size-adjust" (vector
+(puthash "box-reflect" (vector
+"webkit"
+)
+ tbl)
+(puthash "box-shadow" (vector
+"webkit"
 "moz"
-"ms"
 )
  tbl)
-(puthash "filter" (vector
-"ms"
+(puthash "box-sizing" (vector
+"webkit"
+"moz"
+)
+ tbl)
+(puthash "color-correction" (vector
+"webkit"
+)
+ tbl)
+(puthash "column-break-after" (vector
+"webkit"
+)
+ tbl)
+(puthash "column-break-before" (vector
+"webkit"
+)
+ tbl)
+(puthash "column-break-inside" (vector
+"webkit"
+)
+ tbl)
+(puthash "column-count" (vector
+"webkit"
+"moz"
+)
+ tbl)
+(puthash "column-gap" (vector
+"webkit"
+"moz"
+)
+ tbl)
+(puthash "column-rule-color" (vector
+"webkit"
+"moz"
+)
+ tbl)
+(puthash "column-rule-style" (vector
+"webkit"
+"moz"
+)
+ tbl)
+(puthash "column-rule-width" (vector
+"webkit"
+"moz"
+)
+ tbl)
+(puthash "column-span" (vector
+"webkit"
+)
+ tbl)
+(puthash "column-width" (vector
+"webkit"
+"moz"
 )
  tbl)
 (puthash "content-zoom-boundary" (vector
 "ms"
 )
  tbl)
+(puthash "content-zoom-boundary-max" (vector
+"ms"
+)
+ tbl)
+(puthash "content-zoom-boundary-min" (vector
+"ms"
+)
+ tbl)
+(puthash "content-zoom-chaining" (vector
+"ms"
+)
+ tbl)
+(puthash "content-zoom-snap" (vector
+"ms"
+)
+ tbl)
+(puthash "content-zoom-snap-points" (vector
+"ms"
+)
+ tbl)
+(puthash "content-zoom-snap-type" (vector
+"ms"
+)
+ tbl)
+(puthash "content-zooming" (vector
+"ms"
+)
+ tbl)
+(puthash "dashboard-region" (vector
+"webkit"
+"o"
+)
+ tbl)
+(puthash "filter" (vector
+"ms"
+)
+ tbl)
+(puthash "float-edge" (vector
+"moz"
+)
+ tbl)
+(puthash "flow-from" (vector
+"ms"
+)
+ tbl)
+(puthash "flow-into" (vector
+"ms"
+)
+ tbl)
+(puthash "font-feature-settings" (vector
+"moz"
+"ms"
+)
+ tbl)
+(puthash "font-language-override" (vector
+"moz"
+)
+ tbl)
+(puthash "font-smoothing" (vector
+"webkit"
+)
+ tbl)
+(puthash "force-broken-image-icon" (vector
+"moz"
+)
+ tbl)
+(puthash "grid-column" (vector
+"ms"
+)
+ tbl)
+(puthash "grid-column-align" (vector
+"ms"
+)
+ tbl)
+(puthash "grid-column-span" (vector
+"ms"
+)
+ tbl)
+(puthash "grid-columns" (vector
+"ms"
+)
+ tbl)
+(puthash "grid-layer" (vector
+"ms"
+)
+ tbl)
+(puthash "grid-row" (vector
+"ms"
+)
+ tbl)
+(puthash "grid-row-align" (vector
+"ms"
+)
+ tbl)
+(puthash "grid-row-span" (vector
+"ms"
+)
+ tbl)
+(puthash "grid-rows" (vector
+"ms"
+)
+ tbl)
+(puthash "high-contrast-adjust" (vector
+"ms"
+)
+ tbl)
+(puthash "highlight" (vector
+"webkit"
+)
+ tbl)
+(puthash "hyphenate-character" (vector
+"webkit"
+)
+ tbl)
+(puthash "hyphenate-limit-after" (vector
+"webkit"
+)
+ tbl)
+(puthash "hyphenate-limit-before" (vector
+"webkit"
+)
+ tbl)
+(puthash "hyphenate-limit-chars" (vector
+"ms"
+)
+ tbl)
+(puthash "hyphenate-limit-lines" (vector
+"ms"
+)
+ tbl)
+(puthash "hyphenate-limit-zone" (vector
+"ms"
+)
+ tbl)
+(puthash "hyphens" (vector
+"webkit"
+"moz"
+"ms"
+)
+ tbl)
+(puthash "image-region" (vector
+"moz"
+)
+ tbl)
+(puthash "ime-mode" (vector
+"ms"
+)
+ tbl)
+(puthash "input-format" (vector
+"o"
+)
+ tbl)
+(puthash "input-required" (vector
+"o"
+)
+ tbl)
+(puthash "interpolation-mode" (vector
+"ms"
+)
+ tbl)
+(puthash "layout-flow" (vector
+"ms"
+)
+ tbl)
+(puthash "layout-grid" (vector
+"ms"
+)
+ tbl)
 (puthash "layout-grid-char" (vector
+"ms"
+)
+ tbl)
+(puthash "layout-grid-line" (vector
+"ms"
+)
+ tbl)
+(puthash "layout-grid-mode" (vector
+"ms"
+)
+ tbl)
+(puthash "layout-grid-type" (vector
+"ms"
+)
+ tbl)
+(puthash "line-box-contain" (vector
+"webkit"
+)
+ tbl)
+(puthash "line-break" (vector
+"webkit"
+"ms"
+)
+ tbl)
+(puthash "line-clamp" (vector
+"webkit"
+)
+ tbl)
+(puthash "link" (vector
+"o"
+)
+ tbl)
+(puthash "link-source" (vector
+"o"
+)
+ tbl)
+(puthash "locale" (vector
+"webkit"
+)
+ tbl)
+(puthash "margin-after-collapse" (vector
+"webkit"
+)
+ tbl)
+(puthash "margin-before-collapse" (vector
+"webkit"
+)
+ tbl)
+(puthash "marquee-dir" (vector
+"o"
+)
+ tbl)
+(puthash "marquee-direction" (vector
+"webkit"
+)
+ tbl)
+(puthash "marquee-increment" (vector
+"webkit"
+)
+ tbl)
+(puthash "marquee-loop" (vector
+"o"
+)
+ tbl)
+(puthash "marquee-repetition" (vector
+"webkit"
+)
+ tbl)
+(puthash "marquee-speed" (vector
+"o"
+)
+ tbl)
+(puthash "marquee-style" (vector
+"webkit"
+"o"
+)
+ tbl)
+(puthash "mask-attachment" (vector
+"webkit"
+)
+ tbl)
+(puthash "mask-box-image" (vector
+"webkit"
+)
+ tbl)
+(puthash "mask-box-image-outset" (vector
+"webkit"
+)
+ tbl)
+(puthash "mask-box-image-repeat" (vector
+"webkit"
+)
+ tbl)
+(puthash "mask-box-image-slice" (vector
+"webkit"
+)
+ tbl)
+(puthash "mask-box-image-source" (vector
+"webkit"
+)
+ tbl)
+(puthash "mask-box-image-width" (vector
+"webkit"
+)
+ tbl)
+(puthash "mask-clip" (vector
+"webkit"
+)
+ tbl)
+(puthash "mask-composite" (vector
+"webkit"
+)
+ tbl)
+(puthash "mask-image" (vector
+"webkit"
+)
+ tbl)
+(puthash "mask-origin" (vector
+"webkit"
+)
+ tbl)
+(puthash "mask-position" (vector
+"webkit"
+)
+ tbl)
+(puthash "mask-repeat" (vector
+"webkit"
+)
+ tbl)
+(puthash "mask-size" (vector
+"webkit"
+)
+ tbl)
+(puthash "nbsp-mode" (vector
+"webkit"
+)
+ tbl)
+(puthash "object-fit" (vector
+"o"
+)
+ tbl)
+(puthash "object-position" (vector
+"o"
+)
+ tbl)
+(puthash "orient" (vector
+"moz"
+)
+ tbl)
+(puthash "outline-radius-bottomleft" (vector
+"moz"
+)
+ tbl)
+(puthash "outline-radius-bottomright" (vector
+"moz"
+)
+ tbl)
+(puthash "outline-radius-topleft" (vector
+"moz"
+)
+ tbl)
+(puthash "outline-radius-topright" (vector
+"moz"
+)
+ tbl)
+(puthash "overflow-style" (vector
+"ms"
+)
+ tbl)
+(puthash "perspective" (vector
+"webkit"
+"moz"
+"ms"
+)
+ tbl)
+(puthash "perspective-origin" (vector
+"webkit"
+"moz"
 "ms"
 )
  tbl)
@@ -1872,49 +1506,43 @@ tbl) tbl)
 "ms"
 )
  tbl)
-(puthash "column-rule-color" (vector
-"webkit"
-"moz"
-)
- tbl)
-(puthash "high-contrast-adjust" (vector
-"ms"
-)
- tbl)
-(puthash "text-justify" (vector
-"ms"
-)
- tbl)
-(puthash "text-decoration-color" (vector
-"moz"
-)
- tbl)
-(puthash "block-progression" (vector
-"ms"
-)
- tbl)
-(puthash "border-horizontal-spacing" (vector
+(puthash "rtl-ordering" (vector
 "webkit"
 )
  tbl)
-(puthash "wrap-flow" (vector
+(puthash "scroll-boundary" (vector
 "ms"
 )
  tbl)
-(puthash "margin-before-collapse" (vector
-"webkit"
+(puthash "scroll-boundary-bottom" (vector
+"ms"
 )
  tbl)
-(puthash "table-baseline" (vector
-"o"
+(puthash "scroll-boundary-left" (vector
+"ms"
 )
  tbl)
-(puthash "background-clip" (vector
-"webkit"
-"moz"
+(puthash "scroll-boundary-right" (vector
+"ms"
 )
  tbl)
-(puthash "interpolation-mode" (vector
+(puthash "scroll-boundary-top" (vector
+"ms"
+)
+ tbl)
+(puthash "scroll-chaining" (vector
+"ms"
+)
+ tbl)
+(puthash "scroll-rails" (vector
+"ms"
+)
+ tbl)
+(puthash "scroll-snap-points-x" (vector
+"ms"
+)
+ tbl)
+(puthash "scroll-snap-points-y" (vector
 "ms"
 )
  tbl)
@@ -1922,17 +1550,145 @@ tbl) tbl)
 "ms"
 )
  tbl)
+(puthash "scroll-snap-x" (vector
+"ms"
+)
+ tbl)
+(puthash "scroll-snap-y" (vector
+"ms"
+)
+ tbl)
+(puthash "scrollbar-arrow-color" (vector
+"ms"
+)
+ tbl)
+(puthash "scrollbar-base-color" (vector
+"ms"
+)
+ tbl)
+(puthash "scrollbar-darkshadow-color" (vector
+"ms"
+)
+ tbl)
+(puthash "scrollbar-face-color" (vector
+"ms"
+)
+ tbl)
+(puthash "scrollbar-highlight-color" (vector
+"ms"
+)
+ tbl)
+(puthash "scrollbar-shadow-color" (vector
+"ms"
+)
+ tbl)
+(puthash "scrollbar-track-color" (vector
+"ms"
+)
+ tbl)
+(puthash "stack-sizing" (vector
+"moz"
+)
+ tbl)
+(puthash "svg-shadow" (vector
+"webkit"
+)
+ tbl)
+(puthash "tab-size" (vector
+"moz"
+"o"
+)
+ tbl)
+(puthash "table-baseline" (vector
+"o"
+)
+ tbl)
+(puthash "text-align-last" (vector
+"ms"
+)
+ tbl)
+(puthash "text-autospace" (vector
+"ms"
+)
+ tbl)
+(puthash "text-blink" (vector
+"moz"
+)
+ tbl)
+(puthash "text-combine" (vector
+"webkit"
+)
+ tbl)
+(puthash "text-decoration-color" (vector
+"moz"
+)
+ tbl)
+(puthash "text-decoration-line" (vector
+"moz"
+)
+ tbl)
+(puthash "text-decoration-style" (vector
+"moz"
+)
+ tbl)
+(puthash "text-decorations-in-effect" (vector
+"webkit"
+)
+ tbl)
+(puthash "text-emphasis-color" (vector
+"webkit"
+)
+ tbl)
+(puthash "text-emphasis-position" (vector
+"webkit"
+)
+ tbl)
 (puthash "text-emphasis-style" (vector
 "webkit"
 )
  tbl)
-(puthash "flow-from" (vector
+(puthash "text-fill-color" (vector
+"webkit"
+)
+ tbl)
+(puthash "text-justify" (vector
 "ms"
 )
  tbl)
-(puthash "backface-visibility" (vector
+(puthash "text-kashida-space" (vector
+"ms"
+)
+ tbl)
+(puthash "text-orientation" (vector
 "webkit"
+)
+ tbl)
+(puthash "text-overflow" (vector
+"ms"
+)
+ tbl)
+(puthash "text-security" (vector
+"webkit"
+)
+ tbl)
+(puthash "text-size-adjust" (vector
 "moz"
+"ms"
+)
+ tbl)
+(puthash "text-stroke-color" (vector
+"webkit"
+)
+ tbl)
+(puthash "text-stroke-width" (vector
+"webkit"
+)
+ tbl)
+(puthash "text-underline-position" (vector
+"ms"
+)
+ tbl)
+(puthash "touch-action" (vector
 "ms"
 )
  tbl)
@@ -1943,52 +1699,35 @@ tbl) tbl)
 "o"
 )
  tbl)
-(puthash "column-break-after" (vector
-"webkit"
-)
- tbl)
-(puthash "mask-composite" (vector
-"webkit"
-)
- tbl)
-(puthash "layout-grid" (vector
-"ms"
-)
- tbl)
-(puthash "column-width" (vector
+(puthash "transform-origin" (vector
 "webkit"
 "moz"
-)
- tbl)
-(puthash "scrollbar-base-color" (vector
 "ms"
-)
- tbl)
-(puthash "window-shadow" (vector
-"moz"
-)
- tbl)
-(puthash "object-fit" (vector
 "o"
 )
  tbl)
-(puthash "text-decorations-in-effect" (vector
-"webkit"
+(puthash "transform-origin-x" (vector
+"ms"
 )
  tbl)
-(puthash "box-flex" (vector
+(puthash "transform-origin-y" (vector
+"ms"
+)
+ tbl)
+(puthash "transform-origin-z" (vector
+"ms"
+)
+ tbl)
+(puthash "transform-style" (vector
 "webkit"
 "moz"
 "ms"
 )
  tbl)
-(puthash "hyphenate-limit-after" (vector
-"webkit"
-)
- tbl)
-(puthash "animation-play-state" (vector
+(puthash "transition" (vector
 "webkit"
 "moz"
+"ms"
 "o"
 )
  tbl)
@@ -1999,263 +1738,11 @@ tbl) tbl)
 "o"
 )
  tbl)
-(puthash "input-format" (vector
-"o"
-)
- tbl)
-(puthash "mask-attachment" (vector
-"webkit"
-)
- tbl)
-(puthash "scroll-boundary-right" (vector
-"ms"
-)
- tbl)
-(puthash "animation-iteration-count" (vector
-"webkit"
-"moz"
-"o"
-)
- tbl)
-(puthash "link" (vector
-"o"
-)
- tbl)
-(puthash "content-zoom-boundary-max" (vector
-"ms"
-)
- tbl)
-(puthash "text-decoration-style" (vector
-"moz"
-)
- tbl)
-(puthash "text-autospace" (vector
-"ms"
-)
- tbl)
-(puthash "mask-origin" (vector
-"webkit"
-)
- tbl)
-(puthash "user-focus" (vector
-"moz"
-)
- tbl)
-(puthash "border-bottom-colors" (vector
-"moz"
-)
- tbl)
-(puthash "scroll-boundary-top" (vector
-"ms"
-)
- tbl)
-(puthash "content-zooming" (vector
-"ms"
-)
- tbl)
-(puthash "appearance" (vector
-"webkit"
-"moz"
-)
- tbl)
-(puthash "scroll-snap-x" (vector
-"ms"
-)
- tbl)
-(puthash "marquee-loop" (vector
-"o"
-)
- tbl)
-(puthash "column-rule-style" (vector
-"webkit"
-"moz"
-)
- tbl)
-(puthash "marquee-increment" (vector
-"webkit"
-)
- tbl)
-(puthash "behavior" (vector
-"ms"
-)
- tbl)
-(puthash "box-pack" (vector
-"webkit"
-"moz"
-"ms"
-)
- tbl)
-(puthash "animation-direction" (vector
-"webkit"
-"moz"
-"o"
-)
- tbl)
-(puthash "scrollbar-darkshadow-color" (vector
-"ms"
-)
- tbl)
-(puthash "animation-timing-function" (vector
-"webkit"
-"moz"
-"o"
-)
- tbl)
-(puthash "text-blink" (vector
-"moz"
-)
- tbl)
-(puthash "scroll-boundary-bottom" (vector
-"ms"
-)
- tbl)
-(puthash "mask-box-image-repeat" (vector
-"webkit"
-)
- tbl)
-(puthash "text-orientation" (vector
-"webkit"
-)
- tbl)
-(puthash "grid-column-span" (vector
-"ms"
-)
- tbl)
-(puthash "binding" (vector
-"moz"
-)
- tbl)
-(puthash "transform-origin" (vector
+(puthash "transition-duration" (vector
 "webkit"
 "moz"
 "ms"
 "o"
-)
- tbl)
-(puthash "text-decoration-line" (vector
-"moz"
-)
- tbl)
-(puthash "animation-name" (vector
-"webkit"
-"moz"
-"o"
-)
- tbl)
-(puthash "marquee-dir" (vector
-"o"
-)
- tbl)
-(puthash "content-zoom-snap" (vector
-"ms"
-)
- tbl)
-(puthash "border-top-colors" (vector
-"moz"
-)
- tbl)
-(puthash "border-vertical-spacing" (vector
-"webkit"
-)
- tbl)
-(puthash "grid-rows" (vector
-"ms"
-)
- tbl)
-(puthash "box-reflect" (vector
-"webkit"
-)
- tbl)
-(puthash "hyphenate-limit-before" (vector
-"webkit"
-)
- tbl)
-(puthash "mask-box-image-outset" (vector
-"webkit"
-)
- tbl)
-(puthash "outline-radius-bottomleft" (vector
-"moz"
-)
- tbl)
-(puthash "text-overflow" (vector
-"ms"
-)
- tbl)
-(puthash "border-right-colors" (vector
-"moz"
-)
- tbl)
-(puthash "layout-flow" (vector
-"ms"
-)
- tbl)
-(puthash "box-direction" (vector
-"webkit"
-"moz"
-"ms"
-)
- tbl)
-(puthash "animation" (vector
-"webkit"
-"o"
-)
- tbl)
-(puthash "hyphenate-limit-lines" (vector
-"ms"
-)
- tbl)
-(puthash "scrollbar-face-color" (vector
-"ms"
-)
- tbl)
-(puthash "column-break-before" (vector
-"webkit"
-)
- tbl)
-(puthash "content-zoom-snap-points" (vector
-"ms"
-)
- tbl)
-(puthash "grid-row-span" (vector
-"ms"
-)
- tbl)
-(puthash "touch-action" (vector
-"ms"
-)
- tbl)
-(puthash "marquee-style" (vector
-"webkit"
-"o"
-)
- tbl)
-(puthash "margin-after-collapse" (vector
-"webkit"
-)
- tbl)
-(puthash "text-kashida-space" (vector
-"ms"
-)
- tbl)
-(puthash "scrollbar-shadow-color" (vector
-"ms"
-)
- tbl)
-(puthash "object-position" (vector
-"o"
-)
- tbl)
-(puthash "hyphenate-limit-zone" (vector
-"ms"
-)
- tbl)
-(puthash "scroll-snap-y" (vector
-"ms"
-)
- tbl)
-(puthash "transform-origin-x" (vector
-"ms"
 )
  tbl)
 (puthash "transition-property" (vector
@@ -2265,71 +1752,6 @@ tbl) tbl)
 "o"
 )
  tbl)
-(puthash "word-break" (vector
-"ms"
-)
- tbl)
-(puthash "scroll-snap-points-y" (vector
-"ms"
-)
- tbl)
-(puthash "scroll-boundary" (vector
-"ms"
-)
- tbl)
-(puthash "mask-repeat" (vector
-"webkit"
-)
- tbl)
-(puthash "writing-mode" (vector
-"webkit"
-"ms"
-)
- tbl)
-(puthash "layout-grid-mode" (vector
-"ms"
-)
- tbl)
-(puthash "background-position-y" (vector
-"ms"
-)
- tbl)
-(puthash "scroll-rails" (vector
-"ms"
-)
- tbl)
-(puthash "content-zoom-boundary-min" (vector
-"ms"
-)
- tbl)
-(puthash "background-position-x" (vector
-"ms"
-)
- tbl)
-(puthash "box-sizing" (vector
-"webkit"
-"moz"
-)
- tbl)
-(puthash "transition-duration" (vector
-"webkit"
-"moz"
-"ms"
-"o"
-)
- tbl)
-(puthash "rtl-ordering" (vector
-"webkit"
-)
- tbl)
-(puthash "layout-grid-line" (vector
-"ms"
-)
- tbl)
-(puthash "font-smoothing" (vector
-"webkit"
-)
- tbl)
 (puthash "transition-timing-function" (vector
 "webkit"
 "moz"
@@ -2337,46 +1759,624 @@ tbl) tbl)
 "o"
 )
  tbl)
-tbl) tbl)
-(puthash "unitlessProperties" (vector
-"z-index"
-"line-height"
-"opacity"
-"font-weight"
-"zoom"
+(puthash "user-drag" (vector
+"webkit"
 )
  tbl)
-(puthash "floatUnit" "em" tbl)
-(puthash "intUnit" "px" tbl)
-(puthash "color" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "case" "auto" tbl)
-(puthash "shortenIfPossible" t tbl)
-(puthash "trailingAliases" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "h" "hidden" tbl)
-(puthash "s" "solid" tbl)
-(puthash "t" "dotted" tbl)
-(puthash "n" "none" tbl)
-tbl) tbl)
-tbl) tbl)
-(puthash "keywordAliases" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "a" "auto" tbl)
-(puthash "do" "dotted" tbl)
-(puthash "i" "inherit" tbl)
-(puthash "da" "dashed" tbl)
-(puthash "s" "solid" tbl)
-(puthash "t" "transparent" tbl)
-tbl) tbl)
-(puthash "keywords" (vector
-"auto"
-"inherit"
+(puthash "user-focus" (vector
+"moz"
 )
  tbl)
-(puthash "unitAliases" (let ((tbl (make-hash-table :test 'equal)))
-(puthash "e" "em" tbl)
-(puthash "r" "rem" tbl)
-(puthash "-" "px" tbl)
-(puthash "x" "ex" tbl)
-(puthash "p" "%" tbl)
+(puthash "user-input" (vector
+"moz"
+)
+ tbl)
+(puthash "user-modify" (vector
+"webkit"
+"moz"
+)
+ tbl)
+(puthash "user-select" (vector
+"webkit"
+"moz"
+"ms"
+)
+ tbl)
+(puthash "window-shadow" (vector
+"moz"
+)
+ tbl)
+(puthash "word-break" (vector
+"ms"
+)
+ tbl)
+(puthash "word-wrap" (vector
+"ms"
+)
+ tbl)
+(puthash "wrap-flow" (vector
+"ms"
+)
+ tbl)
+(puthash "wrap-margin" (vector
+"ms"
+)
+ tbl)
+(puthash "wrap-through" (vector
+"ms"
+)
+ tbl)
+(puthash "writing-mode" (vector
+"webkit"
+"ms"
+)
+ tbl)
+tbl) tbl)
+tbl) tbl)
+(puthash "html" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "tags" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "a" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "href" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "abbr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "title" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "acronym" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "title" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "address" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "applet" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "area" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "alt" "" tbl)
+(puthash "coords" "" tbl)
+(puthash "href" "" tbl)
+(puthash "shape" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "article" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "aside" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "audio" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "src" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "b" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "base" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "href" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "basefont" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "bdi" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "bdo" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "dir" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "big" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "blockquote" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "body" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "br" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "button" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "canvas" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "caption" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "center" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "cite" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "code" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "col" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "colgroup" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "command" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "datalist" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "dd" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "del" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "details" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "dfn" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "dialog" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "dir" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "div" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "dl" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "dt" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "em" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "embed" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "src" "" tbl)
+(puthash "type" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "fieldset" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "figcaption" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "figure" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "font" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "footer" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "form" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "action" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "frame" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "frameset" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "h1" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "h2" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "h3" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "h4" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "h5" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "h6" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "head" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "header" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "hgroup" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "hr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "html" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "i" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "iframe" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "frameborder" "0" tbl)
+(puthash "src" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "img" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "alt" "" tbl)
+(puthash "src" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "input" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "name" "" tbl)
+(puthash "type" "text" tbl)
+(puthash "value" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "ins" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "kbd" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "keygen" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "label" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "for" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "legend" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "li" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "link" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "href" "" tbl)
+(puthash "rel" "stylesheet" tbl)
+tbl) tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "map" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "name" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "mark" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "menu" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "meta" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "meter" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "nav" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "noframes" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "noscript" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "object" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "data" "" tbl)
+(puthash "type" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "ol" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "optgroup" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "option" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "value" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "output" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "p" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "param" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "name" "" tbl)
+(puthash "value" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "pre" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "progress" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "q" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "rp" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "rt" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "ruby" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "s" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "samp" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "script" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "section" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "select" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "id" "" tbl)
+(puthash "name" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "small" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "source" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "span" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "strike" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "strong" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "style" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "sub" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "summary" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "sup" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "table" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "tbody" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "td" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "textarea" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "cols" "30" tbl)
+(puthash "id" "" tbl)
+(puthash "name" "" tbl)
+(puthash "rows" "10" tbl)
+tbl) tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "tfoot" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "th" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "thead" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "time" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "title" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "tr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "track" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" t tbl)
+tbl) tbl)
+(puthash "tt" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "u" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "ul" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "var" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "video" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" t tbl)
+(puthash "defaultAttr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "src" "" tbl)
+tbl) tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
+(puthash "wbr" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "block" nil tbl)
+(puthash "selfClosing" nil tbl)
+tbl) tbl)
 tbl) tbl)
 tbl) tbl)
 tbl))
@@ -3045,6 +3045,122 @@ tbl))
       (replace-regexp-in-string "\n" "\n    " (concat "\n" text))
     nil))
 
+(defvar emmet-lorem-words
+  '("lorem" "ipsum" "dolor" "sit" "amet," "consectetur" "adipiscing" "elit" "ut" "aliquam," "purus" "sit" "amet" "luctus" "venenatis,"
+    "lectus" "magna" "fringilla" "urna," "porttitor" "rhoncus" "dolor" "purus" "non" "enim" "praesent" "elementum" "facilisis" "leo,"
+    "vel" "fringilla" "est" "ullamcorper" "eget" "nulla" "facilisi" "etiam" "dignissim" "diam" "quis" "enim" "lobortis" "scelerisque"
+    "fermentum" "dui" "faucibus" "in" "ornare" "quam" "viverra" "orci" "sagittis" "eu" "volutpat" "odio" "facilisis" "mauris" "sit" "amet"
+    "massa" "vitae" "tortor" "condimentum" "lacinia" "quis" "vel" "eros" "donec" "ac" "odio" "tempor" "orci" "dapibus" "ultrices" "in"
+    "iaculis" "nunc" "sed" "augue" "lacus," "viverra" "vitae" "congue" "eu," "consequat" "ac" "felis" "donec" "et" "odio" "pellentesque"
+    "diam" "volutpat" "commodo" "sed" "egestas" "egestas" "fringilla" "phasellus" "faucibus" "scelerisque" "eleifend" "donec" "pretium"
+    "vulputate" "sapien" "nec" "sagittis" "aliquam" "malesuada" "bibendum" "arcu" "vitae" "elementum" "curabitur" "vitae" "nunc" "sed"
+    "velit" "dignissim" "sodales" "ut" "eu" "sem" "integer" "vitae" "justo" "eget" "magna" "fermentum" "iaculis" "eu" "non" "diam"
+    "phasellus" "vestibulum" "lorem" "sed" "risus" "ultricies" "tristique" "nulla" "aliquet" "enim" "tortor," "at" "auctor" "urna" "nunc"
+    "id" "cursus" "metus" "aliquam" "eleifend" "mi" "in" "nulla" "posuere" "sollicitudin" "aliquam" "ultrices" "sagittis" "orci," "a"
+    "scelerisque" "purus" "semper" "eget" "duis" "at" "tellus" "at" "urna" "condimentum" "mattis" "pellentesque" "id" "nibh" "tortor,"
+    "id" "aliquet" "lectus" "proin" "nibh" "nisl," "condimentum" "id" "venenatis" "a," "condimentum" "vitae" "sapien" "pellentesque"
+    "habitant" "morbi" "tristique" "senectus" "et" "netus" "et" "malesuada" "fames" "ac" "turpis" "egestas" "sed" "tempus," "urna" "et"
+    "pharetra" "pharetra," "massa" "massa" "ultricies" "mi," "quis" "hendrerit" "dolor" "magna" "eget" "est" "lorem" "ipsum" "dolor" "sit"
+    "amet," "consectetur" "adipiscing" "elit" "pellentesque" "habitant" "morbi" "tristique" "senectus" "et" "netus" "et" "malesuada" "fames"
+    "ac" "turpis" "egestas" "integer" "eget" "aliquet" "nibh" "praesent" "tristique" "magna" "sit" "amet" "purus" "gravida" "quis" "blandit"
+    "turpis" "cursus" "in" "hac" "habitasse" "platea" "dictumst" "quisque" "sagittis," "purus" "sit" "amet" "volutpat" "consequat," "mauris"
+    "nunc" "congue" "nisi," "vitae" "suscipit" "tellus" "mauris" "a" "diam" "maecenas" "sed" "enim" "ut" "sem" "viverra" "aliquet" "eget"
+    "sit" "amet" "tellus" "cras" "adipiscing" "enim" "eu" "turpis" "egestas" "pretium" "aenean" "pharetra," "magna" "ac" "placerat"
+    "vestibulum," "lectus" "mauris" "ultrices" "eros," "in" "cursus" "turpis" "massa" "tincidunt" "dui" "ut" "ornare" "lectus" "sit" "amet"
+    "est" "placerat" "in" "egestas" "erat" "imperdiet" "sed" "euismod" "nisi" "porta" "lorem" "mollis" "aliquam" "ut" "porttitor" "leo" "a"
+    "diam" "sollicitudin" "tempor" "id" "eu" "nisl" "nunc" "mi" "ipsum," "faucibus" "vitae" "aliquet" "nec," "ullamcorper" "sit" "amet"
+    "risus" "nullam" "eget" "felis" "eget" "nunc" "lobortis" "mattis" "aliquam" "faucibus" "purus" "in" "massa" "tempor" "nec" "feugiat"
+    "nisl" "pretium" "fusce" "id" "velit" "ut" "tortor" "pretium" "viverra" "suspendisse" "potenti" "nullam" "ac" "tortor" "vitae" "purus"
+    "faucibus" "ornare" "suspendisse" "sed" "nisi" "lacus," "sed" "viverra" "tellus" "in" "hac" "habitasse" "platea" "dictumst" "vestibulum"
+    "rhoncus" "est" "pellentesque" "elit" "ullamcorper" "dignissim" "cras" "tincidunt" "lobortis" "feugiat" "vivamus" "at" "augue" "eget"
+    "arcu" "dictum" "varius" "duis" "at" "consectetur" "lorem" "donec" "massa" "sapien," "faucibus" "et" "molestie" "ac," "feugiat" "sed"
+    "lectus" "vestibulum" "mattis" "ullamcorper" "velit" "sed" "ullamcorper" "morbi" "tincidunt" "ornare" "massa," "eget" "egestas" "purus"
+    "viverra" "accumsan" "in" "nisl" "nisi," "scelerisque" "eu" "ultrices" "vitae," "auctor" "eu" "augue" "ut" "lectus" "arcu," "bibendum"
+    "at" "varius" "vel," "pharetra" "vel" "turpis" "nunc" "eget" "lorem" "dolor," "sed" "viverra" "ipsum" "nunc" "aliquet" "bibendum" "enim,"
+    "facilisis" "gravida" "neque" "convallis" "a" "cras" "semper" "auctor" "neque," "vitae" "tempus" "quam" "pellentesque" "nec" "nam"
+    "aliquam" "sem" "et" "tortor" "consequat" "id" "porta" "nibh" "venenatis" "cras" "sed" "felis" "eget" "velit" "aliquet" "sagittis"
+    "id" "consectetur" "purus" "ut" "faucibus" "pulvinar" "elementum" "integer" "enim" "neque," "volutpat" "ac" "tincidunt" "vitae,"
+    "semper" "quis" "lectus" "nulla" "at" "volutpat" "diam" "ut" "venenatis" "tellus" "in" "metus" "vulputate" "eu" "scelerisque" "felis"
+    "imperdiet" "proin" "fermentum" "leo" "vel" "orci" "porta" "non" "pulvinar" "neque" "laoreet" "suspendisse" "interdum" "consectetur"
+    "libero," "id" "faucibus" "nisl" "tincidunt" "eget" "nullam" "non" "nisi" "est," "sit" "amet" "facilisis" "magna" "etiam" "tempor,"
+    "orci" "eu" "lobortis" "elementum," "nibh" "tellus" "molestie" "nunc," "non" "blandit" "massa" "enim" "nec" "dui" "nunc" "mattis"
+    "enim" "ut" "tellus" "elementum" "sagittis" "vitae" "et" "leo" "duis" "ut" "diam" "quam" "nulla" "porttitor" "massa" "id" "neque"
+    "aliquam" "vestibulum" "morbi" "blandit" "cursus" "risus," "at" "ultrices" "mi" "tempus" "imperdiet" "nulla" "malesuada" "pellentesque"
+    "elit" "eget" "gravida" "cum" "sociis" "natoque" "penatibus" "et" "magnis" "dis" "parturient" "montes," "nascetur" "ridiculus" "mus"
+    "mauris" "vitae" "ultricies" "leo" "integer" "malesuada" "nunc" "vel" "risus" "commodo" "viverra" "maecenas" "accumsan," "lacus" "vel"
+    "facilisis" "volutpat," "est" "velit" "egestas" "dui," "id" "ornare" "arcu" "odio" "ut" "sem" "nulla" "pharetra" "diam" "sit" "amet"
+    "nisl" "suscipit" "adipiscing" "bibendum" "est" "ultricies" "integer" "quis" "auctor" "elit" "sed" "vulputate" "mi" "sit" "amet" "mauris"
+    "commodo" "quis" "imperdiet" "massa" "tincidunt" "nunc" "pulvinar" "sapien" "et" "ligula" "ullamcorper" "malesuada" "proin" "libero"
+    "nunc," "consequat" "interdum" "varius" "sit" "amet," "mattis" "vulputate" "enim" "nulla" "aliquet" "porttitor" "lacus," "luctus"
+    "accumsan" "tortor" "posuere" "ac" "ut" "consequat" "semper" "viverra" "nam" "libero" "justo," "laoreet" "sit" "amet" "cursus" "sit"
+    "amet," "dictum" "sit" "amet" "justo" "donec" "enim" "diam," "vulputate" "ut" "pharetra" "sit" "amet," "aliquam" "id" "diam" "maecenas"
+    "ultricies" "mi" "eget" "mauris" "pharetra" "et" "ultrices" "neque" "ornare" "aenean" "euismod" "elementum" "nisi," "quis" "eleifend"
+    "quam" "adipiscing" "vitae" "proin" "sagittis," "nisl" "rhoncus" "mattis" "rhoncus," "urna" "neque" "viverra" "justo," "nec" "ultrices"
+    "dui" "sapien" "eget" "mi" "proin" "sed" "libero" "enim," "sed" "faucibus" "turpis" "in" "eu" "mi" "bibendum" "neque" "egestas" "congue"
+    "quisque" "egestas" "diam" "in" "arcu" "cursus" "euismod" "quis" "viverra" "nibh" "cras" "pulvinar" "mattis" "nunc," "sed" "blandit"
+    "libero" "volutpat" "sed" "cras" "ornare" "arcu" "dui" "vivamus" "arcu" "felis," "bibendum" "ut" "tristique" "et," "egestas" "quis"
+    "ipsum" "suspendisse" "ultrices" "gravida" "dictum" "fusce" "ut" "placerat" "orci" "nulla" "pellentesque" "dignissim" "enim," "sit"
+    "amet" "venenatis" "urna" "cursus" "eget" "nunc" "scelerisque" "viverra" "mauris," "in" "aliquam" "sem" "fringilla" "ut" "morbi"
+    "tincidunt" "augue" "interdum" "velit" "euismod" "in" "pellentesque" "massa" "placerat" "duis" "ultricies" "lacus" "sed" "turpis"
+    "tincidunt" "id" "aliquet" "risus" "feugiat" "in" "ante" "metus," "dictum" "at" "tempor" "commodo," "ullamcorper" "a" "lacus" "vestibulum"
+    "sed" "arcu" "non" "odio" "euismod" "lacinia" "at" "quis" "risus" "sed" "vulputate" "odio" "ut" "enim" "blandit" "volutpat" "maecenas"
+    "volutpat" "blandit" "aliquam" "etiam" "erat" "velit," "scelerisque" "in" "dictum" "non," "consectetur" "a" "erat" "nam" "at" "lectus"
+    "urna" "duis" "convallis" "convallis" "tellus," "id" "interdum" "velit" "laoreet" "id" "donec" "ultrices" "tincidunt" "arcu," "non"
+    "sodales" "neque" "sodales" "ut" "etiam" "sit" "amet" "nisl" "purus," "in" "mollis" "nunc" "sed" "id" "semper" "risus" "in" "hendrerit"
+    "gravida" "rutrum" "quisque" "non" "tellus" "orci," "ac" "auctor" "augue" "mauris" "augue" "neque," "gravida" "in" "fermentum" "et,"
+    "sollicitudin" "ac" "orci" "phasellus" "egestas" "tellus" "rutrum" "tellus" "pellentesque" "eu" "tincidunt" "tortor" "aliquam" "nulla"
+    "facilisi" "cras" "fermentum," "odio" "eu" "feugiat" "pretium," "nibh" "ipsum" "consequat" "nisl," "vel" "pretium" "lectus" "quam" "id"
+    "leo" "in" "vitae" "turpis" "massa" "sed" "elementum" "tempus" "egestas" "sed" "sed" "risus" "pretium" "quam" "vulputate" "dignissim"
+    "suspendisse" "in" "est" "ante" "in" "nibh" "mauris," "cursus" "mattis" "molestie" "a," "iaculis" "at" "erat" "pellentesque" "adipiscing"
+    "commodo" "elit," "at" "imperdiet" "dui" "accumsan" "sit" "amet" "nulla" "facilisi" "morbi" "tempus" "iaculis" "urna," "id" "volutpat"
+    "lacus" "laoreet" "non" "curabitur" "gravida" "arcu" "ac" "tortor" "dignissim" "convallis" "aenean" "et" "tortor" "at" "risus" "viverra"
+    "adipiscing" "at" "in" "tellus" "integer" "feugiat" "scelerisque" "varius" "morbi" "enim" "nunc," "faucibus" "a" "pellentesque" "sit"
+    "amet," "porttitor" "eget" "dolor" "morbi" "non" "arcu" "risus," "quis" "varius" "quam" "quisque" "id" "diam" "vel" "quam" "elementum"
+    "pulvinar" "etiam" "non" "quam" "lacus" "suspendisse" "faucibus" "interdum" "posuere" "lorem" "ipsum" "dolor" "sit" "amet," "consectetur"
+    "adipiscing" "elit" "duis" "tristique" "sollicitudin" "nibh" "sit" "amet" "commodo" "nulla" "facilisi" "nullam" "vehicula" "ipsum" "a"
+    "arcu" "cursus" "vitae" "congue" "mauris" "rhoncus" "aenean" "vel" "elit" "scelerisque" "mauris" "pellentesque" "pulvinar" "pellentesque"
+    "habitant" "morbi" "tristique" "senectus" "et" "netus" "et" "malesuada" "fames" "ac" "turpis" "egestas" "maecenas" "pharetra" "convallis"
+    "posuere" "morbi" "leo" "urna," "molestie" "at" "elementum" "eu," "facilisis" "sed" "odio" "morbi" "quis" "commodo" "odio" "aenean" "sed"
+    "adipiscing" "diam" "donec" "adipiscing" "tristique" "risus" "nec" "feugiat" "in" "fermentum" "posuere" "urna" "nec" "tincidunt" "praesent"
+    "semper" "feugiat" "nibh" "sed" "pulvinar" "proin" "gravida" "hendrerit" "lectus" "a" "molestie"))
+
+(defun emmet-random-range (min max)
+  (+ min (random (+ (- max min) 1))))
+
+(defun emmet-lorem-choice-words (count &optional s)
+  (let* ((l (length emmet-lorem-words))
+         (s (if s s (random l)))
+         (f (+ s count))
+         (e (if (< l f) l f)))
+    (append
+     (subseq emmet-lorem-words s e)
+     (if (= e l) (emmet-lorem-choice-words (- f l) 0)))))
+
+(defvar emmet-lorem-min-sentence 5)
+
+(defvar emmet-lorem-max-sentence 30)
+
+(defun emmet-upcase-first (s)
+  (concat (upcase (subseq s 0 1)) (subseq s 1)))
+
+(defun emmet-lorem-generate (count)
+  (if (<= count 0) ""
+    (let ((sl (if (< count emmet-lorem-max-sentence) count
+                (emmet-random-range
+                 emmet-lorem-min-sentence
+                 (min (- count emmet-lorem-min-sentence)
+                      emmet-lorem-max-sentence))))
+          (last (let ((r (random 4)))
+                  (if (< 1 r) "." (if (< 0 r) "?" "!")))))
+      (let ((words (let ((w (emmet-lorem-choice-words sl)))
+                     (let ((l (car (last w))))
+                       (if (string-equal (substring l -1) ",")
+                           (append (subseq w 0 -1) (list (substring l 0 -1)))
+                         w)))))
+        (concat (emmet-upcase-first (emmet-join-string words " ")) last
+                (let ((next (emmet-lorem-generate (- count sl))))
+                  (if (string-equal next "") ""
+                    (concat " " next))))))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;; CSS abbrev:

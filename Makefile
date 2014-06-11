@@ -10,6 +10,7 @@ emmet-mode.el: src/snippets.el src/preferences.el src/*
 	cat src/snippets.el >> $(DST)
 	cat src/preferences.el >> $(DST)
 	cat src/html-abbrev.el >> $(DST)
+	cat src/lorem.el >> $(DST)
 	cat src/css-abbrev.el >> $(DST)
 	cat src/mode-def.el >> $(DST)
 

@@ -526,5 +526,16 @@
                            ("@import url(http://github.com/smihica/index.css);")
   )
 
+;; lorem generator test
+(let ((name "Lorem-generator"))
+  (princ
+   (if (or (not (string-equal (emmet-lorem-generate 0) ""))
+           (not (= (length (split-string (emmet-lorem-generate 1) " ")) 1))
+           (not (= (length (split-string (emmet-lorem-generate 22) " ")) 22))
+           (not (= (length (split-string (emmet-lorem-generate 99) " ")) 99))
+           (not (= (length (split-string (emmet-lorem-generate 1000) " ")) 1000)))
+       (concat "*** [FAIL] | \"" name "\".\n")
+     (concat "    [PASS] | \"" name "\" 5 tests.\n"))))
+
 ;; start
 (emmet-test-cases)
