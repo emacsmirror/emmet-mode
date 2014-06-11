@@ -161,7 +161,9 @@
                        (let ((expr (car it)) (input (cdr it)))
                          (destructuring-bind (expr . input)
                              (emmet-tag-text expr input)
-                           (emmet-expand-tag-alias expr input)))))))
+                           (or
+                            (emmet-expand-lorem expr input)
+                            (emmet-expand-tag-alias expr input))))))))
    (emmet-default-tag input)))
 
 (defun emmet-get-first-tag (expr)
@@ -172,6 +174,21 @@
             expr
           (emmet-get-first-tag (cdr expr))))
     nil))
+
+(defun emmet-lorem (input)
+  (emmet-aif
+   (and (stringp input) (emmet-regex "\\(?:lorem\\|ipsum\\)\\([0-9]*\\)" input '(0 1)))
+   (let ((w (elt it 1)))
+     (let ((word-num (if (string-equal w "") 30 (read w))))
+       word-num))))
+
+(defun emmet-expand-lorem (tag input)
+  (let ((tag-data (cadr tag)))
+    (let ((tag-name (car tag-data)))
+      (emmet-aif (emmet-lorem tag-name)
+                 (if (equalp (cdr tag-data) '(t nil nil nil nil))
+                     `((text (lorem ,it)) . ,input)
+                   `((tag ("div" ,@(subseq tag-data 1 -1) (lorem ,it))) . ,input))))))
 
 (defun emmet-expand-tag-alias (tag input)
   (let ((tag-data (cadr tag)))
@@ -410,11 +427,22 @@
     "hic"  (emmet-primary-filter emmet-make-hiccup-tag)
     "e"    (emmet-escape-xml)))
 
+(defun emmet-instantiate-lorem-expression (input)
+  (if input
+      (if (consp input)
+          (if (and (eql (car input) 'lorem) (numberp (cadr input)))
+              (emmet-lorem-generate (cadr input))
+            (cons (emmet-instantiate-lorem-expression (car input))
+                  (emmet-instantiate-lorem-expression (cdr input))))
+        input)))
+
 (defun emmet-primary-filter (input proc)
   "Process filter that needs to be executed first, ie. not given output from other filter."
   (if (listp input)
       (let ((tag-maker (cadr proc)))
-        (emmet-transform-ast input tag-maker))
+        (emmet-transform-ast
+         (emmet-instantiate-lorem-expression input)
+         tag-maker))
     nil))
 
 (defun emmet-process-filter (filters input)

@@ -114,3 +114,4 @@
                 (let ((next (emmet-lorem-generate (- count sl))))
                   (if (string-equal next "") ""
                     (concat " " next))))))))
+

@@ -52,6 +52,12 @@
      'emmet-html-transform
      ,@tests))
 
+(defmacro define-emmet-unit-test-case (name fn &rest tests)
+  `(emmet-test-cases 'assign ',name
+                         ,fn
+                         ',(loop for x on tests by #'cddr collect
+                                 (cons (car x) (cadr x)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; XML-abbrev tests
 
@@ -344,6 +350,44 @@
   "xxx#id.cls p=1{txt}"
   ("<xxx id=\"id\" class=\"cls\" p=\"1\">txt</xxx>"))
 
+(define-emmet-unit-test-case Lorem-ipsum
+  #'emmet-expr
+  "lorem"
+  ((filter ("html") (text (lorem 30))) . "")
+
+  "ipsum"
+  ((filter ("html") (text (lorem 30))) . "")
+
+  "p*3>lorem10"
+  ((filter
+    ("html")
+    (list ((parent-child (tag ("p" t nil nil nil nil)) (text (lorem 10)))
+           (parent-child (tag ("p" t nil nil nil nil)) (text (lorem 10)))
+           (parent-child (tag ("p" t nil nil nil nil)) (text (lorem 10)))))) . "")
+
+  "ul.generic-list>ipsum3*3"
+  ((filter
+    ("html")
+    (parent-child
+     (tag ("ul" t nil ("generic-list") nil nil))
+     (list ((text (lorem 3))
+            (text (lorem 3))
+            (text (lorem 3)))))) . "")
+
+  "ul.generic-list>(li>lorem1000)*3"
+  ((filter
+    ("html")
+    (parent-child
+     (tag ("ul" t nil ("generic-list") nil nil))
+     (list ((parent-child
+             (tag ("li" t nil nil nil nil))
+             (text (lorem 1000)))
+            (parent-child
+             (tag ("li" t nil nil nil nil))
+             (text (lorem 1000)))
+            (parent-child
+             (tag ("li" t nil nil nil nil))
+             (text (lorem 1000))))))) . ""))
 
 (define-emmet-transform-html-test-case Filter-comment
   "a.b|c"                  ("<!-- .b -->"
@@ -395,12 +439,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; CSS-abbrev tests
-
-(defmacro define-emmet-unit-test-case (name fn &rest tests)
-  `(emmet-test-cases 'assign ',name
-                         ,fn
-                         ',(loop for x on tests by #'cddr collect
-                                 (cons (car x) (cadr x)))))
 
 (define-emmet-unit-test-case CSS-toknize
   #'emmet-css-toknize
