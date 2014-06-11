@@ -338,6 +338,35 @@ you'll transform your snippet into the appropriate tag structure.
                              <span>here</span>
                               to continue
 
+#### "Lorem Ipsum" generator
+
+    lorem                    Diam, vulputate ut pharetra sit amet, aliquam id! Egestas sed tempus, urna et pharetra pharetra, massa massa ultricies mi, quis hendrerit dolor magna eget est lorem ipsum dolor sit amet!
+    lorem5                   Hendrerit gravida rutrum quisque non?
+    ipsum3                   Viverra ipsum nunc.
+
+    p*3>lorem3               <p>Pellentesque elit eget?</p>
+                             <p>Sed odio morbi?</p>
+                             <p>Eget arcu dictum!</p>
+
+    ul.list>ipsum3*3         <ul class=\"list\">
+                                 Nam libero justo.
+                                 Pellentesque habitant morbi?
+                                 Enim blandit volutpat.
+                             </ul>
+
+    ul.list>ipsum3.itm*3     <ul class=\"list\">
+                                 <div class=\"itm\">Urna condimentum mattis.</div> <!-- emmet-mode doesn't support implicit tag name resolver -->
+                                 <div class=\"itm\">Sed turpis tincidunt.</div>
+                                 <div class=\"itm\">Faucibus turpis in?</div>
+                             </ul>
+
+    ul.list>(li.itm>lorem3)*3
+                             <ul class=\"list\">
+                                 <li class=\"itm\">Est pellentesque elit.</li>
+                                 <li class=\"itm\">In nulla posuere.</li>
+                                 <li class=\"itm\">Felis eget nunc.</li>
+                             </ul>
+
 #### Filter: HTML with comments
 
     a.b|c                    <!-- .b -->
