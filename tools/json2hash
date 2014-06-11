@@ -14,6 +14,8 @@ if python2:
 if python3:
     from io import StringIO
 
+
+
 class ApplicationException(Exception):
     pass
 
@@ -31,7 +33,7 @@ class Processor(object):
         _type = type(data)
         if _type is dict:
             self.out.write('(let ((tbl (make-hash-table :test \'equal)))\n')
-            for k, v in data.items():
+            for k, v in sorted(data.items(), key=lambda x: x[0]):
                 self.out.write('(puthash ')
                 self.out.write(pystr2elstrexp(k))
                 self.out.write(' ')
