@@ -21,11 +21,15 @@
   :group 'emmet)
 
 (defun emmet-prettify (markup indent)
-  (let ((first-col (format (format "%%%ds" indent) ""))
-        (tab       (format (format "%%%ds" emmet-indentation) "")))
-    (concat first-col
-            (replace-regexp-in-string "\n" (concat "\n" first-col)
-                                      (replace-regexp-in-string "    " tab markup)))))
+  (destructuring-bind (first-col tab)
+      (if indent-tabs-mode
+          (list (apply #'concat (loop for i from 1 to (/ indent tab-width) collect "\t")) "\t")
+        (list (format (format "%%%ds" indent) "")
+              (format (format "%%%ds" emmet-indentation) "")))
+    (let ((internal-indent-1 "    "))
+      (concat first-col
+              (replace-regexp-in-string "\n" (concat "\n" first-col)
+                                        (replace-regexp-in-string internal-indent-1 tab markup))))))
 
 (defvar emmet-use-css-transform nil
   "When true, transform Emmet snippets into CSS, instead of the usual HTML.")

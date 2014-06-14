@@ -5,39 +5,38 @@
 
 (emmet-defparameter *emmet-test-cases* nil)
 
+(defun emmet-run-test-case (name fn cases)
+  (let ((res (loop for c in cases
+                    for i to (1- (length cases)) do
+                    (let ((expected (cdr c))
+                          (actual (funcall fn (car c))))
+                      (when (not (equal expected actual))
+                        (princ
+                         (concat "*** [FAIL] | \"" name "\" " (number-to-string i) "\n\n"
+                                 (format "%s" (car c)) "\t=>\n\n"
+                                 "Expected\n" (format "%s" expected) "\n\nActual\n" (format "%s" actual) "\n\n"))
+                        (return 'fail))))))
+    (if (not (eql res 'fail))
+        (princ (concat "    [PASS] | \"" name "\" "
+                       (number-to-string (length cases)) " tests.\n")))))
+
 (defun emmet-test-cases (&rest args)
   (let ((cmd (car args)))
-    (flet
-        ((run-cases
-          (fn cases)
-          (loop for c in cases
-                for i to (1- (length cases)) do
-                (let ((expected (cdr c))
-                      (actual (funcall fn (car c))))
-                  (when (not (equal expected actual))
-                    (princ
-                     (concat "*** [FAIL] | \"" name "\" " (number-to-string i) "\n\n"
-                             (format "%s" (car c)) "\t=>\n\n"
-                             "Expected\n" (format "%s" expected) "\n\nActual\n" (format "%s" actual) "\n\n"))
-                    (return 'fail))))))
-      (cond ((eql cmd 'assign)
-             (let ((name (cadr args))
-                   (fn   (caddr args))
-                   (defs (cadddr args)))
-               (let ((place (assoc name *emmet-test-cases*)))
-                 (if place
-                     (setf (cdr place) (cons fn defs))
-                   (setq *emmet-test-cases*
-                         (cons (cons name (cons fn defs)) *emmet-test-cases*))))))
-            (t
-             (loop for test in (reverse *emmet-test-cases*) do
-                   (let ((name  (symbol-name (car test)))
-                         (fn    (cadr test))
-                         (cases (cddr test)))
-                     (let ((res (run-cases fn cases)))
-                       (if (not (eql res 'fail))
-                           (princ (concat "    [PASS] | \"" name "\" "
-                                          (number-to-string (length cases)) " tests.\n")))))))))))
+    (cond ((eql cmd 'assign)
+           (let ((name (cadr args))
+                 (fn   (caddr args))
+                 (defs (cadddr args)))
+             (let ((place (assoc name *emmet-test-cases*)))
+               (if place
+                   (setf (cdr place) (cons fn defs))
+                 (setq *emmet-test-cases*
+                       (cons (cons name (cons fn defs)) *emmet-test-cases*))))))
+          (t
+           (loop for test in (reverse *emmet-test-cases*) do
+                 (let ((name  (symbol-name (car test)))
+                       (fn    (cadr test))
+                       (cases (cddr test)))
+                   (emmet-run-test-case name fn cases)))))))
 
 (defmacro define-emmet-transform-test-case (name fn &rest tests)
   `(emmet-test-cases 'assign ',name
@@ -574,6 +573,36 @@
            (not (= (length (split-string (emmet-lorem-generate 1000) " ")) 1000)))
        (concat "*** [FAIL] | \"" name "\".\n")
      (concat "    [PASS] | \"" name "\" 5 tests.\n"))))
+
+
+(defun emmet-prettify-test (lis)
+  (emmet-prettify (car lis) (cadr lis)))
+
+;; indent
+(setq-default indent-tabs-mode nil)
+(emmet-run-test-case "Indent-1"
+  #'emmet-prettify-test
+  '((("<html>" 0) . "<html>")
+    (("<html>" 1) . " <html>")
+    (("<html>" 4) . "    <html>")
+    (("<html>" 8) . "        <html>")
+    (("<html>\n    <body></body>\n</html>" 1) . " <html>\n     <body></body>\n </html>")))
+(setq-default emmet-indentation 8)
+(emmet-run-test-case "Indent-2"
+  #'emmet-prettify-test
+  '((("<html>\n    <body></body>\n</html>" 0) . "<html>\n        <body></body>\n</html>")
+    (("<html>\n    <body></body>\n</html>" 4) . "    <html>\n            <body></body>\n    </html>")))
+(setq-default indent-tabs-mode t)
+(setq-default tab-width 2)
+(emmet-run-test-case "Indent-3"
+  #'emmet-prettify-test
+  '((("<html>\n    <body></body>\n</html>" 0) . "<html>\n\t<body></body>\n</html>")
+    (("<html>\n    <body></body>\n</html>" 4) . "\t\t<html>\n\t\t\t<body></body>\n\t\t</html>")))
+(setq-default tab-width 1)
+(emmet-run-test-case "Indent-4"
+  #'emmet-prettify-test
+  '((("<html>\n    <body></body>\n</html>" 0) . "<html>\n\t<body></body>\n</html>")
+    (("<html>\n    <body></body>\n</html>" 4) . "\t\t\t\t<html>\n\t\t\t\t\t<body></body>\n\t\t\t\t</html>")))
 
 ;; start
 (emmet-test-cases)
