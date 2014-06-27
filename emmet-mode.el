@@ -3470,10 +3470,21 @@ tbl))
    for the current line."
   (let* ((start (line-beginning-position))
          (end (line-end-position))
-         (line (buffer-substring-no-properties start end))
-         (expr (emmet-regex "\\([ \t]*\\)\\([^\n]+\\)" line 2)))
-    (if (first expr)
-        (list (first expr) start end))))
+         (line (buffer-substring-no-properties start end)))
+    (save-excursion
+      (save-match-data
+        (let ((bound (point)))
+          (goto-char start)
+          (if (re-search-forward "\\(\\([ \t]+\\)?<[^>]*?>\\)+" bound t)
+              (progn
+                (setq start (match-end 0))
+                (setq end bound)
+                (setq line (buffer-substring-no-properties start end))
+                )
+            ))))
+    (let ((expr (emmet-regex "\\([ \t]*\\)\\([^\n]+\\)" line 2)))
+      (if (first expr)
+          (list (first expr) start end)))))
 
 (defcustom emmet-indentation 4
   "Number of spaces used for indentation."
