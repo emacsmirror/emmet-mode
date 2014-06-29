@@ -5,6 +5,14 @@
   "Customization group for emmet-mode."
   :group 'convenience)
 
+(defun emmet-check-for-markup (bound)
+  (save-excursion
+    (save-match-data
+      (goto-char (line-beginning-position))
+      (if (re-search-forward "\\(\\([ \t]+\\)?<[^>]*?>\\)+" bound t)
+          t
+        nil))))
+
 (defun emmet-expr-on-line ()
   "Extract a emmet expression and the corresponding bounds
    for the current line."
@@ -91,7 +99,9 @@ For more information see `emmet-mode'."
         (if expr
             (let ((markup (emmet-transform (first expr))))
               (when markup
-                (let ((pretty (emmet-prettify markup (current-indentation))))
+                (let ((pretty (if (emmet-check-for-markup here)
+                                  markup
+                                (emmet-prettify markup (current-indentation)))))
                   (when pretty
                     (delete-region (second expr) (third expr))
                     (emmet-insert-and-flash pretty)
