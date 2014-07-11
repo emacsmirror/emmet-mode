@@ -5,14 +5,6 @@
   "Customization group for emmet-mode."
   :group 'convenience)
 
-(defun emmet-check-for-markup (bound)
-  (save-excursion
-    (save-match-data
-      (goto-char (line-beginning-position))
-      (if (re-search-forward "\\(\\([ \t]+\\)?<[^>]*?>\\)+" bound t)
-          t
-        nil))))
-
 (defun emmet-expr-on-line ()
   "Extract a emmet expression and the corresponding bounds
    for the current line."
@@ -39,16 +31,10 @@
   :type '(number :tag "Spaces")
   :group 'emmet)
 
-(defun emmet-prettify (markup indent)
-  (destructuring-bind (first-col tab)
-      (if indent-tabs-mode
-          (list (apply #'concat (loop for i from 1 to (/ indent tab-width) collect "\t")) "\t")
-        (list (format (format "%%%ds" indent) "")
-              (format (format "%%%ds" emmet-indentation) "")))
-    (let ((internal-indent-1 "    "))
-      (concat first-col
-              (replace-regexp-in-string "\n" (concat "\n" first-col)
-                                        (replace-regexp-in-string internal-indent-1 tab markup))))))
+(defcustom emmet-indent-after-insert t
+  "Indent region after insert?"
+  :type 'boolean
+  :group 'emmet)
 
 (defvar emmet-use-css-transform nil
   "When true, transform Emmet snippets into CSS, instead of the usual HTML.")
@@ -99,17 +85,14 @@ For more information see `emmet-mode'."
         (if expr
             (let ((markup (emmet-transform (first expr))))
               (when markup
-                (let ((pretty (if (emmet-check-for-markup here)
-                                  markup
-                                (emmet-prettify markup (current-indentation)))))
-                  (when pretty
-                    (delete-region (second expr) (third expr))
-                    (emmet-insert-and-flash pretty)
-                    (when (and emmet-move-cursor-after-expanding (emmet-html-text-p markup))
-                      (let ((p (point)))
-                        (goto-char
-                         (+ (- p (length pretty))
-                            (emmet-html-next-insert-point pretty))))))))))))))
+                (delete-region (second expr) (third expr))
+                (emmet-insert-and-flash markup)
+                (let ((output-markup (buffer-substring-no-properties (second expr) (point))))
+                  (when (and emmet-move-cursor-after-expanding (emmet-html-text-p markup))
+                    (let ((p (point)))
+                      (goto-char
+                       (+ (- p (length output-markup))
+                        (emmet-html-next-insert-point output-markup)))))))))))))
 
 (defvar emmet-mode-keymap nil
   "Keymap for emmet minor mode.")
@@ -220,11 +203,12 @@ See also `emmet-expand-line'."
         (when markup
           (delete-region (line-beginning-position) (overlay-end ovli))
           (emmet-insert-and-flash markup)
-          (when (and emmet-move-cursor-after-expanding (emmet-html-text-p markup))
-            (let ((p (point)))
-              (goto-char
-               (+ (- p (length markup))
-                  (emmet-html-next-insert-point markup)))))))))
+          (let ((output-markup (buffer-substring-no-properties (line-beginning-position) (point))))
+            (when (and emmet-move-cursor-after-expanding (emmet-html-text-p markup))
+              (let ((p (point)))
+                (goto-char
+                 (+ (- p (length output-markup))
+                    (emmet-html-next-insert-point output-markup))))))))))
   (emmet-preview-abort))
 
 (defun emmet-html-next-insert-point (str)
@@ -297,6 +281,8 @@ cursor position will be moved to after the first quote."
   (emmet-remove-flash-ovl (current-buffer))
   (let ((here (point)))
     (insert markup)
+    (if emmet-indent-after-insert
+        (indent-region here (point)))
     (setq emmet-flash-ovl (make-overlay here (point)))
     (overlay-put emmet-flash-ovl 'face 'emmet-preview-output)
     (when (< 0 emmet-insert-flash-time)
@@ -379,7 +365,7 @@ accept it or skip it."
 		  (overlay-end emmet-preview-input))))
     (let ((output (emmet-transform string)))
       (when output
-        (emmet-prettify output indent)))))
+        output))))
 
 (defun emmet-update-preview (indent)
   (let* ((pretty (emmet-preview-transformed indent))
