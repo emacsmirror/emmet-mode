@@ -1,12 +1,13 @@
 - /emmet-mode.el
 
-    Copyright (C) 2013-     Shin Aoyama
+    Copyright (C) 2014-     William David Mayo (@pbocks  https://github.com/pobocks)
+    Copyright (C) 2013-     Shin Aoyama        (@smihica https://github.com/smihica)
     Copyright (C) 2009-2012 Chris Done
 
     Version: 1.X.X
     Author: Shin Aoyama <smihica@gmail.com>
     URL: https://github.com/smihica/emmet
-    Last-Updated: 2013-06-23 Sun
+    Last-Updated: 2014-07-14 Mon
     Keywords: convenience
 
     This file is free software; you can redistribute it and/or modify
