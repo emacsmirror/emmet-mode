@@ -685,9 +685,10 @@
             (sib2 (emmet-transform-ast (caddr ast) tag-maker)))
         (concat sib1 "\n" sib2))))))
 
+;; Indents text rigidly by inserting spaces
+;; Only matters if emmet-indent-after-insert is set to nil
 (defun emmet-indent (text)
   "Indent the text"
   (if text
-      (replace-regexp-in-string "\n" "\n    " (concat "\n" text))
+      (replace-regexp-in-string "\n" (concat "\n" (make-string emmet-indentation ?\ )) (concat "\n" text))
     nil))
-

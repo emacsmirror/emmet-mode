@@ -575,34 +575,14 @@
      (concat "    [PASS] | \"" name "\" 5 tests.\n"))))
 
 
-(defun emmet-prettify-test (lis)
-  (emmet-prettify (car lis) (cadr lis)))
-
 ;; indent
-(setq-default indent-tabs-mode nil)
-(emmet-run-test-case "Indent-1"
-  #'emmet-prettify-test
-  '((("<html>" 0) . "<html>")
-    (("<html>" 1) . " <html>")
-    (("<html>" 4) . "    <html>")
-    (("<html>" 8) . "        <html>")
-    (("<html>\n    <body></body>\n</html>" 1) . " <html>\n     <body></body>\n </html>")))
-(setq-default emmet-indentation 8)
-(emmet-run-test-case "Indent-2"
-  #'emmet-prettify-test
-  '((("<html>\n    <body></body>\n</html>" 0) . "<html>\n        <body></body>\n</html>")
-    (("<html>\n    <body></body>\n</html>" 4) . "    <html>\n            <body></body>\n    </html>")))
-(setq-default indent-tabs-mode t)
-(setq-default tab-width 2)
-(emmet-run-test-case "Indent-3"
-  #'emmet-prettify-test
-  '((("<html>\n    <body></body>\n</html>" 0) . "<html>\n\t<body></body>\n</html>")
-    (("<html>\n    <body></body>\n</html>" 4) . "\t\t<html>\n\t\t\t<body></body>\n\t\t</html>")))
-(setq-default tab-width 1)
-(emmet-run-test-case "Indent-4"
-  #'emmet-prettify-test
-  '((("<html>\n    <body></body>\n</html>" 0) . "<html>\n\t<body></body>\n</html>")
-    (("<html>\n    <body></body>\n</html>" 4) . "\t\t\t\t<html>\n\t\t\t\t\t<body></body>\n\t\t\t\t</html>")))
+;; NOTE: Indent now uses indent-region by default,
+;;   and inserts spaces based on emmet-indentation
+;;   if emmet-indent-after-insert is nil
+;; This needs tests, but they aren't written yet. :-(
+
+;; Old tests for previous indent behavior last seen:
+;;   commit: f56174e5905a40583b47f9737abee3af8da3faeb
 
 ;; start
 (emmet-test-cases)

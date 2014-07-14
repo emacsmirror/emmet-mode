@@ -1,5 +1,5 @@
 
-__This is a fork of [zencoding-mode](https://github.com/rooney/zencoding) to support [Emmet](http://emmet.io/)'s feature.__
+__This is a fork of [zencoding-mode](https://github.com/rooney/zencoding) to support [Emmet](http://emmet.io/)'s feature set.__
 
 ## About zencoding-mode
 
@@ -15,24 +15,22 @@ Zen Coding has been renamed to [Emmet](http://emmet.io/) and includes an expande
 
 ## Installation
 
-### 1. From marmalade
+### 1. From marmalade or MELPA
 
-If your emacs has been installed marmalade then type `M-x package-list-packages` search `emmet-mode X.X.X` and install it.
+If your Emacs has the [marmalade](http://marmalade-repo.org/) or [MELPA](http://melpa.milkbox.net/) package repositories installed, just type `M-x package-list-packages`, search for `emmet-mode`, and install it.
 
-### 1. Manual instalation
+### 1. Manual Installation
 
 Just make sure emmet-mode.el is in your `load-path`.
 
 ### 2. Settings to use.
 
-Open your .emacs or init.el and if you extracted emmet-mode to a directory
-(if you installed from marmalade then this setting is needless)
+If you manually installed emmet-mode to `~/emacs.d/emmet-mode/`, add the following lines to your init.el or .emacs:
 
     (add-to-list 'load-path "~/emacs.d/emmet-mode")
-
-And then just require as normal:
-
     (require 'emmet-mode)
+
+If you installed from marmalade/MELPA then these you shouldn't need to do this.
 
 Enable it by running `M-x emmet-mode`.
 
@@ -43,7 +41,11 @@ You probably want to add it to auto-load on your sgml modes:
     (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
     (add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
 
-You can set default indent depth of HTML abbreviation:
+By default, inserted markup will be indented with indent-region, according to the buffer's mode.  To disable this, do:
+
+    (add-hook 'emmet-mode-hook (lambda () (setq emmet-indent-after-insert nil)))
+
+If you disable indent-region, you can set the default indent level thusly:
 
     (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2))) ;; indent 2 spaces.
 
