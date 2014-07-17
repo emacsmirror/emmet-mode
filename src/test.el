@@ -574,6 +574,22 @@
        (concat "*** [FAIL] | \"" name "\".\n")
      (concat "    [PASS] | \"" name "\" 5 tests.\n"))))
 
+;; Inline tag expansion within HTML/XML markup (regression test)
+(defun emmet-inline-expansion-test (lis)
+  "Tests inline expansion of emmet forms nested inside markup."
+  (let ((es (car lis))
+        (emmet-preview-default nil))
+    (with-temp-buffer
+      (emmet-mode 1)
+      (insert "<div></div>")
+      (backward-char 6)
+      (insert es)
+      (emmet-expand-line nil)
+      (buffer-string))))
+
+(emmet-run-test-case "Inline Expansion"
+  #'emmet-inline-expansion-test
+  '((("span#test") . "<div><span id=\"test\"></span></div>")))
 
 ;; indent
 ;; NOTE: Indent now uses indent-region by default,
