@@ -578,7 +578,8 @@
 (defun emmet-inline-expansion-test (lis)
   "Tests inline expansion of emmet forms nested inside markup."
   (let ((es (car lis))
-        (emmet-preview-default nil))
+        (emmet-preview-default nil)
+        (emmet-indent-after-insert t))
     (with-temp-buffer
       (emmet-mode 1)
       (insert "<div></div>")
@@ -592,10 +593,32 @@
   '((("span#test") . "<div><span id=\"test\"></span></div>")))
 
 ;; indent
-;; NOTE: Indent now uses indent-region by default,
+;; NOTE: Indent uses indent-region by default,
 ;;   and inserts spaces based on emmet-indentation
 ;;   if emmet-indent-after-insert is nil
-;; This needs tests, but they aren't written yet. :-(
+(defun emmet-indent-test (lis)
+  (let ((es (car lis))
+        (emmet-preview-default nil)
+        (indent-tabs-mode nil)
+        (tab-width 2)
+        (standard-indent 2))
+    (with-temp-buffer
+      (emmet-mode 1)
+      (sgml-mode)
+      (insert es)
+      (emmet-expand-line nil)
+      (buffer-string))))
+
+(let ((emmet-indent-after-insert t))
+  (emmet-run-test-case "Indentation via indent-region"
+    #'emmet-indent-test
+    '((("div>ul>li*3") . "<div>\n  <ul>\n    <li></li>\n    <li></li>\n    <li></li>\n  </ul>\n</div>"))))
+
+(let ((emmet-indent-after-insert nil)
+      (emmet-indentation 2))
+  (emmet-run-test-case "Indentation via emmet-indentation"
+    #'emmet-indent-test
+    '((("div>ul>li*3") . "<div>\n  <ul>\n    <li></li>\n    <li></li>\n    <li></li>\n  </ul>\n</div>"))))
 
 ;; Old tests for previous indent behavior last seen:
 ;;   commit: f56174e5905a40583b47f9737abee3af8da3faeb
