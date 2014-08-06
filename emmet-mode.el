@@ -3535,13 +3535,13 @@ For more information see `emmet-mode'."
                     (beginning-of-line)
                     (skip-chars-forward " \t")
                     (point))
-                (when mark-active (region-beginning))))
+                (when (use-region-p) (region-beginning))))
          (end (if preview
                   (progn
                     (end-of-line)
                     (skip-chars-backward " \t")
                     (point))
-                (when mark-active (region-end)))))
+                (when (use-region-p) (region-end)))))
     (if (and preview beg)
         (progn
           (goto-char here)
@@ -3759,7 +3759,7 @@ cursor position will be moved to after the first quote."
   "Expand emmet between BEG and END interactively.
 This will show a preview of the expanded emmet code and you can
 accept it or skip it."
-  (interactive (if mark-active
+  (interactive (if (use-region-p)
                    (list (region-beginning) (region-end))
                  (list nil nil)))
   (emmet-preview-abort)
