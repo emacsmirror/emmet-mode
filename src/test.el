@@ -129,7 +129,9 @@
   "a#q.x>b"                ("<a id=\"q\" class=\"x\" href=\"\"><b></b></a>")
   "a#q.x.y.z>b"            ("<a id=\"q\" class=\"x y z\" href=\"\"><b></b></a>")
   "a#q.x.y.z>b#p.l.m.n"    ("<a id=\"q\" class=\"x y z\" href=\"\"><b id=\"p\" class=\"l m n\"></b></a>")
-  "#q>.x"                  ("<div id=\"q\"><div class=\"x\"></div></div>")
+  "#q>.x"                  ("<div id=\"q\">"
+                            "    <div class=\"x\"></div>"
+                            "</div>")
   "a>b+c"                  ("<a href=\"\">"
                             "    <b></b>"
                             "    <c></c>"
@@ -174,9 +176,7 @@
    "        <span></span>"
    "        <em></em>"
    "    </p>"
-   "    <blockquote>"
-   "        foo"
-   "    </blockquote>"
+   "    <blockquote>foo</blockquote>"
    "</div>"))
 
 (define-emmet-transform-html-test-case Multiplication
@@ -433,8 +433,7 @@
    "        [:b]]]"))
 
 (define-emmet-transform-html-test-case Filter-escape
-  "script src=&quot;|e"    ("&lt;script src=\"&amp;quot;\"&gt;"
-                            "&lt;/script&gt;"))
+  "script src=&quot;|e"    ("&lt;script src=\"&amp;quot;\"&gt;&lt;/script&gt;"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; CSS-abbrev tests
