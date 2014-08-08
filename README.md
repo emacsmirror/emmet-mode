@@ -93,7 +93,7 @@ you'll transform your snippet into the appropriate tag structure.
 
 #### Self-closing tags
 
-    input type=text          <input type="text" name="" value=""/>
+    input[type=text]         <input type="text" name="" value=""/>
     img                      <img src="" alt=""/>
     img>metadata/*2          <img src="" alt="">
                                  <metadata/>
@@ -137,7 +137,7 @@ you'll transform your snippet into the appropriate tag structure.
                              <ol>
                                  <li></li>
                              </ol>
-    ul#q.x.y m=l+            <ul id="q" class="x y" m="l">
+    ul#q.x.y[m=l]            <ul id="q" class="x y" m="l">
                                  <li></li>
                              </ul>
 
@@ -267,27 +267,27 @@ you'll transform your snippet into the appropriate tag structure.
 
 #### Properties
 
-    b x                      <b x=""></b>
-    b x=                     <b x=""></b>
-    b x=""                   <b x=""></b>
-    b x=y                    <b x="y"></b>
-    b x="y"                  <b x="y"></b>
-    b x="()"                 <b x="()"></b>
-    b x m                    <b x="" m=""></b>
-    b x= m=""                <b x="" m=""></b>
-    b x=y m=l                <b x="y" m="l"></b>
-    b/ x=y m=l               <b x="y" m="l"/>
-    b#foo x=y m=l            <b id="foo" x="y" m="l"></b>
-    b.foo x=y m=l            <b class="foo" x="y" m="l"></b>
-    b#foo.bar.mu x=y m=l     <b id="foo" class="bar mu" x="y" m="l"></b>
-    b/#foo.bar.mu x=y m=l    <b id="foo" class="bar mu" x="y" m="l"/>
-    b x=y+b                  <b x="y"></b>
+    b[x]                     <b x=""></b>
+    b[x=]                    <b x=""></b>
+    b[x=""]                  <b x=""></b>
+    b[x=y]                   <b x="y"></b>
+    b[x="y"]                 <b x="y"></b>
+    b[x="()"]                <b x="()"></b>
+    b[x m]                   <b x="" m=""></b>
+    b[x= m=""]               <b x="" m=""></b>
+    b[x=y m=l]               <b x="y" m="l"></b>
+    b/[x=y m=l]              <b x="y" m="l"/>
+    b#foo[x=y m=l]           <b id="foo" x="y" m="l"></b>
+    b.foo[x=y m=l]           <b class="foo" x="y" m="l"></b>
+    b#foo.bar.mu[x=y m=l]    <b id="foo" class="bar mu" x="y" m="l"></b>
+    b/#foo.bar.mu[x=y m=l]   <b id="foo" class="bar mu" x="y" m="l"/>
+    b[x=y]+b                 <b x="y"></b>
                              <b></b>
-    b x=y+b x=y              <b x="y"></b>
+    b[x=y]+b[x=y]            <b x="y"></b>
                              <b x="y"></b>
-    b x=y>b                  <b x="y"><b></b></b>
-    b x=y>b x=y              <b x="y"><b x="y"></b></b>
-    b x=y>b x=y+c x=y        <b x="y">
+    b[x=y]>b                 <b x="y"><b></b></b>
+    b[x=y]>b[x=y]            <b x="y"><b x="y"></b></b>
+    b[x=y]>b[x=y]+c[x=y]     <b x="y">
                                  <b x="y"></b>
                                  <c x="y"></c>
                              </b>
@@ -387,11 +387,11 @@ you'll transform your snippet into the appropriate tag structure.
 
     a|haml                   %a
     a#q.x.y.z|haml           %a#q.x.y.z
-    a#q.x x=y m=l|haml       %a#q.x{:x => "y", :m => "l"}
+    a#q.x[x=y m=l]|haml      %a#q.x{:x => "y", :m => "l"}
     div|haml                 %div
     div.footer|haml          .footer
     .footer|haml             .footer
-    p>{txt}+a href=#+br|haml %p
+    p>{txt}+a[href=#]+br|haml  %p
                                  txt
                                  %a{:href => "#"}
                                  %br
@@ -400,9 +400,9 @@ you'll transform your snippet into the appropriate tag structure.
 
     a|hic                    [:a]
     a#q.x.y.z|hic            [:a#q.x.y.z]
-    a#q.x x=y m=l|hic        [:a#q.x {:x "y", :m "l"}]
+    a#q.x[x=y m=l]|hic       [:a#q.x {:x "y", :m "l"}]
     .footer|hic              [:div.footer]
-    p>a href=#+br|hic        [:p
+    p>a[href=#]+br|hic       [:p
                                  [:a {:href "#"}]
                                  [:br]]
     #q>(a*2>b{x})+p>b|hic    [:div#q
@@ -413,7 +413,7 @@ you'll transform your snippet into the appropriate tag structure.
 
 #### Filter: escape
 
-    script src=&quot;|e      &lt;script src="&amp;quot;"&gt;
+    script[src=&quot;]|e     &lt;script src="&amp;quot;"&gt;
                              &lt;/script&gt;
 
 #### Aliases

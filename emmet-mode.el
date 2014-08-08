@@ -2538,7 +2538,7 @@ tbl))
                       `(tag (,tagname ,has-body? nil)) input))
       (let ((tag-data (cadar it)) (input (cdr it)))
         (emmet-pif (emmet-run
-                        emmet-props
+                        emmet-properties
                         (let ((props (cdr expr)))
                           `((tag ,(append tag-data (list props))) . ,input))
                         `((tag ,(append tag-data '(nil))) . ,input))
@@ -2617,7 +2617,7 @@ tbl))
 
 (defun emmet-tag-props (tag input)
   (let ((tag-data (cadr tag)))
-    (emmet-run emmet-props
+    (emmet-run emmet-properties
                    (let ((props (cdr expr)))
                      `((tag ,(append tag-data (list props))) . ,input))
                    `((tag ,(append tag-data '(nil))) . ,input))))
@@ -2631,7 +2631,7 @@ tbl))
 
 (defun emmet-prop (input)
   (emmet-parse
-   " " 1 "space"
+   " *" 1 "space"
    (emmet-run
     emmet-name
     (let ((name (cdr expr)))
@@ -2674,6 +2674,12 @@ tbl))
   (emmet-parse "{\\(.*?\\)}" 2 "inner text"
                    (let ((txt (emmet-split-numbering-expressions (elt it 1))))
                      `((text ,txt) . ,input))))
+
+(defun emmet-properties (input)
+  "A bracketed emmet property expression."
+  (emmet-parse "\\[\\(.*?\\)\\]" 2 "properties"
+                `(,(car (emmet-props (elt it 1))) . ,input)))
+
 
 (defun emmet-pexpr (input)
   "A zen coding expression with parentheses around it."
@@ -3473,23 +3479,24 @@ tbl))
 (defun emmet-expr-on-line ()
   "Extract a emmet expression and the corresponding bounds
    for the current line."
-  (let* ((start (line-beginning-position))
-         (end (line-end-position))
+  (let* ((end (point))
+         (start (emmet-find-left-bound))
          (line (buffer-substring-no-properties start end)))
-    (save-excursion
-      (save-match-data
-        (let ((bound (point)))
-          (goto-char start)
-          (if (re-search-forward "\\(\\([ \t]+\\)?<[^>]*?>\\)+" bound t)
-              (progn
-                (setq start (match-end 0))
-                (setq end bound)
-                (setq line (buffer-substring-no-properties start end))
-                )
-            ))))
     (let ((expr (emmet-regex "\\([ \t]*\\)\\([^\n]+\\)" line 2)))
       (if (first expr)
           (list (first expr) start end)))))
+
+(defun emmet-find-left-bound ()
+  "Find the left bound of an emmet expr"
+  (save-excursion (save-match-data
+    (let ((char (char-before)))
+      (while char
+        (cond ((member char '(?\} ?\] ?\))) (backward-sexp) (setq char (char-before)))
+              ((member char '(?\/ ?\<)) (search-forward ">") (setq char nil))
+              ((not (string-match-p "[[:space:]\"';\n]" (string char)))
+               (backward-word) (setq char (char-before)))
+              (t (setq char nil))))
+      (point)))))
 
 (defcustom emmet-indentation 4
   "Number of spaces used for indentation."
@@ -3531,16 +3538,10 @@ For more information see `emmet-mode'."
   (let* ((here (point))
          (preview (if emmet-preview-default (not arg) arg))
          (beg (if preview
-                  (progn
-                    (beginning-of-line)
-                    (skip-chars-forward " \t")
-                    (point))
+                  (emmet-find-left-bound)
                 (when (use-region-p) (region-beginning))))
          (end (if preview
-                  (progn
-                    (end-of-line)
-                    (skip-chars-backward " \t")
-                    (point))
+                  here
                 (when (use-region-p) (region-end)))))
     (if (and preview beg)
         (progn
@@ -3666,7 +3667,7 @@ See also `emmet-expand-line'."
       (let* ((indent (current-indentation))
              (markup (emmet-preview-transformed indent)))
         (when markup
-          (delete-region (line-beginning-position) (overlay-end ovli))
+          (delete-region (overlay-start ovli) (overlay-end ovli))
           (emmet-insert-and-flash markup)
           (let ((output-markup (buffer-substring-no-properties (line-beginning-position) (point))))
             (when (and emmet-move-cursor-after-expanding (emmet-html-text-p markup))

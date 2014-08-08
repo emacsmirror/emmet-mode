@@ -154,7 +154,7 @@
                       `(tag (,tagname ,has-body? nil)) input))
       (let ((tag-data (cadar it)) (input (cdr it)))
         (emmet-pif (emmet-run
-                        emmet-props
+                        emmet-properties
                         (let ((props (cdr expr)))
                           `((tag ,(append tag-data (list props))) . ,input))
                         `((tag ,(append tag-data '(nil))) . ,input))
@@ -233,7 +233,7 @@
 
 (defun emmet-tag-props (tag input)
   (let ((tag-data (cadr tag)))
-    (emmet-run emmet-props
+    (emmet-run emmet-properties
                    (let ((props (cdr expr)))
                      `((tag ,(append tag-data (list props))) . ,input))
                    `((tag ,(append tag-data '(nil))) . ,input))))
@@ -247,7 +247,7 @@
 
 (defun emmet-prop (input)
   (emmet-parse
-   " " 1 "space"
+   " *" 1 "space"
    (emmet-run
     emmet-name
     (let ((name (cdr expr)))
@@ -290,6 +290,12 @@
   (emmet-parse "{\\(.*?\\)}" 2 "inner text"
                    (let ((txt (emmet-split-numbering-expressions (elt it 1))))
                      `((text ,txt) . ,input))))
+
+(defun emmet-properties (input)
+  "A bracketed emmet property expression."
+  (emmet-parse "\\[\\(.*?\\)\\]" 2 "properties"
+                `(,(car (emmet-props (elt it 1))) . ,input)))
+
 
 (defun emmet-pexpr (input)
   "A zen coding expression with parentheses around it."
