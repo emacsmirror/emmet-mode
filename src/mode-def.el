@@ -77,7 +77,7 @@ For more information see `emmet-mode'."
                     (skip-chars-backward " \t")
                     (point))
                 (when mark-active (region-end)))))
-    (if beg
+    (if (and preview beg)
         (progn
           (goto-char here)
           (emmet-preview beg end))
