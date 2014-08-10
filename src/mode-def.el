@@ -20,11 +20,14 @@
   (save-excursion (save-match-data
     (let ((char (char-before)))
       (while char
-        (cond ((member char '(?\} ?\] ?\))) (backward-sexp) (setq char (char-before)))
-              ((member char '(?\/ ?\<)) (search-forward ">") (setq char nil))
-              ((not (string-match-p "[[:space:]\"';\n]" (string char)))
-               (backward-word) (setq char (char-before)))
-              (t (setq char nil))))
+        (cond ((member char '(?\} ?\] ?\)))
+               (backward-sexp) (setq char (char-before)))
+              ((member char '(?\<))
+               (search-forward ">") (setq char nil))
+              ((not (string-match-p "[[:space:]\n]" (string char)))
+               (backward-char) (setq char (char-before)))
+              (t
+               (setq char nil))))
       (point)))))
 
 (defcustom emmet-indentation 4
@@ -89,7 +92,7 @@ For more information see `emmet-mode'."
                        (+ (- p (length output-markup))
                         (emmet-html-next-insert-point output-markup)))))))))))))
 
-(defvar emmet-mode-keymap 
+(defvar emmet-mode-keymap
   (let
       ((map (make-sparse-keymap)))
     (define-key map (kbd "C-j") 'emmet-expand-line)
@@ -376,7 +379,7 @@ accept it or skip it."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun emmet-go-to-edit-point (count)
-  (let 
+  (let
       ((buf (buffer-string))
        (point (point))
        (edit-point "\\(\\(><\\)\\|\\(^[[:blank:]]+$\\)\\|\\(=\\(\"\\|'\\)\\{2\\}\\)\\)"))
@@ -394,8 +397,8 @@ accept it or skip it."
 		(backward-char))))
       (progn
 	(backward-char)
-	(let 
-	    ((search-result (re-search-backward edit-point nil t (- count)))) 
+	(let
+	    ((search-result (re-search-backward edit-point nil t (- count))))
 	  (if search-result
 	      (progn
 		(cond
