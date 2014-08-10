@@ -3880,6 +3880,7 @@ accept it or skip it."
   (unless (emmet-go-to-edit-point count)
     (error "Last edit point reached.")))
 
+;;;###autoload
 (defun emmet-prev-edit-point (count)
   (interactive "^p")
   (unless (emmet-go-to-edit-point (- count))
