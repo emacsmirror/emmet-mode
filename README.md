@@ -13,6 +13,10 @@ Zen Coding has been renamed to [Emmet](http://emmet.io/) and includes an expande
 - [HTML abbreviations](https://github.com/smihica/emmet#html-abbreviations)
 - [CSS abbreviations](https://github.com/smihica/emmet#css-abbreviations)
 
+## Emmet Actions
+
+- [Go to Edit Point](https://github.com/smihica/emmet#go-to-edit-point)
+
 ## Installation
 
 ### 1. From marmalade or MELPA
@@ -529,3 +533,14 @@ concatenate each property by '+';
                              border-radius: 2px !important;
 
 * If you want further information, see [Emmet's documentation](http://docs.emmet.io/css-abbreviations/).
+
+## Actions
+
+### Go to Edit Point
+
+Traverse between important code points in HTML.
+
+- `<M-C-left>` is "Previous Edit Point" (`M-x emmet-next-edit-point`)
+- `<M-C-right>` is "Next Edit Point" (`M-x emmet-prev-edit-point`)
+
+For further information and demo see [Emmet's documentation](http://docs.emmet.io/actions/go-to-edit-point/). 
