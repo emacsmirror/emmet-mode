@@ -3877,13 +3877,13 @@ accept it or skip it."
 ;;;###autoload
 (defun emmet-next-edit-point (count)
   (interactive "^p")
-  (unless (emmet-go-to-edit-point count)
+  (unless (or emmet-use-css-transform (emmet-go-to-edit-point count))
     (error "Last edit point reached.")))
 
 ;;;###autoload
 (defun emmet-prev-edit-point (count)
   (interactive "^p")
-  (unless (emmet-go-to-edit-point (- count))
+  (unless (or emmet-use-css-transform (emmet-go-to-edit-point (- count)))
     (error "First edit point reached.")))
 
 (provide 'emmet-mode)
