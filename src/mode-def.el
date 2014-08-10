@@ -94,15 +94,15 @@ For more information see `emmet-mode'."
                        (+ (- p (length output-markup))
                         (emmet-html-next-insert-point output-markup)))))))))))))
 
-(defvar emmet-mode-keymap nil
+(defvar emmet-mode-keymap 
+  (let
+      ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-j") 'emmet-expand-line)
+    (define-key map (kbd "<C-return>") 'emmet-expand-line)
+    (define-key map (kbd "<C-M-right>") 'emmet-next-edit-point)
+    (define-key map (kbd "<C-M-left>") 'emmet-prev-edit-point)
+    map)
   "Keymap for emmet minor mode.")
-
-(if emmet-mode-keymap
-    nil
-  (progn
-    (setq emmet-mode-keymap (make-sparse-keymap))
-    (define-key emmet-mode-keymap (kbd "C-j") 'emmet-expand-line)
-    (define-key emmet-mode-keymap (kbd "<C-return>") 'emmet-expand-line)))
 
 (defun emmet-after-hook ()
   "Initialize Emmet's buffer-local variables."
@@ -374,6 +374,53 @@ accept it or skip it."
     (when show
       (overlay-put emmet-preview-output 'after-string
                    (concat show "\n")))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Implementation of "Go to Edit Point" functionality ;;
+;; http://docs.emmet.io/actions/go-to-edit-point/     ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun emmet-go-to-edit-point (count)
+  (let 
+      ((buf (buffer-string))
+       (point (point))
+       (edit-point "\\(\\(><\\)\\|\\(^[[:blank:]]+$\\)\\|\\(=\\(\"\\|'\\)\\{2\\}\\)\\)"))
+    (if (> count 0)
+	(progn
+	  (forward-char)
+	  (let
+	      ((search-result (re-search-forward edit-point nil t count)))
+	    (if search-result
+		(progn
+		  (cond
+		   ((or (match-string 2) (match-string 4)) (backward-char))
+		   ((match-string 3) (end-of-line)))
+		  search-result)
+		(backward-char))))
+      (progn
+	(backward-char)
+	(let 
+	    ((search-result (re-search-backward edit-point nil t (- count)))) 
+	  (if search-result
+	      (progn
+		(cond
+		 ((match-string 2) (forward-char))
+		 ((match-string 3) (end-of-line))
+		 ((match-string 4) (forward-char 2)))
+		search-result)
+	      (forward-char)))))))
+
+;;;###autoload
+(defun emmet-next-edit-point (count)
+  (interactive "^p")
+  (unless (emmet-go-to-edit-point count)
+    (error "Last edit point reached.")))
+
+;;;###autoload
+(defun emmet-prev-edit-point (count)
+  (interactive "^p")
+  (unless (emmet-go-to-edit-point (- count))
+    (error "First edit point reached.")))
 
 (provide 'emmet-mode)
 
