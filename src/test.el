@@ -118,7 +118,7 @@
                             "<ol>"
                             "    <li></li>"
                             "</ol>")
-  "ul#q.x.y m=l+"          ("<ul id=\"q\" class=\"x y\" m=\"l\">"
+  "ul#q.x.y[m=l]+"          ("<ul id=\"q\" class=\"x y\" m=\"l\">"
                             "    <li></li>"
                             "</ul>"))
 
@@ -270,27 +270,27 @@
    "</ul>"))
 
 (define-emmet-transform-html-test-case Properties
-  "a x"                    ("<a href=\"\" x=\"\"></a>")
-  "a x="                   ("<a href=\"\" x=\"\"></a>")
-  "a x=\"\""               ("<a href=\"\" x=\"\"></a>")
-  "a x=y"                  ("<a href=\"\" x=\"y\"></a>")
-  "a x=\"y\""              ("<a href=\"\" x=\"y\"></a>")
-  "a x=\"()\""             ("<a href=\"\" x=\"()\"></a>")
-  "a x m"                  ("<a href=\"\" x=\"\" m=\"\"></a>")
-  "a x= m=\"\""            ("<a href=\"\" x=\"\" m=\"\"></a>")
-  "a x=y m=l"              ("<a href=\"\" x=\"y\" m=\"l\"></a>")
-  "a/ x=y m=l"             ("<a href=\"\" x=\"y\" m=\"l\"/>")
-  "a#foo x=y m=l"          ("<a id=\"foo\" href=\"\" x=\"y\" m=\"l\"></a>")
-  "a.foo x=y m=l"          ("<a class=\"foo\" href=\"\" x=\"y\" m=\"l\"></a>")
-  "a#foo.bar.mu x=y m=l"   ("<a id=\"foo\" class=\"bar mu\" href=\"\" x=\"y\" m=\"l\"></a>")
-  "a/#foo.bar.mu x=y m=l"  ("<a id=\"foo\" class=\"bar mu\" href=\"\" x=\"y\" m=\"l\"/>")
-  "a x=y+b"                ("<a href=\"\" x=\"y\"></a>"
+  "a[x]"                    ("<a href=\"\" x=\"\"></a>")
+  "a[x=]"                   ("<a href=\"\" x=\"\"></a>")
+  "a[x=\"\"]"               ("<a href=\"\" x=\"\"></a>")
+  "a[x=y]"                  ("<a href=\"\" x=\"y\"></a>")
+  "a[x=\"y\"]"              ("<a href=\"\" x=\"y\"></a>")
+  "a[x=\"()\"]"             ("<a href=\"\" x=\"()\"></a>")
+  "a[x m]"                  ("<a href=\"\" x=\"\" m=\"\"></a>")
+  "a[x= m=\"\"]"            ("<a href=\"\" x=\"\" m=\"\"></a>")
+  "a[x=y m=l]"              ("<a href=\"\" x=\"y\" m=\"l\"></a>")
+  "a/[x=y m=l]"             ("<a href=\"\" x=\"y\" m=\"l\"/>")
+  "a#foo[x=y m=l]"          ("<a id=\"foo\" href=\"\" x=\"y\" m=\"l\"></a>")
+  "a.foo[x=y m=l]"          ("<a class=\"foo\" href=\"\" x=\"y\" m=\"l\"></a>")
+  "a#foo.bar.mu[x=y m=l]"   ("<a id=\"foo\" class=\"bar mu\" href=\"\" x=\"y\" m=\"l\"></a>")
+  "a/#foo.bar.mu[x=y m=l]"  ("<a id=\"foo\" class=\"bar mu\" href=\"\" x=\"y\" m=\"l\"/>")
+  "a[x=y]+b"                ("<a href=\"\" x=\"y\"></a>"
                             "<b></b>")
-  "a x=y+b x=y"            ("<a href=\"\" x=\"y\"></a>"
+  "a[x=y]+b[x=y]"            ("<a href=\"\" x=\"y\"></a>"
                             "<b x=\"y\"></b>")
-  "a x=y>b"                ("<a href=\"\" x=\"y\"><b></b></a>")
-  "a x=y>b x=y"            ("<a href=\"\" x=\"y\"><b x=\"y\"></b></a>")
-  "a x=y>b x=y+c x=y"      ("<a href=\"\" x=\"y\">"
+  "a[x=y]>b"                ("<a href=\"\" x=\"y\"><b></b></a>")
+  "a[x=y]>b[x=y]"            ("<a href=\"\" x=\"y\"><b x=\"y\"></b></a>")
+  "a[x=y]>b[x=y]+c[x=y]"      ("<a href=\"\" x=\"y\">"
                             "    <b x=\"y\"></b>"
                             "    <c x=\"y\"></c>"
                             "</a>"))
@@ -346,7 +346,7 @@
    "<a href=\"\">here</a>"
    " to continue")
 
-  "xxx#id.cls p=1{txt}"
+  "xxx#id.cls[p=1]{txt}"
   ("<xxx id=\"id\" class=\"cls\" p=\"1\">txt</xxx>"))
 
 (define-emmet-unit-test-case Lorem-ipsum
@@ -403,12 +403,12 @@
 (define-emmet-transform-html-test-case Filter-HAML
   "a|haml"                 ("%a")
   "a#q.x.y.z|haml"         ("%a#q.x.y.z")
-  "a#q.x x=y m=l|haml"     ("%a#q.x{:x => \"y\", :m => \"l\"}")
+  "a#q.x[x=y m=l]|haml"     ("%a#q.x{:x => \"y\", :m => \"l\"}")
   "div|haml"               ("%div")
   "div.footer|haml"        (".footer")
   ".footer|haml"           (".footer")
 
-  "p>{This is haml}*2+a href=#+br|haml"
+  "p>{This is haml}*2+a[href=#]+br|haml"
   ("%p"
    "    This is haml"
    "    This is haml"
@@ -418,9 +418,9 @@
 (define-emmet-transform-html-test-case Filter-Hiccup
   "a|hic"                  ("[:a]")
   "a#q.x.y.z|hic"          ("[:a#q.x.y.z]")
-  "a#q.x x=y m=l|hic"      ("[:a#q.x {:x \"y\", :m \"l\"}]")
+  "a#q.x[x=y m=l]|hic"      ("[:a#q.x {:x \"y\", :m \"l\"}]")
   ".footer|hic"            ("[:div.footer]")
-  "p>a href=#+br|hic"      ("[:p"
+  "p>a[href=#]+br|hic"      ("[:p"
                             "    [:a {:href \"#\"}]"
                             "    [:br]]")
 
@@ -433,7 +433,7 @@
    "        [:b]]]"))
 
 (define-emmet-transform-html-test-case Filter-escape
-  "script src=&quot;|e"    ("&lt;script src=\"&amp;quot;\"&gt;&lt;/script&gt;"))
+  "script[src=&quot;]|e"    ("&lt;script src=\"&amp;quot;\"&gt;&lt;/script&gt;"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; CSS-abbrev tests
