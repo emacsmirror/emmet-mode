@@ -146,6 +146,10 @@
  (gethash "snippets" (gethash "css" emmet-snippets)))
 
 (emmet-defparameter
+ emmet-sass-snippets
+ (gethash "snippets" (gethash "sass" emmet-snippets)))
+
+(emmet-defparameter
  emmet-css-unitless-properties
  (gethash "unitlessProperties" (gethash "css" emmet-preferences)))
 
@@ -220,43 +224,48 @@
   (emmet-join-string
    (mapcar
     #'(lambda (expr)
-        (let ((basement
-               (emmet-aif
-                (gethash (car expr) emmet-css-snippets)
-                (let ((set it) (fn nil) (unitlessp nil))
-                  (if (stringp set)
-                      (progn
-                        ;; new pattern
-                        ;; creating print function
-                        (setf fn (emmet-css-instantiate-lambda set))
-                        ;; get unitless or no
-                        (setf unitlessp
-                              (not (null (string-match
-                                          emmet-css-unitless-properties-regex set))))
-                        ;; caching
-                        (puthash (car expr) (cons fn unitlessp) emmet-css-snippets))
-                    (progn
-                      ;; cache hit.
-                      (setf fn (car set))
-                      (setf unitlessp (cdr set))))
-                  (apply fn
-                         (mapcar
-                          #'(lambda (arg)
-                              (if (listp arg)
-                                  (if unitlessp (car arg)
-                                    (apply #'concat arg))
-                                arg))
-                          (cdddr expr))))
-                (concat (car expr) ": "
-                        (emmet-join-string
-                         (mapcar #'(lambda (arg)
-                                     (if (listp arg) (apply #'concat arg) arg))
-                                 (cdddr expr)) " ")
-                        ";"))))
+        (let* 
+	    ((hash-map (if emmet-use-sass-syntax emmet-sass-snippets emmet-css-snippets))
+	     (basement
+	      (emmet-aif
+	       (or (gethash (car expr) hash-map) (gethash (car expr) emmet-css-snippets))
+	       (let ((set it) (fn nil) (unitlessp nil))
+		 (if (stringp set)
+		     (progn
+		       ;; new pattern
+		       ;; creating print function
+		       (setf fn (emmet-css-instantiate-lambda set))
+		       ;; get unitless or no
+		       (setf unitlessp
+			     (not (null (string-match
+					 emmet-css-unitless-properties-regex set))))
+		       ;; caching
+		       (puthash (car expr) (cons fn unitlessp) hash-map))
+		   (progn
+		     ;; cache hit.
+		     (setf fn (car set))
+		     (setf unitlessp (cdr set))))
+		 (apply fn
+			(mapcar
+			 #'(lambda (arg)
+			     (if (listp arg)
+				 (if unitlessp (car arg)
+				   (apply #'concat arg))
+			       arg))
+			 (cdddr expr))))
+	       (concat (car expr) ": "
+		       (emmet-join-string
+			(mapcar #'(lambda (arg)
+				    (if (listp arg) (apply #'concat arg) arg))
+				(cdddr expr)) " ")
+		       ";"))))
           (let ((line
                  (if (caddr expr)
                      (concat (subseq basement 0 -1) " !important;")
                    basement)))
+	    ;; remove trailing semicolon while editing Sass files
+	    (if (and emmet-use-sass-syntax (equal ";" (subseq line -1)))
+		(setq line (subseq line 0 -1)))
             (emmet-aif
              (cadr expr)
              (emmet-css-transform-vendor-prefixes line it)

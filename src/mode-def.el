@@ -47,6 +47,11 @@
   "When true, transform Emmet snippets into CSS, instead of the usual HTML.")
 (make-variable-buffer-local 'emmet-use-css-transform)
 
+(defvar emmet-use-sass-syntax nil
+  "When true, uses Sass syntax for CSS abbreviations expanding,
+e. g. without semicolons")
+(make-variable-buffer-local 'emmet-use-sass-syntax)
+
 (defvar emmet-css-major-modes
   '(css-mode
     scss-mode
@@ -108,7 +113,9 @@ For more information see `emmet-mode'."
 (defun emmet-after-hook ()
   "Initialize Emmet's buffer-local variables."
   (if (memq major-mode emmet-css-major-modes)
-      (setq emmet-use-css-transform t)))
+      (setq emmet-use-css-transform t))
+  (if (eq major-mode 'sass-mode)
+      (setq emmet-use-sass-syntax t)))
 
 ;;;###autoload
 (define-minor-mode emmet-mode

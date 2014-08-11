@@ -582,6 +582,17 @@
       "wfsm:n": "-webkit-font-smoothing:none;"
     }
   },
+    
+  "sass": {
+    "snippets": {
+      "@m": "@media ${1:screen}\n\t|\n",
+      "@media": "@media ${1:screen}\n\t|\n",
+      "@f": "@font-face\n\tfont-family:|\n\tsrc:url(|)\n",
+      "@f+": "@font-face\n\tfont-family: '${1:FontName}'\n\tsrc: url('${2:FileName}.eot')\n\tsrc: url('${2:FileName}.eot?#iefix') format('embedded-opentype'), url('${2:FileName}.woff') format('woff'), url('${2:FileName}.ttf') format('truetype'), url('${2:FileName}.svg#${1:FontName}') format('svg')\n\tfont-style: ${3:normal}\n\tfont-weight: ${4:normal}\n",
+
+      "@kf": "@-webkit-keyframes ${1:identifier}\n\t${2:from}\n\t\t${3}${6}\n\t${4:to}\n\t\t${5}\n\n@-o-keyframes ${1:identifier}\n\t${2:from}\n\t\t${3}${6}\n\t${4:to}\n\t\t${5}\n\n@-moz-keyframes ${1:identifier}\n\t${2:from}\n\t\t${3}${6}\n\t${4:to}\n\t\t${5}\n\n@keyframes ${1:identifier}\n\t${2:from}\n\t\t${3}${6}\n\t${4:to}\n\t\t${5}\n"
+    }
+  },
 
   "html": {
 
@@ -608,8 +619,8 @@
       "link:touch":           "link rel=apple-touch-icon href=favicon.png",
       "link:rss":             "link rel=alternate type=application/rss+xml title=RSS href=rss.xml",
       "link:atom":            "link rel=alternate type=\"application/atom+xml\" title=Atom href=atom.xml",
-      "meta:utf":             "meta http-equiv=Content-Type content=\"text/html;charset=UTF-8\"",
-      "meta:win":             "meta http-equiv=Content-Type content=\"text/html;charset=windows-1251\"",
+      "meta:utf":             "meta http-equiv=Content-Type content=\"text/htmlcharset=UTF-8\"",
+      "meta:win":             "meta http-equiv=Content-Type content=\"text/htmlcharset=windows-1251\"",
       "meta:vp":              "meta name=viewport content=\"width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0\"",
       "meta:compat":          "meta http-equiv=X-UA-Compatible content=\"IE=edge,chrome=1\"",
       "script:src":           "script src",
@@ -691,7 +702,7 @@
       "det":                  "details",
       "cmd":                  "command",
       "doc":                  "html>(head>meta charset=UTF-8+title{Document})+body",
-      "doc4":                 "html>(head>meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\"+title{Document})",
+      "doc4":                 "html>(head>meta http-equiv=\"Content-Type\" content=\"text/htmlcharset=UTF-8\"+title{Document})",
 
       "!":                    "html:5",
       "html:4t":              "!!!4t+doc4 lang=en",

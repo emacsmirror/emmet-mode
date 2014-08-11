@@ -737,7 +737,7 @@ tbl) tbl)
 (puthash "dl+" "dl>dt+dd" tbl)
 (puthash "dlg" "dialog" tbl)
 (puthash "doc" "html>(head>meta charset=UTF-8+title{Document})+body" tbl)
-(puthash "doc4" "html>(head>meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\"+title{Document})" tbl)
+(puthash "doc4" "html>(head>meta http-equiv=\"Content-Type\" content=\"text/htmlcharset=UTF-8\"+title{Document})" tbl)
 (puthash "emb" "embed" tbl)
 (puthash "fig" "figure" tbl)
 (puthash "figc" "figcaption" tbl)
@@ -800,9 +800,9 @@ tbl) tbl)
 (puthash "menu:t" "menu:toolbar" tbl)
 (puthash "menu:toolbar" "menu type=toolbar" tbl)
 (puthash "meta:compat" "meta http-equiv=X-UA-Compatible content=\"IE=edge,chrome=1\"" tbl)
-(puthash "meta:utf" "meta http-equiv=Content-Type content=\"text/html;charset=UTF-8\"" tbl)
+(puthash "meta:utf" "meta http-equiv=Content-Type content=\"text/htmlcharset=UTF-8\"" tbl)
 (puthash "meta:vp" "meta name=viewport content=\"width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0\"" tbl)
-(puthash "meta:win" "meta http-equiv=Content-Type content=\"text/html;charset=windows-1251\"" tbl)
+(puthash "meta:win" "meta http-equiv=Content-Type content=\"text/htmlcharset=windows-1251\"" tbl)
 (puthash "obj" "object" tbl)
 (puthash "ol+" "ol>li" tbl)
 (puthash "opt" "option" tbl)
@@ -831,6 +831,15 @@ tbl) tbl)
 (puthash "cc:ie" "<!--[if IE]>\n\t${child}\n<![endif]-->" tbl)
 (puthash "cc:ie6" "<!--[if lte IE 6]>\n\t${child}\n<![endif]-->" tbl)
 (puthash "cc:noie" "<!--[if !IE]><!-->\n\t${child}\n<!--<![endif]-->" tbl)
+tbl) tbl)
+tbl) tbl)
+(puthash "sass" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "snippets" (let ((tbl (make-hash-table :test 'equal)))
+(puthash "@f" "@font-face\n\tfont-family:|\n\tsrc:url(|)\n" tbl)
+(puthash "@f+" "@font-face\n\tfont-family: '${1:FontName}'\n\tsrc: url('${2:FileName}.eot')\n\tsrc: url('${2:FileName}.eot?#iefix') format('embedded-opentype'), url('${2:FileName}.woff') format('woff'), url('${2:FileName}.ttf') format('truetype'), url('${2:FileName}.svg#${1:FontName}') format('svg')\n\tfont-style: ${3:normal}\n\tfont-weight: ${4:normal}\n" tbl)
+(puthash "@kf" "@-webkit-keyframes ${1:identifier}\n\t${2:from}\n\t\t${3}${6}\n\t${4:to}\n\t\t${5}\n\n@-o-keyframes ${1:identifier}\n\t${2:from}\n\t\t${3}${6}\n\t${4:to}\n\t\t${5}\n\n@-moz-keyframes ${1:identifier}\n\t${2:from}\n\t\t${3}${6}\n\t${4:to}\n\t\t${5}\n\n@keyframes ${1:identifier}\n\t${2:from}\n\t\t${3}${6}\n\t${4:to}\n\t\t${5}\n" tbl)
+(puthash "@m" "@media ${1:screen}\n\t|\n" tbl)
+(puthash "@media" "@media ${1:screen}\n\t|\n" tbl)
 tbl) tbl)
 tbl) tbl)
 tbl))
@@ -3349,6 +3358,10 @@ tbl))
  (gethash "snippets" (gethash "css" emmet-snippets)))
 
 (emmet-defparameter
+ emmet-sass-snippets
+ (gethash "snippets" (gethash "sass" emmet-snippets)))
+
+(emmet-defparameter
  emmet-css-unitless-properties
  (gethash "unitlessProperties" (gethash "css" emmet-preferences)))
 
@@ -3423,43 +3436,48 @@ tbl))
   (emmet-join-string
    (mapcar
     #'(lambda (expr)
-        (let ((basement
-               (emmet-aif
-                (gethash (car expr) emmet-css-snippets)
-                (let ((set it) (fn nil) (unitlessp nil))
-                  (if (stringp set)
-                      (progn
-                        ;; new pattern
-                        ;; creating print function
-                        (setf fn (emmet-css-instantiate-lambda set))
-                        ;; get unitless or no
-                        (setf unitlessp
-                              (not (null (string-match
-                                          emmet-css-unitless-properties-regex set))))
-                        ;; caching
-                        (puthash (car expr) (cons fn unitlessp) emmet-css-snippets))
-                    (progn
-                      ;; cache hit.
-                      (setf fn (car set))
-                      (setf unitlessp (cdr set))))
-                  (apply fn
-                         (mapcar
-                          #'(lambda (arg)
-                              (if (listp arg)
-                                  (if unitlessp (car arg)
-                                    (apply #'concat arg))
-                                arg))
-                          (cdddr expr))))
-                (concat (car expr) ": "
-                        (emmet-join-string
-                         (mapcar #'(lambda (arg)
-                                     (if (listp arg) (apply #'concat arg) arg))
-                                 (cdddr expr)) " ")
-                        ";"))))
+        (let* 
+	    ((hash-map (if emmet-use-sass-syntax emmet-sass-snippets emmet-css-snippets))
+	     (basement
+	      (emmet-aif
+	       (or (gethash (car expr) hash-map) (gethash (car expr) emmet-css-snippets))
+	       (let ((set it) (fn nil) (unitlessp nil))
+		 (if (stringp set)
+		     (progn
+		       ;; new pattern
+		       ;; creating print function
+		       (setf fn (emmet-css-instantiate-lambda set))
+		       ;; get unitless or no
+		       (setf unitlessp
+			     (not (null (string-match
+					 emmet-css-unitless-properties-regex set))))
+		       ;; caching
+		       (puthash (car expr) (cons fn unitlessp) hash-map))
+		   (progn
+		     ;; cache hit.
+		     (setf fn (car set))
+		     (setf unitlessp (cdr set))))
+		 (apply fn
+			(mapcar
+			 #'(lambda (arg)
+			     (if (listp arg)
+				 (if unitlessp (car arg)
+				   (apply #'concat arg))
+			       arg))
+			 (cdddr expr))))
+	       (concat (car expr) ": "
+		       (emmet-join-string
+			(mapcar #'(lambda (arg)
+				    (if (listp arg) (apply #'concat arg) arg))
+				(cdddr expr)) " ")
+		       ";"))))
           (let ((line
                  (if (caddr expr)
                      (concat (subseq basement 0 -1) " !important;")
                    basement)))
+	    ;; remove trailing semicolon while editing Sass files
+	    (if (and emmet-use-sass-syntax (equal ";" (subseq line -1)))
+		(setq line (subseq line 0 -1)))
             (emmet-aif
              (cadr expr)
              (emmet-css-transform-vendor-prefixes line it)
@@ -3517,6 +3535,11 @@ tbl))
 (defvar emmet-use-css-transform nil
   "When true, transform Emmet snippets into CSS, instead of the usual HTML.")
 (make-variable-buffer-local 'emmet-use-css-transform)
+
+(defvar emmet-use-sass-syntax nil
+  "When true, uses Sass syntax for CSS abbreviations expanding,
+e. g. without semicolons")
+(make-variable-buffer-local 'emmet-use-sass-syntax)
 
 (defvar emmet-css-major-modes
   '(css-mode
@@ -3579,7 +3602,9 @@ For more information see `emmet-mode'."
 (defun emmet-after-hook ()
   "Initialize Emmet's buffer-local variables."
   (if (memq major-mode emmet-css-major-modes)
-      (setq emmet-use-css-transform t)))
+      (setq emmet-use-css-transform t))
+  (if (eq major-mode 'sass-mode)
+      (setq emmet-use-sass-syntax t)))
 
 ;;;###autoload
 (define-minor-mode emmet-mode
