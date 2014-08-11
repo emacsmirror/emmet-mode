@@ -18,12 +18,15 @@
 (defun emmet-find-left-bound ()
   "Find the left bound of an emmet expr"
   (save-excursion (save-match-data
-    (let ((char (char-before)))
+    (let ((char (char-before))
+          (last-gt (point)))
       (while char
         (cond ((member char '(?\} ?\] ?\)))
                (backward-sexp) (setq char (char-before)))
-              ((member char '(?\<))
-               (search-forward ">") (setq char nil))
+              ((eq char ?\>)
+               (setq last-gt (point)) (backward-char) (setq char (char-before)))
+              ((eq char ?\<)
+               (goto-char last-gt) (setq char nil))
               ((not (string-match-p "[[:space:]\n]" (string char)))
                (backward-char) (setq char (char-before)))
               (t
