@@ -3498,7 +3498,7 @@ tbl))
                (setq last-gt (point)) (backward-char) (setq char (char-before)))
               ((eq char ?\<)
                (goto-char last-gt) (setq char nil))
-              ((not (string-match-p "[[:space:]\n]" (string char)))
+              ((not (string-match-p "[[:space:]\n;]" (string char)))
                (backward-char) (setq char (char-before)))
               (t
                (setq char nil))))
