@@ -3709,36 +3709,13 @@ See also `emmet-expand-line'."
   (emmet-preview-abort))
 
 (defun emmet-html-next-insert-point (str)
-  (let ((intag t)    (instring nil)
-        (last-c nil) (c nil)
-        (rti 0))
-    (loop for i to (1- (length str)) do
-          (setq last-c c)
-          (setq c (elt str i))
-          (case c
-            (?\" (if (not (= last-c ?\\))
-                     (progn (setq instring (not instring))
-                            (when (and emmet-move-cursor-between-quotes
-                                       (not instring)
-                                       (= last-c ?\"))
-                              (return i)))))
-            (?>  (if (not instring)
-                     (if intag
-                         (if (= last-c ?/) (return (1+ i))
-                           (progn (setq intag nil)
-                                  (setq rti (1+ i))))
-                       (return i)))) ;; error?
-            (?<  (if (and (not instring) (not intag))
-                     (setq intag t)))
-            (?/  (if (and intag
-                          (not instring)
-                          (= last-c ?<))
-                     (return rti)))
-            (t
-             (if (memq c '(?\t ?\n ?\r ?\s))
-                 (progn (setq c last-c))
-               (if (and (not intag) (not instring))
-                   (return rti))))))))
+  (with-temp-buffer
+    (insert str)
+    (goto-char (point-min))
+    (or
+     (emmet-aif (emmet-go-to-edit-point 1) (- it 1))   ; try to find an edit point
+     (emmet-aif (re-search-forward ".+</") (- it 3))   ; try to place cursor after tag contents
+     (- (length str) 1))))                             ; ok, just go to the end
 
 (defvar emmet-flash-ovl nil)
 (make-variable-buffer-local 'emmet-flash-ovl)
@@ -3879,9 +3856,7 @@ accept it or skip it."
 
 (defun emmet-go-to-edit-point (count)
   (let
-      ((buf (buffer-string))
-       (point (point))
-       (edit-point "\\(\\(><\\)\\|\\(^[[:blank:]]+$\\)\\|\\(=\\(\"\\|'\\)\\{2\\}\\)\\)"))
+      ((edit-point "\\(\\(><\\)\\|\\(^[[:blank:]]+$\\)\\|\\(=\\(\"\\|'\\)\\{2\\}\\)\\)"))
     (if (> count 0)
 	(progn
 	  (forward-char)
@@ -3892,7 +3867,7 @@ accept it or skip it."
 		  (cond
 		   ((or (match-string 2) (match-string 4)) (backward-char))
 		   ((match-string 3) (end-of-line)))
-		  search-result)
+		  (point))
 		(backward-char))))
       (progn
 	(backward-char)
@@ -3904,7 +3879,7 @@ accept it or skip it."
 		 ((match-string 2) (forward-char))
 		 ((match-string 3) (end-of-line))
 		 ((match-string 4) (forward-char 2)))
-		search-result)
+		(point))
 	      (forward-char)))))))
 
 ;;;###autoload
