@@ -3713,7 +3713,7 @@ See also `emmet-expand-line'."
     (insert str)
     (goto-char (point-min))
     (or
-     (emmet-aif (emmet-go-to-edit-point 1) (- it 1))   ; try to find an edit point
+     (emmet-aif (emmet-go-to-edit-point 1 t) (- it 1)) ; try to find an edit point
      (emmet-aif (re-search-forward ".+</") (- it 3))   ; try to place cursor after tag contents
      (- (length str) 1))))                             ; ok, just go to the end
 
@@ -3854,9 +3854,14 @@ accept it or skip it."
 ;; http://docs.emmet.io/actions/go-to-edit-point/     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun emmet-go-to-edit-point (count)
-  (let
-      ((edit-point "\\(\\(><\\)\\|\\(^[[:blank:]]+$\\)\\|\\(=\\(\"\\|'\\)\\{2\\}\\)\\)"))
+(defun emmet-go-to-edit-point (count &optional only-before-closed-tag)
+  (let*
+      ((between-tags
+        (if only-before-closed-tag "\\(><\\)/" "\\(><\\)"))
+       (indented-line "\\(^[[:blank:]]+$\\)")
+       (between-quotes "\\(=\\(\"\\|'\\)\\{2\\}\\)")
+       (edit-point (format "\\(%s\\|%s\\|%s\\)"
+                           between-tags indented-line between-quotes)))
     (if (> count 0)
 	(progn
 	  (forward-char)
@@ -3865,8 +3870,9 @@ accept it or skip it."
 	    (if search-result
 		(progn
 		  (cond
-		   ((or (match-string 2) (match-string 4)) (backward-char))
-		   ((match-string 3) (end-of-line)))
+		   ((match-string 2) (goto-char (- (match-end 2) 1)))
+		   ((match-string 3) (end-of-line))
+                   ((match-string 4) (backward-char)))
 		  (point))
 		(backward-char))))
       (progn
@@ -3876,7 +3882,7 @@ accept it or skip it."
 	  (if search-result
 	      (progn
 		(cond
-		 ((match-string 2) (forward-char))
+		 ((match-string 2) (goto-char (- (match-end 2) 1)))
 		 ((match-string 3) (end-of-line))
 		 ((match-string 4) (forward-char 2)))
 		(point))
