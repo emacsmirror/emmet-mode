@@ -3555,6 +3555,17 @@ e. g. without semicolons")
       (emmet-css-transform input)
     (emmet-html-transform input)))
 
+(defun emmet-reposition-cursor (expr)
+  (let ((output-markup (buffer-substring-no-properties (second expr) (point))))
+    (when emmet-move-cursor-after-expanding
+      (let ((p (point))
+            (new-pos (if (emmet-html-text-p output-markup)
+                         (emmet-html-next-insert-point output-markup)
+                       (emmet-css-next-insert-point output-markup))))
+        (goto-char
+         (+ (- p (length output-markup))
+            new-pos))))))
+
 ;;;###autoload
 (defun emmet-expand-line (arg)
   "Replace the current line's emmet expression with the corresponding expansion.
@@ -3583,15 +3594,7 @@ For more information see `emmet-mode'."
               (when markup
                 (delete-region (second expr) (third expr))
                 (emmet-insert-and-flash markup)
-                (let ((output-markup (buffer-substring-no-properties (second expr) (point))))
-                  (when emmet-move-cursor-after-expanding
-                    (let ((p (point))
-                          (new-pos (if (emmet-html-text-p output-markup)
-                                       (emmet-html-next-insert-point output-markup)
-                                       (emmet-css-next-insert-point output-markup))))
-                      (goto-char
-                       (+ (- p (length output-markup))
-                        new-pos))))))))))))
+                (emmet-reposition-cursor expr))))))))
 
 (defvar emmet-mode-keymap
   (let
@@ -3704,12 +3707,7 @@ See also `emmet-expand-line'."
         (when markup
           (delete-region (overlay-start ovli) (overlay-end ovli))
           (emmet-insert-and-flash markup)
-          (let ((output-markup (buffer-substring-no-properties (line-beginning-position) (point))))
-            (when (and emmet-move-cursor-after-expanding (emmet-html-text-p markup))
-              (let ((p (point)))
-                (goto-char
-                 (+ (- p (length output-markup))
-                    (emmet-html-next-insert-point output-markup))))))))))
+          (emmet-reposition-cursor expr)))))
   (emmet-preview-abort))
 
 (defun emmet-html-next-insert-point (str)
