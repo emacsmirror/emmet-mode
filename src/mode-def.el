@@ -231,8 +231,9 @@ See also `emmet-expand-line'."
      (length str))))                             ; ok, just go to the end
 
 (defun emmet-css-next-insert-point (str)
-  (string-match ": *\\(;\\)$" str)
-  (or (match-beginning 1) (length str)))
+  (let ((regexp (if emmet-use-sass-syntax ": *\\($\\)" ": *\\(;\\)$")))
+    (string-match regexp str)
+    (or (match-beginning 1) (length str))))
 
 (defvar emmet-flash-ovl nil)
 (make-variable-buffer-local 'emmet-flash-ovl)
