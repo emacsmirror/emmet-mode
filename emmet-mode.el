@@ -3584,11 +3584,14 @@ For more information see `emmet-mode'."
                 (delete-region (second expr) (third expr))
                 (emmet-insert-and-flash markup)
                 (let ((output-markup (buffer-substring-no-properties (second expr) (point))))
-                  (when (and emmet-move-cursor-after-expanding (emmet-html-text-p markup))
-                    (let ((p (point)))
+                  (when emmet-move-cursor-after-expanding
+                    (let ((p (point))
+                          (new-pos (if (emmet-html-text-p output-markup)
+                                       (emmet-html-next-insert-point output-markup)
+                                       (emmet-css-next-insert-point output-markup))))
                       (goto-char
                        (+ (- p (length output-markup))
-                        (emmet-html-next-insert-point output-markup)))))))))))))
+                        new-pos))))))))))))
 
 (defvar emmet-mode-keymap
   (let
@@ -3717,6 +3720,10 @@ See also `emmet-expand-line'."
      (emmet-aif (emmet-go-to-edit-point 1 t) (- it 1)) ; try to find an edit point
      (emmet-aif (re-search-forward ".+</" nil t) (- it 3))   ; try to place cursor after tag contents
      (length str))))                             ; ok, just go to the end
+
+(defun emmet-css-next-insert-point (str)
+  (string-match ": *\\(;\\)$" str)
+  (or (match-beginning 1) (length str)))
 
 (defvar emmet-flash-ovl nil)
 (make-variable-buffer-local 'emmet-flash-ovl)
