@@ -225,8 +225,8 @@ See also `emmet-expand-line'."
     (goto-char (point-min))
     (or
      (emmet-aif (emmet-go-to-edit-point 1 t) (- it 1)) ; try to find an edit point
-     (emmet-aif (re-search-forward ".+</") (- it 3))   ; try to place cursor after tag contents
-     (- (length str) 1))))                             ; ok, just go to the end
+     (emmet-aif (re-search-forward ".+</" nil t) (- it 3))   ; try to place cursor after tag contents
+     (length str))))                             ; ok, just go to the end
 
 (defvar emmet-flash-ovl nil)
 (make-variable-buffer-local 'emmet-flash-ovl)
