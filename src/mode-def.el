@@ -232,6 +232,7 @@ See also `emmet-expand-line'."
 
 (defun emmet-css-next-insert-point (str)
   (let ((regexp (if emmet-use-sass-syntax ": *\\($\\)" ": *\\(;\\)$")))
+    (set-match-data nil t)
     (string-match regexp str)
     (or (match-beginning 1) (length str))))
 
