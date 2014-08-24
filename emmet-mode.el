@@ -3499,18 +3499,21 @@ tbl))
    for the current line."
   (let* ((end (point))
          (start (emmet-find-left-bound))
-         (line (buffer-substring-no-properties start end)))
-    (let ((expr (emmet-regex "\\([ \t]*\\)\\([^\n]+\\)" line 2)))
-      (if (first expr)
-          (list (first expr) start end)))))
+         (line (buffer-substring-no-properties start end))
+         (expr (emmet-regex "\\([ \t]*\\)\\([^\n]+\\)" line 2)))
+    (if (first expr)
+        (list (first expr) start end))))
 
 (defun emmet-find-left-bound ()
   "Find the left bound of an emmet expr"
   (save-excursion (save-match-data
     (let ((char (char-before))
-          (last-gt (point)))
+          (last-gt (point))
+          (in-style-attr (looking-back "style=[\"'][^\"']*")))
       (while char
-        (cond ((member char '(?\} ?\] ?\)))
+        (cond ((and in-style-attr (member char '(?\" ?\')))
+               (setq char nil))
+              ((member char '(?\} ?\] ?\)))
                (with-syntax-table (standard-syntax-table)
                  (backward-sexp) (setq char (char-before))))
               ((eq char ?\>)
@@ -3551,7 +3554,7 @@ e. g. without semicolons")
   "Major modes that use emmet for CSS, rather than HTML.")
 
 (defun emmet-transform (input)
-  (if emmet-use-css-transform
+  (if (or (emmet-detect-style-tag-and-attr) emmet-use-css-transform)
       (emmet-css-transform input)
     (emmet-html-transform input)))
 
@@ -3565,6 +3568,16 @@ e. g. without semicolons")
         (goto-char
          (+ (- p (length output-markup))
             new-pos))))))
+
+(defun emmet-detect-style-tag-and-attr ()
+  (let* ((qt "[\"']")
+         (not-qt "[^\"']")
+         (everything "\\(.\\|\n\\)*"))
+    (or
+     (and (looking-at (format "%s*%s" not-qt qt))
+          (looking-back (format "style=%s%s*" qt not-qt))) ; style attr
+     (and (looking-at (format "%s</style>" everything))
+          (looking-back (format "<style>%s" everything)))))) ; style tag
 
 ;;;###autoload
 (defun emmet-expand-line (arg)
