@@ -3514,7 +3514,8 @@ tbl))
         (cond ((and in-style-attr (eq char ?\"))
                (setq char nil))
               ((member char '(?\} ?\] ?\)))
-               (backward-sexp) (setq char (char-before)))
+               (with-syntax-table (standard-syntax-table)
+                 (backward-sexp) (setq char (char-before))))
               ((eq char ?\>)
                (setq last-gt (point)) (backward-char) (setq char (char-before)))
               ((eq char ?\<)
@@ -3733,9 +3734,10 @@ See also `emmet-expand-line'."
 
 (defun emmet-css-next-insert-point (str)
   (let ((regexp (if emmet-use-sass-syntax ": *\\($\\)" ": *\\(;\\)$")))
-    (set-match-data nil t)
-    (string-match regexp str)
-    (or (match-beginning 1) (length str))))
+    (save-match-data
+      (set-match-data nil t)
+      (string-match regexp str)
+      (or (match-beginning 1) (length str)))))
 
 (defvar emmet-flash-ovl nil)
 (make-variable-buffer-local 'emmet-flash-ovl)
