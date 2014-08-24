@@ -22,7 +22,8 @@
           (last-gt (point)))
       (while char
         (cond ((member char '(?\} ?\] ?\)))
-               (backward-sexp) (setq char (char-before)))
+               (with-syntax-table (standard-syntax-table)
+                 (backward-sexp) (setq char (char-before))))
               ((eq char ?\>)
                (setq last-gt (point)) (backward-char) (setq char (char-before)))
               ((eq char ?\<)
