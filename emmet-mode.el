@@ -3509,9 +3509,9 @@ tbl))
   (save-excursion (save-match-data
     (let ((char (char-before))
           (last-gt (point))
-          (in-style-attr (looking-back "style=\"[^\"]*")))
+          (in-style-attr (looking-back "style=[\"'][^\"']*")))
       (while char
-        (cond ((and in-style-attr (eq char ?\"))
+        (cond ((and in-style-attr (member char '(?\" ?\')))
                (setq char nil))
               ((member char '(?\} ?\] ?\)))
                (with-syntax-table (standard-syntax-table)
@@ -3570,8 +3570,8 @@ e. g. without semicolons")
             new-pos))))))
 
 (defun emmet-detect-style-tag-and-attr ()
-  (let* ((qt "\"")
-         (not-qt (format "[^%s]" qt))
+  (let* ((qt "[\"']")
+         (not-qt "[^\"']")
          (everything "\\(.\\|\n\\)*"))
     (or
      (and (looking-at (format "%s*%s" not-qt qt))
