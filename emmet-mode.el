@@ -3881,9 +3881,14 @@ accept it or skip it."
       ((between-tags
         (if only-before-closed-tag "\\(><\\)/" "\\(><\\)"))
        (indented-line "\\(^[[:blank:]]+$\\)")
-       (between-quotes "\\(=\\(\"\\|'\\)\\{2\\}\\)")
-       (edit-point (format "\\(%s\\|%s\\|%s\\)"
-                           between-tags indented-line between-quotes)))
+       (between-quotes
+        (if emmet-move-cursor-between-quotes "\\(=\\(\"\\|'\\)\\{2\\}\\)" nil))
+       (whole-regex
+        (mapconcat 'identity
+                   (delq nil
+                         (list between-tags indented-line between-quotes))
+                   "\\|"))
+       (edit-point (format "\\(%s\\)" whole-regex)))
     (if (> count 0)
 	(progn
 	  (forward-char)
