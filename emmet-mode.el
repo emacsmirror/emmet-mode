@@ -3924,12 +3924,25 @@ accept it or skip it."
          (to-wrap (buffer-substring-no-properties (region-beginning) (region-end)))
          (expr (concat wrap-with
                        ">{"
-                       (replace-regexp-in-string "}" "!EMMET-BRACKET-REPLACEMENT!" to-wrap)
+                       (replace-regexp-in-string
+                        "\\$"
+                        "!EMMET-DOLLAR-REPLACEMENT!"
+                        (replace-regexp-in-string
+                         "}"
+                         "!EMMET-BRACKET-REPLACEMENT!"
+                         to-wrap nil t) nil t)
                        "}"))
-         (markup (replace-regexp-in-string "!EMMET-BRACKET-REPLACEMENT!" "}" (emmet-transform expr))))
-    (when markup
-      (delete-region (region-beginning) (region-end))
-      (insert markup))))
+         (markup (replace-regexp-in-string
+                  "!EMMET-DOLLAR-REPLACEMENT!"
+                  "$"
+                  (replace-regexp-in-string
+                   "!EMMET-BRACKET-REPLACEMENT!"
+                   "}" (emmet-transform expr) nil t) nil t)))
+         (when markup
+           (delete-region (region-beginning) (region-end))
+           (insert markup)
+           (indent-region (region-beginning) (region-end))
+           )))
 
 ;;;###autoload
 (defun emmet-next-edit-point (count)

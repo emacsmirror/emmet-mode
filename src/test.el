@@ -622,5 +622,26 @@
 ;; Old tests for previous indent behavior last seen:
 ;;   commit: f56174e5905a40583b47f9737abee3af8da3faeb
 
+(defun emmet-wrap-with-markup-test (lis)
+  (let ((es (car lis))
+        (indent-tabs-mode nil)
+        (tab-width 2)
+        (standard-indent 2))
+    (with-temp-buffer
+      (emmet-mode 1)
+      (sgml-mode)
+      (set-mark (point))
+      (insert "This is gnarly text with $$$s and <span>markup</span> and end brackets}}s")
+      (emmet-wrap-with-markup es)
+      (buffer-string))))
+
+(emmet-run-test-case "Wrap with markup on text with brackets and markup"
+  #'emmet-wrap-with-markup-test
+  '((("div>ul>li") . "<div>\n  <ul>\n    <li>This is gnarly text with $$$s and <span>markup</span> and end brackets}}s</li>\n  </ul>\n</div>")))
+
+(emmet-run-test-case "Wrap with markup multiplier"
+  #'emmet-wrap-with-markup-test
+  '((("div>ul>li*3") . "<div>\n  <ul>\n    <li>This is gnarly text with $$$s and <span>markup</span> and end brackets}}s</li>\n    <li>This is gnarly text with $$$s and <span>markup</span> and end brackets}}s</li>\n    <li>This is gnarly text with $$$s and <span>markup</span> and end brackets}}s</li>\n  </ul>\n</div>")))
+
 ;; start
 (emmet-test-cases)
