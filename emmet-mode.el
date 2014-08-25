@@ -3915,6 +3915,21 @@ accept it or skip it."
 		(point))
 	      (forward-char)))))))
 
+(defun emmet-wrap-with-markup (wrap-with)
+  "Wrap region with markup."
+  (interactive "sExpression to wrap with: ")
+  (let* ((emmet-move-cursor-between-quotes nil)
+         (to-wrap (buffer-substring-no-properties (region-beginning) (region-end)))
+         (expr (concat wrap-with
+                       ">{"
+                       (replace-regexp-in-string "\\([}{]\\)" "\\\\\&" to-wrap)
+                       "}"))
+         (markup (emmet-transform expr)))
+    (when markup
+      (delete-region (region-beginning) (region-end))
+      (insert markup))))
+
+
 ;;;###autoload
 (defun emmet-next-edit-point (count)
   (interactive "^p")
