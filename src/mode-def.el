@@ -127,6 +127,7 @@ For more information see `emmet-mode'."
     (define-key map (kbd "<C-return>") 'emmet-expand-line)
     (define-key map (kbd "<C-M-right>") 'emmet-next-edit-point)
     (define-key map (kbd "<C-M-left>") 'emmet-prev-edit-point)
+    (define-key map (kbd "C-c w") 'emmet-wrap-with-markup)
     map)
   "Keymap for emmet minor mode.")
 
@@ -426,6 +427,7 @@ accept it or skip it."
 		(point))
 	      (forward-char)))))))
 
+;;;###autoload
 (defun emmet-wrap-with-markup (wrap-with)
   "Wrap region with markup."
   (interactive "sExpression to wrap with: ")
@@ -433,13 +435,12 @@ accept it or skip it."
          (to-wrap (buffer-substring-no-properties (region-beginning) (region-end)))
          (expr (concat wrap-with
                        ">{"
-                       ;;FIX(replace-regexp-in-string "}" (concat "\\" "\&" to-wrap)
+                       (replace-regexp-in-string "}" "!EMMET-BRACKET-REPLACEMENT!" to-wrap)
                        "}"))
-         (markup (emmet-transform expr)))
+         (markup (replace-regexp-in-string "!EMMET-BRACKET-REPLACEMENT!" "}" (emmet-transform expr))))
     (when markup
       (delete-region (region-beginning) (region-end))
       (insert markup))))
-
 
 ;;;###autoload
 (defun emmet-next-edit-point (count)
