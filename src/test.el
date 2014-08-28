@@ -624,6 +624,7 @@
 
 (defun emmet-wrap-with-markup-test (lis)
   (let ((es (car lis))
+        (ins (or (elt lis 1) "This is gnarly text with $$$s and <span>markup</span> and end brackets}}s"))
         (indent-tabs-mode nil)
         (tab-width 2)
         (standard-indent 2))
@@ -631,7 +632,7 @@
       (emmet-mode 1)
       (sgml-mode)
       (set-mark (point))
-      (insert "This is gnarly text with $$$s and <span>markup</span> and end brackets}}s")
+      (insert ins)
       (emmet-wrap-with-markup es)
       (buffer-string))))
 
@@ -642,6 +643,10 @@
 (emmet-run-test-case "Wrap with markup multiplier"
   #'emmet-wrap-with-markup-test
   '((("div>ul>li*3") . "<div>\n  <ul>\n    <li>This is gnarly text with $$$s and <span>markup</span> and end brackets}}s</li>\n    <li>This is gnarly text with $$$s and <span>markup</span> and end brackets}}s</li>\n    <li>This is gnarly text with $$$s and <span>markup</span> and end brackets}}s</li>\n  </ul>\n</div>")))
+
+(emmet-run-test-case "Wrap with multiline content"
+  #'emmet-wrap-with-markup-test
+  '((("div>ul>li" "I am some\nmultiline\n  text") . "<div>\n  <ul>\n    <li>I am some\n      multiline\n      text</li>\n  </ul>\n</div>")))
 
 ;; start
 (emmet-test-cases)

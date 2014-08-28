@@ -433,22 +433,11 @@ accept it or skip it."
   (interactive "sExpression to wrap with: ")
   (let* ((emmet-move-cursor-between-quotes nil)
          (to-wrap (buffer-substring-no-properties (region-beginning) (region-end)))
-         (expr (concat wrap-with
-                       ">{"
-                       (replace-regexp-in-string
-                        "\\$"
-                        "!EMMET-DOLLAR-REPLACEMENT!"
-                        (replace-regexp-in-string
-                         "}"
-                         "!EMMET-BRACKET-REPLACEMENT!"
-                         to-wrap nil t) nil t)
-                       "}"))
+         (expr (concat wrap-with ">{!EMMET-TO-WRAP-REPLACEMENT!}"))
          (markup (replace-regexp-in-string
-                  "!EMMET-DOLLAR-REPLACEMENT!"
-                  "$"
-                  (replace-regexp-in-string
-                   "!EMMET-BRACKET-REPLACEMENT!"
-                   "}" (emmet-transform expr) nil t) nil t)))
+                  "!EMMET-TO-WRAP-REPLACEMENT!" to-wrap
+                  (emmet-transform expr)
+                  t t)))
          (when markup
            (delete-region (region-beginning) (region-end))
            (insert markup)
