@@ -47,6 +47,12 @@
   :type 'boolean
   :group 'emmet)
 
+(defcustom emmet-use-style-tag-and-attr-detection t
+  "When true, enables detection of style tags and attributes in HTML
+to provide proper CSS abbreviations completion."
+  :type 'boolean
+  :group 'emmet)
+
 (defvar emmet-use-css-transform nil
   "When true, transform Emmet snippets into CSS, instead of the usual HTML.")
 (make-variable-buffer-local 'emmet-use-css-transform)
@@ -55,6 +61,7 @@
   "When true, uses Sass syntax for CSS abbreviations expanding,
 e. g. without semicolons")
 (make-variable-buffer-local 'emmet-use-sass-syntax)
+
 
 (defvar emmet-css-major-modes
   '(css-mode
@@ -81,14 +88,24 @@ e. g. without semicolons")
             new-pos))))))
 
 (defun emmet-detect-style-tag-and-attr ()
-  (let* ((qt "[\"']")
-         (not-qt "[^\"']")
-         (everything "\\(.\\|\n\\)*"))
-    (or
-     (and (looking-at (format "%s*%s" not-qt qt))
-          (looking-back (format "style=%s%s*" qt not-qt))) ; style attr
-     (and (looking-at (format "%s</style>" everything))
-          (looking-back (format "<style>%s" everything)))))) ; style tag
+  (let* ((style-attr-end "[^=][\"']")
+         (style-attr-begin "style=[\"']")
+         (style-tag-end "</style>")
+         (style-tag-begin "<style>"))
+    (and emmet-use-style-tag-and-attr-detection
+         (or
+          (emmet-check-if-between style-attr-begin style-attr-end) ; style attr
+          (emmet-check-if-between style-tag-begin style-tag-end))))) ; style tag
+
+(defun emmet-check-if-between (begin end)
+  (let ((begin-back (emmet-find "backward" begin))
+        (end-back (emmet-find "backward" end))
+        (begin-front (emmet-find "forward" begin))
+        (end-front (emmet-find "forward" end)))
+    (and begin-back end-front
+         (or (not end-back) (> begin-back end-back))
+         (or (not begin-front) (< end-front begin-front)))))
+
 
 ;;;###autoload
 (defun emmet-expand-line (arg)

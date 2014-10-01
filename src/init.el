@@ -65,6 +65,14 @@
                                    ,then-form)
                                  ,@else-forms)))
 
+(defmacro emmet-find (direction regexp &optional limit-of-search repeat-count)
+  "Regexp-search in given direction, returning the position (or nil)
+and leaving the point in place."
+  `(save-excursion
+     (if (,(intern (concat "re-search-" direction))
+          ,regexp ,limit-of-search t ,repeat-count)
+         (match-beginning 0))))
+
 (defun emmet-regex (regexp string refs)
   "Return a list of (`ref') matches for a `regex' on a `string' or nil."
   (if (string-match (concat "^" regexp "\\([^\n]*\\)$") string)
