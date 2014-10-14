@@ -3737,7 +3737,8 @@ See also `emmet-expand-line'."
 
 (defun emmet-preview-accept ()
   (interactive)
-  (let ((ovli emmet-preview-input))
+  (let ((ovli emmet-preview-input)
+        (expr (emmet-expr-on-line)))
     (if (not (and (overlayp ovli)
                   (bufferp (overlay-buffer ovli))))
         (message "Preview is not active")
