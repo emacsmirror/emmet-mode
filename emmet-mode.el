@@ -3946,8 +3946,7 @@ accept it or skip it."
 (defun emmet-wrap-with-markup (wrap-with)
   "Wrap region with markup."
   (interactive "sExpression to wrap with: ")
-  (let* ((emmet-move-cursor-between-quotes nil)
-         (to-wrap (buffer-substring-no-properties (region-beginning) (region-end)))
+  (let* ((to-wrap (buffer-substring-no-properties (region-beginning) (region-end)))
          (expr (concat wrap-with ">{!EMMET-TO-WRAP-REPLACEMENT!}"))
          (markup (replace-regexp-in-string
                   "!EMMET-TO-WRAP-REPLACEMENT!" to-wrap
@@ -3957,6 +3956,10 @@ accept it or skip it."
            (delete-region (region-beginning) (region-end))
            (insert markup)
            (indent-region (region-beginning) (region-end))
+           (let ((end (region-end)))
+             (goto-char (region-beginning))
+             (unless (ignore-errors (progn (emmet-next-edit-point 1) t))
+               (goto-char end)))
            )))
 
 ;;;###autoload
