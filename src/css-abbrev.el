@@ -46,9 +46,9 @@
       (let ((rgb-mode (string= (elt it 2) "rgb")))
         (if rgb-mode
             (format "rgb(%d,%d,%d)"
-                    (string-to-int (substring color 0 2) 16)
-                    (string-to-int (substring color 2 4) 16)
-                    (string-to-int (substring color 4 6) 16))
+                    (string-to-number (substring color 0 2) 16)
+                    (string-to-number (substring color 2 4) 16)
+                    (string-to-number (substring color 4 6) 16))
           (concat
            "#"
            (let ((filter (cond ((string= emmet-css-color-case "auto") #'identity)
@@ -160,7 +160,7 @@
          "\\):.*$"))
 
 (defun emmet-css-instantiate-lambda (str)
-  (flet ((insert-space-between-name-and-body
+  (cl-flet ((insert-space-between-name-and-body
           (str)
           (if (string-match "^\\([a-z-]+:\\)\\(.+\\)$" str)
               (emmet-join-string
@@ -176,7 +176,7 @@
                        (mapcar (lambda (ref) (match-string ref str)) '(0 1 2))
                      (setf rt
                            `((or
-                              (nth ,(let ((cur-idx (if idx (1- (string-to-int idx)) i)))
+                              (nth ,(let ((cur-idx (if idx (1- (string-to-number idx)) i)))
                                       (setf idx-max (max cur-idx idx-max)))
                                    ,args-sym)
                               ,(or def ""))

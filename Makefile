@@ -7,12 +7,12 @@ emmet-mode.el: src/snippets.el src/preferences.el src/*
 	touch $(DST)
 	cat src/comments.el >> $(DST)
 	cat src/init.el >> $(DST)
+	cat src/mode-def.el >> $(DST)
 	cat src/snippets.el >> $(DST)
 	cat src/preferences.el >> $(DST)
 	cat src/html-abbrev.el >> $(DST)
 	cat src/lorem.el >> $(DST)
 	cat src/css-abbrev.el >> $(DST)
-	cat src/mode-def.el >> $(DST)
 
 emmet-mode.elc: emmet-mode.el
 	/usr/bin/env emacs --batch --eval '(byte-compile-file "emmet-mode.el")'

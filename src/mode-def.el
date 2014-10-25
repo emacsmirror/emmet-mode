@@ -76,17 +76,6 @@ e. g. without semicolons")
       (emmet-css-transform input)
     (emmet-html-transform input)))
 
-(defun emmet-reposition-cursor (expr)
-  (let ((output-markup (buffer-substring-no-properties (second expr) (point))))
-    (when emmet-move-cursor-after-expanding
-      (let ((p (point))
-            (new-pos (if (emmet-html-text-p output-markup)
-                         (emmet-html-next-insert-point output-markup)
-                       (emmet-css-next-insert-point output-markup))))
-        (goto-char
-         (+ (- p (length output-markup))
-            new-pos))))))
-
 (defun emmet-detect-style-tag-and-attr ()
   (let* ((style-attr-end "[^=][\"']")
          (style-attr-begin "style=[\"']")
@@ -106,6 +95,11 @@ e. g. without semicolons")
          (or (not end-back) (> begin-back end-back))
          (or (not begin-front) (< end-front begin-front)))))
 
+(defcustom emmet-preview-default t
+  "If non-nil then preview is the default action.
+This determines how `emmet-expand-line' works by default."
+  :type 'boolean
+  :group 'emmet)
 
 ;;;###autoload
 (defun emmet-expand-line (arg)
@@ -200,9 +194,10 @@ See also `emmet-expand-line'."
           (delete-region (second expr) (third expr))
           (insert filled)
           (indent-region (second expr) (point))
-          (yas/expand-snippet
-           (buffer-substring (second expr) (point))
-           (second expr) (point))))))
+          (if (fboundp 'yas/expand-snippet)
+              (yas/expand-snippet
+               (buffer-substring (second expr) (point))
+               (second expr) (point)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Real-time preview
@@ -278,12 +273,6 @@ See also `emmet-expand-line'."
       (delete-overlay emmet-flash-ovl))
     (setq emmet-flash-ovl nil)))
 
-(defcustom emmet-preview-default t
-  "If non-nil then preview is the default action.
-This determines how `emmet-expand-line' works by default."
-  :type 'boolean
-  :group 'emmet)
-
 (defcustom emmet-insert-flash-time 0.5
   "Time to flash insertion.
 Set this to a negative number if you do not want flashing the
@@ -302,6 +291,17 @@ moved to before the first closing tag when the exp was expanded."
 cursor position will be moved to after the first quote."
   :type 'boolean
   :group 'emmet)
+
+(defun emmet-reposition-cursor (expr)
+  (let ((output-markup (buffer-substring-no-properties (second expr) (point))))
+    (when emmet-move-cursor-after-expanding
+      (let ((p (point))
+            (new-pos (if (emmet-html-text-p output-markup)
+                         (emmet-html-next-insert-point output-markup)
+                       (emmet-css-next-insert-point output-markup))))
+        (goto-char
+         (+ (- p (length output-markup))
+            new-pos))))))
 
 (defun emmet-insert-and-flash (markup)
   (emmet-remove-flash-ovl (current-buffer))

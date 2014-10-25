@@ -76,7 +76,7 @@
                     `((n ,(length doller) t 1) . ,input)))))
 
 (defun emmet-split-numbering-expressions (input)
-  (labels
+  (cl-labels
       ((iter (input)
              (emmet-aif (emmet-regex "\\([^$]*\\)\\(\\$.*\\)" input '(1 2))
                 (let ((prefix (car it))
@@ -94,7 +94,7 @@
         `(numberings ,@res)))))
 
 (defun emmet-instantiate-numbering-expression (i lim exp)
-  (labels ((instantiate
+  (cl-labels ((instantiate
             (i lim exps)
             (apply #'concat
                    (mapcar
@@ -308,31 +308,34 @@
 (defun emmet-parent-child (input)
   "Parse an tag>e expression, where `n' is an tag and `e' is any
    expression."
-  (defun listing (parents child input)
-    (let ((len (length parents)))
-      `((list ,(map 'list
-                    (lambda (parent i)
-                      `(parent-child ,parent
-                                     ,(emmet-instantiate-numbering-expression i len child)))
-                    parents
-                    (loop for i to (- len 1) collect i))) . ,input)))
-  (emmet-run emmet-multiplier
-                 (let* ((items (cadr expr))
-                        (rest (emmet-child-sans expr input)))
-                   (if (not (eq (car rest) 'error))
-                       (let ((child (car rest))
-                             (input (cdr rest)))
+  (cl-labels
+    ((listing (parents child input)
+        (let ((len (length parents)))
+          `((list ,(map 'list
+                        (lambda (parent i)
+                          `(parent-child ,parent
+                                         ,(emmet-instantiate-numbering-expression i len child)))
+                        parents
+                        (loop for i to (- len 1) collect i))) . ,input))))
+    (emmet-run
+     emmet-multiplier
+     (let* ((items (cadr expr))
+            (rest (emmet-child-sans expr input)))
+       (if (not (eq (car rest) 'error))
+           (let ((child (car rest))
+                 (input (cdr rest)))
 
-                         (emmet-aif (emmet-regex "^" input '(0 1))
-                                                   (let ((input (elt it 1)))
-                                                     (emmet-run emmet-subexpr
-                                                                    `((sibling ,(car (listing items child "")) ,expr) . ,input)
-                                                                    (listing items child input)))
-                                                   (listing items child input)))
-                     '(error "expected child")))
-                 (emmet-run emmet-tag
-                                (emmet-child expr input)
-                                '(error "expected parent"))))
+             (emmet-aif (emmet-regex "^" input '(0 1))
+                        (let ((input (elt it 1)))
+                          (emmet-run
+                           emmet-subexpr
+                           `((sibling ,(car (listing items child "")) ,expr) . ,input)
+                           (listing items child input)))
+                        (listing items child input)))
+         '(error "expected child")))
+     (emmet-run emmet-tag
+                (emmet-child expr input)
+                '(error "expected parent")))))
 
 (defun emmet-child-sans (parent input)
   (emmet-parse ">" 1 ">"
@@ -504,7 +507,7 @@
                                 '(1 2))
                       (list src)))
                 (split-string src "\n"))))
-    (labels
+    (cl-labels
         ((iter
           (l m a b)
           (if l
