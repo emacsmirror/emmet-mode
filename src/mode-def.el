@@ -307,8 +307,13 @@ cursor position will be moved to after the first quote."
   (emmet-remove-flash-ovl (current-buffer))
   (let ((here (point)))
     (insert markup)
-    (if emmet-indent-after-insert
-        (indent-region here (point)))
+    (when emmet-indent-after-insert
+      (indent-region here (point))
+      (setq here
+            (save-excursion
+              (goto-char here)
+              (skip-chars-forward "\s-")
+              (point))))
     (setq emmet-flash-ovl (make-overlay here (point)))
     (overlay-put emmet-flash-ovl 'face 'emmet-preview-output)
     (when (< 0 emmet-insert-flash-time)

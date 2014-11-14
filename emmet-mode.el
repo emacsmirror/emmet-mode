@@ -461,7 +461,9 @@ cursor position will be moved to after the first quote."
   (let ((here (point)))
     (insert markup)
     (if emmet-indent-after-insert
-        (indent-region here (point)))
+        (let ((pre-indent-point (point)))
+          (indent-region here (point))
+          (setq here (+ here (- (point) pre-indent-point)))))
     (setq emmet-flash-ovl (make-overlay here (point)))
     (overlay-put emmet-flash-ovl 'face 'emmet-preview-output)
     (when (< 0 emmet-insert-flash-time)
