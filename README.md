@@ -57,7 +57,7 @@ If you want the cursor to be positioned between first empty quotes after expandi
 
     (setq emmet-move-cursor-between-quotes t) ;; default nil
 
-Or if you don't want to move cursor after expandin:
+Or if you don't want to move cursor after expanding:
 
     (setq emmet-move-cursor-after-expanding nil) ;; default t
 
