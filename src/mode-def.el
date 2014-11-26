@@ -94,7 +94,7 @@ e. g. without semicolons")
          (or (not end-back) (> begin-back end-back))
          (or (not begin-front) (< end-front begin-front)))))
 
-(defcustom emmet-preview-default t
+(defcustom emmet-preview-default nil
   "If non-nil then preview is the default action.
 This determines how `emmet-expand-line' works by default."
   :type 'boolean
