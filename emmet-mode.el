@@ -172,7 +172,6 @@ and leaving the point in place."
   "Find the left bound of an emmet expr"
   (save-excursion (save-match-data
     (let ((char (char-before))
-          (last-gt (point))
           (in-style-attr (looking-back "style=[\"'][^\"']*")))
       (while char
         (cond ((and in-style-attr (member char '(?\" ?\')))
@@ -181,9 +180,9 @@ and leaving the point in place."
                (with-syntax-table (standard-syntax-table)
                  (backward-sexp) (setq char (char-before))))
               ((eq char ?\>)
-               (setq last-gt (point)) (backward-char) (setq char (char-before)))
-              ((eq char ?\<)
-               (goto-char last-gt) (setq char nil))
+               (if (looking-back "<[^>]+>" (line-beginning-position))
+                   (setq char nil)
+                 (progn (backward-char) (setq char (char-before)))))
               ((not (string-match-p "[[:space:]\n;]" (string char)))
                (backward-char) (setq char (char-before)))
               (t
@@ -460,10 +459,13 @@ cursor position will be moved to after the first quote."
   (emmet-remove-flash-ovl (current-buffer))
   (let ((here (point)))
     (insert markup)
-    (if emmet-indent-after-insert
-        (let ((pre-indent-point (point)))
-          (indent-region here (point))
-          (setq here (+ here (- (point) pre-indent-point)))))
+    (when emmet-indent-after-insert
+      (indent-region here (point))
+      (setq here
+            (save-excursion
+              (goto-char here)
+              (skip-chars-forward "\s-")
+              (point))))
     (setq emmet-flash-ovl (make-overlay here (point)))
     (overlay-put emmet-flash-ovl 'face 'emmet-preview-output)
     (when (< 0 emmet-insert-flash-time)
