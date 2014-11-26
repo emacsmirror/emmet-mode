@@ -648,5 +648,28 @@
   #'emmet-wrap-with-markup-test
   '((("div>ul>li" "I am some\nmultiline\n  text") . "<div>\n  <ul>\n    <li>I am some\n      multiline\n      text</li>\n  </ul>\n</div>")))
 
+;; Regression test for #54 (broken emmet-find-left-bound behavior
+;;   after tag with attributes)
+(defun emmet-regression-54-test (lis)
+  (let ((es (car lis))
+        (emmet-preview-default nil)
+        (emmet-indent-after-insert nil))
+    (with-temp-buffer
+      (emmet-mode 1)
+      (sgml-mode)
+      (insert "<div class=\"broken\">")
+      (insert es)
+      (emmet-expand-line nil)
+      (buffer-string))))
+
+(emmet-run-test-case "Regression 54 with span"
+  #'emmet-regression-54-test
+  '((("span") . "<div class=\"broken\"><span></span>")))
+
+(emmet-run-test-case "Regression 54 with complex span"
+  #'emmet-regression-54-test
+  '((("span.whut[thing=\"stuff\"]{Huh?}") . "<div class=\"broken\"><span class=\"whut\" thing=\"stuff\">Huh?</span>")))
+
+
 ;; start
 (emmet-test-cases)

@@ -19,7 +19,6 @@
   "Find the left bound of an emmet expr"
   (save-excursion (save-match-data
     (let ((char (char-before))
-          (last-gt (point))
           (in-style-attr (looking-back "style=[\"'][^\"']*")))
       (while char
         (cond ((and in-style-attr (member char '(?\" ?\')))
@@ -28,9 +27,9 @@
                (with-syntax-table (standard-syntax-table)
                  (backward-sexp) (setq char (char-before))))
               ((eq char ?\>)
-               (setq last-gt (point)) (backward-char) (setq char (char-before)))
-              ((eq char ?\<)
-               (goto-char last-gt) (setq char nil))
+               (if (looking-back "<[^>]+>" (line-beginning-position))
+                   (setq char nil)
+                 (progn (backward-char) (setq char (char-before)))))
               ((not (string-match-p "[[:space:]\n;]" (string char)))
                (backward-char) (setq char (char-before)))
               (t
