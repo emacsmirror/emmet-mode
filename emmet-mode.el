@@ -464,7 +464,7 @@ cursor position will be moved to after the first quote."
       (setq here
             (save-excursion
               (goto-char here)
-              (skip-chars-forward "\s-")
+              (skip-chars-forward "[:space:]")
               (point))))
     (setq emmet-flash-ovl (make-overlay here (point)))
     (overlay-put emmet-flash-ovl 'face 'emmet-preview-output)
