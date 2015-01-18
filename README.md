@@ -540,7 +540,7 @@ concatenate each property by '+';
 
 Traverse between important code points in HTML.
 
-- `<M-C-left>` is "Previous Edit Point" (`M-x emmet-next-edit-point`)
-- `<M-C-right>` is "Next Edit Point" (`M-x emmet-prev-edit-point`)
+- `<M-C-left>` is "Previous Edit Point" (`M-x emmet-prev-edit-point`)
+- `<M-C-right>` is "Next Edit Point" (`M-x emmet-next-edit-point`)
 
 For further information and demo see [Emmet's documentation](http://docs.emmet.io/actions/go-to-edit-point/). 
