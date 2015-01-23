@@ -17,6 +17,10 @@ Zen Coding has been renamed to [Emmet](http://emmet.io/) and includes an expande
 
 - [Go to Edit Point](https://github.com/smihica/emmet#go-to-edit-point)
 
+## Supported Emacs
+
+`emmet-mode` is supported by GNU Emacs versions from 23 onward.
+
 ## Installation
 
 ### 1. From marmalade or MELPA
@@ -543,4 +547,4 @@ Traverse between important code points in HTML.
 - `<C-M-left>` is "Previous Edit Point" (`M-x emmet-prev-edit-point`)
 - `<C-M-right>` is "Next Edit Point" (`M-x emmet-next-edit-point`)
 
-For further information and demo see [Emmet's documentation](http://docs.emmet.io/actions/go-to-edit-point/). 
+For further information and demo see [Emmet's documentation](http://docs.emmet.io/actions/go-to-edit-point/).
