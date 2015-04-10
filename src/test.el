@@ -670,6 +670,8 @@
   #'emmet-regression-54-test
   '((("span.whut[thing=\"stuff\"]{Huh?}") . "<div class=\"broken\"><span class=\"whut\" thing=\"stuff\">Huh?</span>")))
 
+(define-emmet-transform-html-test-case regression-61-bracket-escapes
+  "div{\\}\\}\\}}" ("<div>}}}</div>"))
 
 ;; start
 (emmet-test-cases)

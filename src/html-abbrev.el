@@ -287,9 +287,12 @@
 
 (defun emmet-text (input)
   "A zen coding expression innertext."
-  (emmet-parse "{\\(.*?\\)}" 2 "inner text"
-                   (let ((txt (emmet-split-numbering-expressions (elt it 1))))
-                     `((text ,txt) . ,input))))
+  (emmet-parse "{\\(\\(?:\\\\.\\|[^\\\\}]\\)*?\\)}" 2 "inner text"
+               (let ((txt (emmet-split-numbering-expressions (elt it 1))))
+                 (if (listp txt)
+                     (setq txt (cons (car txt) (cons (replace-regexp-in-string "\\\\\\(.\\)" "\\1" (cadr txt)) (cddr txt))))
+                   (setq txt (replace-regexp-in-string "\\\\\\(.\\)" "\\1" txt)))
+                 `((text ,txt) . ,input))))
 
 (defun emmet-properties (input)
   "A bracketed emmet property expression."
@@ -568,7 +571,7 @@
              (if self-closing? "/>"
                (concat ">"
                        (if tag-txt
-                           (if block-indentation? 
+                           (if block-indentation?
                                (emmet-indent tag-txt)
                              tag-txt))
                        (if content

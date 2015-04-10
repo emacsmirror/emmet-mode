@@ -347,6 +347,8 @@ you'll transform your snippet into the appropriate tag structure.
                              </p>
                              <span>here</span>
                               to continue
+    p{\{Escape brackets!\} and \\}
+                             <p>{Escape brackets} and \</p>
 
 #### Lorem-Ipsum generator
 
