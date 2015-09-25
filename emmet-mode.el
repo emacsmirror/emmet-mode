@@ -3153,16 +3153,16 @@ tbl))
 
 (defun emmet-prop-value (name input)
   (emmet-pif (emmet-parse "=\"\\(.*?\\)\"" 2
-                                  "=\"property value\""
-                                  (let ((value (elt it 1))
-                                        (input (elt it 2)))
-                                    `((,(read name) ,value) . ,input)))
-                 it
-                 (emmet-parse "=\\([^\\,\\+\\>\\{\\}\\ )]*\\)" 2
-                                  "=property value"
-                                  (let ((value (elt it 1))
-                                        (input (elt it 2)))
-                                    `((,(read name) ,value) . ,input)))))
+                          "=\"property value\""
+                          (let ((value (elt it 1))
+                                (input (elt it 2)))
+                            `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input)))
+             it
+             (emmet-parse "=\\([^\\,\\+\\>\\{\\}\\ )]*\\)" 2
+                          "=property value"
+                          (let ((value (elt it 1))
+                                (input (elt it 2)))
+                            `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input)))))
 
 (defun emmet-tag-classes (tag input)
   (let ((tag-data (cadr tag)))

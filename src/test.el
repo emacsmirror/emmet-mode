@@ -267,6 +267,13 @@
    "    <li class=\"item1\">name: item1 price: 1$</li>"
    "    <li class=\"item2\">name: item2 price: 2$</li>"
    "    <li class=\"item3\">name: item3 price: 3$</li>"
+   "</ul>")
+
+  "ul>li[id=\"thing-$\"]*3"
+  ("<ul>"
+   "    <li id=\"thing-1\"></li>"
+   "    <li id=\"thing-2\"></li>"
+   "    <li id=\"thing-3\"></li>"
    "</ul>"))
 
 (define-emmet-transform-html-test-case Properties
