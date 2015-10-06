@@ -65,6 +65,10 @@ Or if you don't want to move cursor after expanding:
 
     (setq emmet-move-cursor-after-expanding nil) ;; default t
 
+If you want to use emmet with react-js's JSX, you probably want emmet to expand 'className="..."' instead of 'class="..."':
+
+    (setq emmet-expand-jsx-className? t) ;; default nil
+
 ## Usage
 
 Place point in a emmet snippet and press C-j to expand it (or alternatively,
