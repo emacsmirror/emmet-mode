@@ -638,7 +638,6 @@ accept it or skip it."
 
 (provide 'emmet-mode)
 
-;;; emmet-mode.el ends here
 ;; src/snippets.el
 ;; This file is generated from conf/snippets.json
 ;; Don't edit.
@@ -4000,3 +3999,5 @@ tbl))
 
 (defun emmet-css-transform (input)
   (emmet-css-transform-exprs (emmet-css-expr input)))
+
+;;; emmet-mode.el ends here
