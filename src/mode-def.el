@@ -485,4 +485,3 @@ accept it or skip it."
 
 (provide 'emmet-mode)
 
-;;; emmet-mode.el ends here

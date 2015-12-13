@@ -13,6 +13,8 @@ emmet-mode.el: src/snippets.el src/preferences.el src/*
 	cat src/html-abbrev.el >> $(DST)
 	cat src/lorem.el >> $(DST)
 	cat src/css-abbrev.el >> $(DST)
+	echo "" >> $(DST)
+	echo ";;; emmet-mode.el ends here" >> $(DST)
 
 emmet-mode.elc: emmet-mode.el
 	/usr/bin/env emacs --batch --eval '(byte-compile-file "emmet-mode.el")'
