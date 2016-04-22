@@ -572,7 +572,8 @@
 	  (block-indentation? (or content-multiline? (and block-tag? content)))
           (lf                 (if block-indentation? "\n")))
      (concat "<" tag-name id classes props
-             (if self-closing? "/>"
+             (if self-closing?
+                 (concat emmet-self-closing-tag-style ">")
                (concat ">"
                        (if tag-txt
                            (if block-indentation?
