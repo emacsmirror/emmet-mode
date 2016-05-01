@@ -69,6 +69,13 @@ If you want to use emmet with react-js's JSX, you probably want emmet to expand 
 
     (setq emmet-expand-jsx-className? t) ;; default nil
 
+If you want to customize Self-closing tags style:
+
+    (setq emmet-self-closing-tag-style \" /\") ;; default \"/\"
+
+    ;; only \" /\", \"/\" and \"\" are valid.
+    ;; eg. <meta />, <meta/>, <meta>
+
 ## Usage
 
 Place point in a emmet snippet and press C-j to expand it (or alternatively,
