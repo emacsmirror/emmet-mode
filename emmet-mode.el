@@ -207,6 +207,25 @@ to provide proper CSS abbreviations completion."
   :type 'boolean
   :group 'emmet)
 
+(defcustom emmet-self-closing-tag-style "/"
+  "Self-closing tags style.
+
+This determines how Emmet expands self-closing tags.
+
+E.g., FOO is a self-closing tag.  When expanding \"FOO\":
+
+When \" /\", the expansion is \"<FOO />\".
+When \"/\", the expansion is \"<FOO/>\".
+When \"\", the expansion is \"<FOO>\".
+
+Default value is \"/\".
+
+NOTE: only \" /\", \"/\" and \"\" are valid."
+  :type '(choice (const :tag " />" " /")
+                 (const :tag "/>" "/")
+                 (const :tag ">" ""))
+  :group 'emmet)
+
 (defvar emmet-use-css-transform nil
   "When true, transform Emmet snippets into CSS, instead of the usual HTML.")
 (make-variable-buffer-local 'emmet-use-css-transform)
@@ -3467,7 +3486,8 @@ tbl))
 	  (block-indentation? (or content-multiline? (and block-tag? content)))
           (lf                 (if block-indentation? "\n")))
      (concat "<" tag-name id classes props
-             (if self-closing? "/>"
+             (if self-closing?
+                 (concat emmet-self-closing-tag-style ">")
                (concat ">"
                        (if tag-txt
                            (if block-indentation?
