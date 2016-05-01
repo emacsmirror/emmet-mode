@@ -71,9 +71,9 @@ If you want to use emmet with react-js's JSX, you probably want emmet to expand 
 
 If you want to customize Self-closing tags style:
 
-    (setq emmet-self-closing-tag-style \" /\") ;; default \"/\"
+    (setq emmet-self-closing-tag-style " /") ;; default "/"
 
-    ;; only \" /\", \"/\" and \"\" are valid.
+    ;; only " /", "/" and "" are valid.
     ;; eg. <meta />, <meta/>, <meta>
 
 ## Usage
