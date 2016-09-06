@@ -479,24 +479,31 @@ accept it or skip it."
          (to-wrap (if multi
                       (split-string txt "\n")
                     (list txt)))
-         (initial-elements (replace-regexp-in-string "\\(.*>\\)?[^>*]+\\*?$" "\\1" wrap-with))
-         (terminal-element (replace-regexp-in-string "\\(.*>\\)?\\([^>*]+\\)\\*?$" "\\2" wrap-with))
+         (initial-elements (replace-regexp-in-string "\\(.*>\\)?[^>*]+\\*?$" "\\1" wrap-with t))
+         (terminal-element (replace-regexp-in-string "\\(.*>\\)?\\([^>*]+\\)\\*?$" "\\2" wrap-with t))
          (expr (concat
                 initial-elements
-                (mapconcat (lambda (el) (concat terminal-element "{" el "}")) to-wrap "+")))
-
-         (markup (emmet-transform expr))
-         (debug-shit (message "initial-elements: %s\nterminal-element: %s\n expr: %s\n markup: %s" initial-elements terminal-element expr markup))
-         )
-         (when markup
-           (delete-region (region-beginning) (region-end))
-           (insert markup)
-           (indent-region (region-beginning) (region-end))
-           (let ((end (region-end)))
-             (goto-char (region-beginning))
-             (unless (ignore-errors (progn (emmet-next-edit-point 1) t))
-               (goto-char end)))
-           )))
+                (mapconcat (lambda (el) (concat terminal-element "{!!!" (secure-hash 'sha1 el) "!!!}"))
+                           to-wrap
+                           "+")))
+         (markup
+          (reduce
+           (lambda (result text)
+             (replace-regexp-in-string
+              (concat "!!!" (secure-hash 'sha1 text) "!!!")
+              text
+              result t t))
+           to-wrap
+           :initial-value (emmet-transform expr))))
+    (when markup
+      (delete-region (region-beginning) (region-end))
+      (insert markup)
+      (indent-region (region-beginning) (region-end))
+      (let ((end (region-end)))
+        (goto-char (region-beginning))
+        (unless (ignore-errors (progn (emmet-next-edit-point 1) t))
+          (goto-char end)))
+      )))
 
 ;;;###autoload
 (defun emmet-next-edit-point (count)
