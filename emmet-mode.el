@@ -172,7 +172,7 @@ and leaving the point in place."
   "Find the left bound of an emmet expr"
   (save-excursion (save-match-data
     (let ((char (char-before))
-          (in-style-attr (looking-back "style=[\"'][^\"']*"))
+          (in-style-attr (looking-back "style=[\"'][^\"']*" nil))
           (syn-tab (make-syntax-table)))
       (modify-syntax-entry ?\\ "\\")
       (while char
@@ -627,12 +627,20 @@ accept it or skip it."
 (defun emmet-wrap-with-markup (wrap-with)
   "Wrap region with markup."
   (interactive "sExpression to wrap with: ")
-  (let* ((to-wrap (buffer-substring-no-properties (region-beginning) (region-end)))
-         (expr (concat wrap-with ">{!EMMET-TO-WRAP-REPLACEMENT!}"))
-         (markup (replace-regexp-in-string
-                  "!EMMET-TO-WRAP-REPLACEMENT!" to-wrap
-                  (emmet-transform expr)
-                  t t)))
+  (let* ((multi (string-match "\\*$" wrap-with))
+         (txt (buffer-substring-no-properties (region-beginning) (region-end)))
+         (to-wrap (if multi
+                      (split-string txt "\n")
+                    (list txt)))
+         (initial-elements (replace-regexp-in-string "\\(.*>\\)?[^>*]+\\*?$" "\\1" wrap-with))
+         (terminal-element (replace-regexp-in-string "\\(.*>\\)?\\([^>*]+\\)\\*?$" "\\2" wrap-with))
+         (expr (concat
+                initial-elements
+                (mapconcat (lambda (el) (concat terminal-element "{" el "}")) to-wrap "+")))
+
+         (markup (emmet-transform expr))
+         (debug-shit (message "initial-elements: %s\nterminal-element: %s\n expr: %s\n markup: %s" initial-elements terminal-element expr markup))
+         )
          (when markup
            (delete-region (region-beginning) (region-end))
            (insert markup)
@@ -656,7 +664,6 @@ accept it or skip it."
     (error "First edit point reached.")))
 
 (provide 'emmet-mode)
-
 ;; src/snippets.el
 ;; This file is generated from conf/snippets.json
 ;; Don't edit.
