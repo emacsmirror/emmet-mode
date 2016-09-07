@@ -655,6 +655,11 @@
   #'emmet-wrap-with-markup-test
   '((("div>ul>li" "I am some\nmultiline\n  text") . "<div>\n  <ul>\n    <li>I am some\n      multiline\n      text</li>\n  </ul>\n</div>")))
 
+(emmet-run-test-case "Wrap with per-line markup (trailing *)"
+                     #'emmet-wrap-with-markup-test
+                     '((("div>ul>li*" "I am some\nmultiline\n  text") .
+                        "<div>\n  <ul>\n    <li>I am some</li>\n    <li>multiline</li>\n    <li>  text</li>\n  </ul>\n</div>")))
+
 ;; Regression test for #54 (broken emmet-find-left-bound behavior
 ;;   after tag with attributes)
 (defun emmet-regression-54-test (lis)
