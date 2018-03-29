@@ -655,16 +655,31 @@ See `emmet-preview-online'."
   "Wrap region with markup."
   (interactive "sExpression to wrap with: ")
   (let* ((multi (string-match "\\*$" wrap-with))
-         (txt (buffer-substring-no-properties (region-beginning) (region-end)))
+         (txt (buffer-substring-no-properties
+               (region-beginning) (region-end)))
          (to-wrap (if multi
                       (split-string txt "\n")
                     (list txt)))
-         (initial-elements (replace-regexp-in-string "\\(.*\\(\\+\\|>\\)\\)?[^>*]+\\*?[[:digit:]]*$" "\\1" wrap-with t))
-         (terminal-element (replace-regexp-in-string "\\(.*>\\)?\\([^>*]+\\)\\(\\*[[:digit:]]+$\\)?\\*?$" "\\2" wrap-with t))
-         (multiplier-expr (replace-regexp-in-string "\\(.*>\\)?\\([^>*]+\\)\\(\\*[[:digit:]]+$\\)?\\*?$" "\\3" wrap-with t))
+         (initial-elements
+           (replace-regexp-in-string
+            "\\(.*\\(\\+\\|>\\)\\)?[^>*]+\\*?[[:digit:]]*$"
+            "\\1" wrap-with t))
+         (terminal-element
+           (replace-regexp-in-string
+            "\\(.*>\\)?\\([^>*]+\\)\\(\\*[[:digit:]]+$\\)?\\*?$"
+            "\\2" wrap-with t))
+         (multiplier-expr
+           (replace-regexp-in-string
+            "\\(.*>\\)?\\([^>*]+\\)\\(\\*[[:digit:]]+$\\)?\\*?$"
+            "\\3" wrap-with t))
          (expr (concat
                 initial-elements
-                (mapconcat (lambda (el) (concat terminal-element "{!!!" (secure-hash 'sha1 el) "!!!}" multiplier-expr))
+                (mapconcat (lambda (el)
+                             (concat terminal-element
+                                     "{!!!"
+                                     (secure-hash 'sha1 el)
+                                     "!!!}"
+                                     multiplier-expr))
                            to-wrap
                            "+")))
          (markup
@@ -679,12 +694,7 @@ See `emmet-preview-online'."
     (when markup
       (delete-region (region-beginning) (region-end))
       (insert markup)
-      (indent-region (region-beginning) (region-end))
-      (let ((end (region-end)))
-        (goto-char (region-beginning))
-        (unless (ignore-errors (progn (emmet-next-edit-point 1) t))
-          (goto-char end)))
-      )))
+      (indent-region (region-beginning) (region-end)))))
 
 ;;;###autoload
 (defun emmet-next-edit-point (count)
