@@ -305,13 +305,12 @@ For more information see `emmet-mode'."
                 (emmet-reposition-cursor expr))))))))
 
 (defvar emmet-mode-keymap
-  (let
-      ((map (make-sparse-keymap)))
+  (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-j") 'emmet-expand-line)
     (define-key map (kbd "<C-return>") 'emmet-expand-line)
     (define-key map (kbd "<C-M-right>") 'emmet-next-edit-point)
     (define-key map (kbd "<C-M-left>") 'emmet-prev-edit-point)
-    (define-key map (kbd "C-c w") 'emmet-wrap-with-markup)
+    (define-key map (kbd "C-c C-c w") 'emmet-wrap-with-markup)
     map)
   "Keymap for emmet minor mode.")
 
@@ -4011,7 +4010,7 @@ tbl))
   (emmet-join-string
    (mapcar
     #'(lambda (expr)
-        (let* 
+        (let*
 	    ((hash-map (if emmet-use-sass-syntax emmet-sass-snippets emmet-css-snippets))
 	     (basement
 	      (emmet-aif
