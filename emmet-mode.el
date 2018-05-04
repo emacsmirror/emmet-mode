@@ -651,7 +651,7 @@ See `emmet-preview-online'."
 		(point))
 	      (forward-char)))))))
 
-(defcustom emmet-postwrap-goto-edit-point f
+(defcustom emmet-postwrap-goto-edit-point nil
   "Goto first edit point after wrapping markup?"
   :type 'boolean
   :group 'emmet)
