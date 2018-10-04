@@ -3487,7 +3487,11 @@ tbl))
   Emmet AST.")
 
 (defvar emmet-expand-jsx-className? nil
-  "Wether to use `className' when expanding `.classes'")
+  "Whether to use `className' when expanding `.classes'")
+
+(defvar emmet-expand-jsx-css-modules? nil
+  "Whether to use `{style.class}' when expanding `.class' where `style' is `emmet-expand-jsx-module-name'")
+(defvar emmet-expand-jsx-module-name "style")
 
 (emmet-defparameter
  emmet-tag-settings-table
@@ -3599,6 +3603,13 @@ tbl))
                   contents))))))
       (eval (iter lines 'a nil nil)))))
 
+(defun emmet-get-class-attribute-string ()
+  (if emmet-expand-jsx-className?
+      (if emmet-expand-jsx-css-modules?
+          (concat " className={" emmet-expand-jsx-module-name ".")
+        " className=\"")
+    " class=\""))
+
 (defun emmet-make-html-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
   "Create HTML markup string"
   (emmet-aif
@@ -3612,8 +3623,8 @@ tbl))
        (puthash tag-name fn emmet-tag-snippets-table)))
 
    (let* ((id           (emmet-concat-or-empty " id=\"" tag-id "\""))
-          (class-attr  (if emmet-expand-jsx-className? " className=\"" " class=\""))
-          (classes      (emmet-mapconcat-or-empty class-attr tag-classes " " "\""))
+          (class-attr  (emmet-get-class-attribute-string))
+          (classes      (emmet-mapconcat-or-empty class-attr tag-classes " " (if (and emmet-expand-jsx-className? emmet-expand-jsx-css-modules?) "}" "\"")))
           (props        (let* ((tag-props-default
                                 (and settings (gethash "defaultAttr" settings)))
                                (merged-tag-props
