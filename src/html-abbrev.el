@@ -427,6 +427,9 @@
 (defvar emmet-expand-jsx-className? nil
   "Wether to use `className' when expanding `.classes'")
 
+(defvar emmet-expand-jsx-className-modes '(rjsx-mode js-jsx-mode js2-jsx-mode jsx-mode js-mode)
+  "Which modes to check before using jsx class expansion")
+
 (emmet-defparameter
  emmet-tag-settings-table
  (gethash "tags" (gethash "html" emmet-preferences)))
@@ -537,6 +540,10 @@
                   contents))))))
       (eval (iter lines 'a nil nil)))))
 
+(defun emmet-jsx-supported-mode? ()
+  "Is the current mode we're on enabled for jsx class attribute expansion?"
+  (member major-mode emmet-expand-jsx-className-modes))
+
 (defun emmet-make-html-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
   "Create HTML markup string"
   (emmet-aif
@@ -550,7 +557,7 @@
        (puthash tag-name fn emmet-tag-snippets-table)))
 
    (let* ((id           (emmet-concat-or-empty " id=\"" tag-id "\""))
-          (class-attr  (if emmet-expand-jsx-className? " className=\"" " class=\""))
+          (class-attr  (if (and emmet-expand-jsx-className? (emmet-jsx-supported-mode?)) " className=\"" " class=\""))
           (classes      (emmet-mapconcat-or-empty class-attr tag-classes " " "\""))
           (props        (let* ((tag-props-default
                                 (and settings (gethash "defaultAttr" settings)))

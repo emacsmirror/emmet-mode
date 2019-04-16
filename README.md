@@ -69,6 +69,22 @@ If you want to use emmet with react-js's JSX, you probably want emmet to expand 
 
     (setq emmet-expand-jsx-className? t) ;; default nil
 
+This will set the class attribute to className on the following modes:
+
+- jsx-mode
+- rjsx-mode
+- js-jsx-mode
+- js2-jsx-mode
+- js-mode
+
+If you would like to configure which modes to use:
+
+    (setq emmet-expand-jsx-className-modes '(modes...))
+
+For example:
+
+    (setq emmet-expand-jsx-className-modes '(rjsx-mode web-mode))
+
 If you want to customize Self-closing tags style:
 
     (setq emmet-self-closing-tag-style " /") ;; default "/"

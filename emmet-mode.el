@@ -244,13 +244,6 @@ e. g. without semicolons")
     less-css-mode)
   "Major modes that use emmet for CSS, rather than HTML.")
 
-(defvar emmet-fallback-filter '("html")
-  "Fallback filter for `emmet-default-filter', if none is found.")
-
-(defvar emmet-file-filter nil
-  "File local filter used by `emmet-default-filter'.")
-(make-variable-buffer-local 'emmet-file-filter)
-
 (defun emmet-transform (input)
   (if (or (emmet-detect-style-tag-and-attr) emmet-use-css-transform)
       (emmet-css-transform input)
@@ -3111,18 +3104,16 @@ tbl))
 
 (defun emmet-default-filter ()
   "Default filter(s) to be used if none is specified."
-  (or emmet-file-filter
-      (let* ((file-ext (car (emmet-regex ".*\\(\\..*\\)" (or (buffer-file-name) "") 1)))
-             (defaults '(".html" ("html")
-                         ".htm"  ("html")
-                         ".haml" ("haml")
-                         ".clj"  ("hic")
-                         ".cljs" ("hic")))
-             (default-else emmet-fallback-filter)
-             (selected-default (member file-ext defaults)))
-        (if selected-default
-            (cadr selected-default)
-          default-else))))
+  (let* ((file-ext (car (emmet-regex ".*\\(\\..*\\)" (or (buffer-file-name) "") 1)))
+         (defaults '(".html" ("html")
+                     ".htm"  ("html")
+                     ".haml" ("haml")
+                     ".clj"  ("hic")))
+         (default-else      '("html"))
+         (selected-default (member file-ext defaults)))
+    (if selected-default
+        (cadr selected-default)
+      default-else)))
 
 (defun emmet-numbering (input)
   (emmet-parse
@@ -3489,6 +3480,9 @@ tbl))
 (defvar emmet-expand-jsx-className? nil
   "Wether to use `className' when expanding `.classes'")
 
+(defvar emmet-expand-jsx-className-modes '(rjsx-mode js-jsx-mode js2-jsx-mode jsx-mode js-mode)
+  "Which modes to check before using jsx class expansion")
+
 (emmet-defparameter
  emmet-tag-settings-table
  (gethash "tags" (gethash "html" emmet-preferences)))
@@ -3599,6 +3593,10 @@ tbl))
                   contents))))))
       (eval (iter lines 'a nil nil)))))
 
+(defun emmet-jsx-supported-mode? ()
+  "Is the current mode we're on enabled for jsx class attribute expansion?"
+  (member major-mode emmet-expand-jsx-className-modes))
+
 (defun emmet-make-html-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
   "Create HTML markup string"
   (emmet-aif
@@ -3612,7 +3610,7 @@ tbl))
        (puthash tag-name fn emmet-tag-snippets-table)))
 
    (let* ((id           (emmet-concat-or-empty " id=\"" tag-id "\""))
-          (class-attr  (if emmet-expand-jsx-className? " className=\"" " class=\""))
+          (class-attr  (if (and emmet-expand-jsx-className? (emmet-jsx-supported-mode?)) " className=\"" " class=\""))
           (classes      (emmet-mapconcat-or-empty class-attr tag-classes " " "\""))
           (props        (let* ((tag-props-default
                                 (and settings (gethash "defaultAttr" settings)))
@@ -4116,7 +4114,7 @@ tbl))
   (emmet-join-string
    (mapcar
     #'(lambda (expr)
-        (let*
+        (let* 
 	    ((hash-map (if emmet-use-sass-syntax emmet-sass-snippets emmet-css-snippets))
 	     (basement
 	      (emmet-aif
