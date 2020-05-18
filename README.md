@@ -455,6 +455,14 @@ you'll transform your snippet into the appropriate tag structure.
 
     meta:vp                  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
 
+    !mvp                       <html>
+			        <head>
+				    <meta charset="UTF-8"/>
+				    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
+				     <title>Document</title>
+				     </head>
+				     <body></body>
+				</html>
 
 * See HTML section of [cheat-sheet](http://docs.emmet.io/cheat-sheet/) to find more aliases.
 
