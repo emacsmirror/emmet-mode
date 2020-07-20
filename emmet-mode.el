@@ -3489,6 +3489,9 @@ tbl))
 (defvar emmet-expand-jsx-className? nil
   "Wether to use `className' when expanding `.classes'")
 
+(defvar emmet-jsx-className-braces? nil
+  "Wether to wrap classNames in {} instead of \"\"")
+
 (emmet-defparameter
  emmet-tag-settings-table
  (gethash "tags" (gethash "html" emmet-preferences)))
@@ -3612,8 +3615,12 @@ tbl))
        (puthash tag-name fn emmet-tag-snippets-table)))
 
    (let* ((id           (emmet-concat-or-empty " id=\"" tag-id "\""))
-          (class-attr  (if emmet-expand-jsx-className? " className=\"" " class=\""))
-          (classes      (emmet-mapconcat-or-empty class-attr tag-classes " " "\""))
+         (class-attr  (if emmet-expand-jsx-className?
+			   (if emmet-jsx-className-braces? " className={" " className=\"")
+			 " class=\""))
+	  (class-list-closer (if emmet-jsx-className-braces? "}" "\""))
+	  (class-list-delimiter (if emmet-jsx-className-braces? "." " "))
+          (classes      (emmet-mapconcat-or-empty class-attr tag-classes class-list-delimiter class-list-closer))
           (props        (let* ((tag-props-default
                                 (and settings (gethash "defaultAttr" settings)))
                                (merged-tag-props

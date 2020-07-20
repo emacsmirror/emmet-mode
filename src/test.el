@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Test-cases
 
-(load-file (concat (file-name-directory load-file-name) "../emmet-mode.el"))
+(load-file (concat (file-name-directory (or load-file-name (buffer-file-name))) "../emmet-mode.el"))
 
 (emmet-defparameter *emmet-test-cases* nil)
 
@@ -706,6 +706,29 @@
   #'emmet-expand-jsx-className?-test
   '(((".jsx>ul.lis>li.itm{x}*2") . "<div className=\"jsx\">\n  <ul className=\"lis\">\n    <li className=\"itm\">x</li>\n    <li className=\"itm\">x</li>\n  </ul>\n</div>")))
 
+(defun emmet-expand-jsx-classNameBraces?-test (lis)
+  (let ((es (car lis))
+        (indent-tabs-mode nil)
+        (tab-width 2)
+        (standard-indent 2)
+        (emmet-expand-jsx-className? t)
+	(emmet-jsx-className-braces? t))
+    (with-temp-buffer
+      (emmet-mode 1)
+      (sgml-mode)
+      (insert es)
+      (emmet-expand-line nil)
+      (buffer-string))))
+
+(emmet-run-test-case "JSX's classNameBraces 1"
+  #'emmet-expand-jsx-classNameBraces?-test
+  '(((".jsx\.foo") . "<div className={jsx.foo}></div>")))
+
+(emmet-run-test-case "JSX's classNameBraces 2"
+  #'emmet-expand-jsx-classNameBraces?-test
+  '(((".jsx>ul.lis>li.itm.bar{x}*2") . "<div className={jsx}>\n  <ul className={lis}>\n    <li className={itm.bar}>x</li>\n    <li className={itm.bar}>x</li>\n  </ul>\n</div>")))
+
+
 (defun emmet-self-closing-tag-style-test (lis)
   (let ((es (car lis))
         (emmet-preview-default nil))
@@ -737,3 +760,4 @@
 
 ;; start
 (emmet-test-cases)
+
