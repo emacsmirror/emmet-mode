@@ -78,7 +78,7 @@ If you want to customize Self-closing tags style:
 
 ## Usage
 
-Place point in a emmet snippet and press C-j to expand it (or alternatively,
+Place point in an emmet snippet and press C-j to expand it (or alternatively,
 alias your preferred keystroke to M-x emmet-expand-line) and
 you'll transform your snippet into the appropriate tag structure.
 
