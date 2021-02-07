@@ -427,6 +427,9 @@
 (defvar emmet-expand-jsx-className? nil
   "Wether to use `className' when expanding `.classes'")
 
+(defvar emmet-expand-jsx-htmlFor? nil
+  "Wether to use `htmlFor' when expanding `label'")
+
 (emmet-defparameter
  emmet-tag-settings-table
  (gethash "tags" (gethash "html" emmet-preferences)))
@@ -562,7 +565,9 @@
                            " " merged-tag-props " " nil
                            (lambda (prop)
                              (let ((key (car prop)))
-                               (concat (if (symbolp key) (symbol-name key) key)
+                               (concat (if (symbolp key) (symbol-name key)
+                                         (if (and emmet-expand-jsx-htmlFor?
+                                                  (string= key "for")) "forName" key))
                                        "=\"" (cadr prop) "\""))))))
           (content-multiline? (and content (string-match "\n" content)))
           (block-tag?         (and settings (gethash "block" settings)))
