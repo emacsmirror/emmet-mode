@@ -3566,9 +3566,6 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
 (defvar emmet-jsx-className-braces? nil
   "Wether to wrap classNames in {} instead of \"\"")
 
-(defvar emmet-expand-jsx-htmlFor? nil
-  "Wether to use `htmlFor' when expanding `label'")
-
 (emmet-defparameter
  emmet-tag-settings-table
  (gethash "tags" (gethash "html" emmet-preferences)))
@@ -3719,7 +3716,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                                          (symbol-name key-raw)
                                        key-raw))
                                     (key
-                                     (if (and emmet-expand-jsx-htmlFor?
+                                     (if (and (emmet-jsx-supported-mode?)
                                               (string= key-str "for"))
                                          "htmlFor"
                                        key-str))

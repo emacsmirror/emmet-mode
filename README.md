@@ -76,6 +76,7 @@ If you want to customize Self-closing tags style:
 If current major-mode is in `emmet-jsx-major-modes`, then JSX features will be supported:
 
 - Expand `.class` to `className="..."` instead of `class="..."`
+- Expand `.for` to `htmlFor="..."` instead of `for="..."`
 - Expand value of properties as variables: `div[value={v}]` -> `<div value={v}></div>`
 - Expand variables inside text: `div{{v}}` -> `<div>{v}</div>`
 **Note**: '}' can be escaped using backslash, i.e. `div{{v\}}}` -> `<div>{v}}</div>`.
