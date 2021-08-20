@@ -1384,6 +1384,7 @@ tbl) tbl)
 (puthash "html" (let ((tbl (make-hash-table :test 'equal)))
 (puthash "aliases" (let ((tbl (make-hash-table :test 'equal)))
 (puthash "!" "html:5" tbl)
+(puthash "!mvp" "html>(head>meta[charset=UTF-8]+meta:vp+title{Document})+body" tbl)
 (puthash "a:link" "a[href=http://]" tbl)
 (puthash "a:mail" "a[href=mailto:]" tbl)
 (puthash "acr" "acronym" tbl)
@@ -3065,6 +3066,8 @@ tbl))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; XML abbrev
 
+(require 'cl-lib)
+
 (emmet-defparameter
  emmet-tag-aliases-table
  (gethash "aliases" (gethash "html" emmet-snippets)))
@@ -3317,7 +3320,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                                 (fifth tag-data))
                         :test #'(lambda (p1 p2)
                                   (eql (car p1) (car p2)))))
-                 (setf (sixth first-tag-data) (sixth tag-data))
+                 (setf (cl-sixth first-tag-data) (cl-sixth tag-data))
                  (setf (cdr rt) (concat (cdr rt) input))
                  rt))
            (puthash tag-name expr emmet-tag-aliases-table)))
@@ -3551,6 +3554,12 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
   "Function to execute when expanding a leaf node in the
   Emmet AST.")
 
+(defvar emmet-expand-jsx-className? nil
+  "Wether to use `className' when expanding `.classes'")
+
+(defvar emmet-expand-jsx-htmlFor? nil
+  "Wether to use `htmlFor' when expanding `label'")
+
 (emmet-defparameter
  emmet-tag-settings-table
  (gethash "tags" (gethash "html" emmet-preferences)))
@@ -3674,7 +3683,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
        (puthash tag-name fn emmet-tag-snippets-table)))
 
    (let* ((id           (emmet-concat-or-empty " id=\"" tag-id "\""))
-          (class-attr  (if (memq major-mode emmet-jsx-major-modes) " className=\"" " class=\""))
+          (class-attr   (if (memq major-mode emmet-jsx-major-modes) " className=\"" " class=\""))
           (classes      (emmet-mapconcat-or-empty class-attr tag-classes " " "\""))
           (props        (let* ((tag-props-default
                                 (and settings (gethash "defaultAttr" settings)))
@@ -3685,13 +3694,24 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                           (emmet-mapconcat-or-empty
                            " " merged-tag-props " " nil
                            (lambda (prop)
-                             (let* ((key (car prop))
-                                   (val (cadr prop))
-                                   (format-string (if
-                                                      (and (memq major-mode emmet-jsx-major-modes) (emmet-jsx-prop-value-var? val)) "%s=%s"
-                                                    "%s=\"%s\"")))
-                               (format format-string (if (symbolp key) (symbol-name key) key) val)
-                               )))))
+                             (let* ((key-raw (car prop))
+                                    (key-str
+                                     (if (symbolp key-raw)
+                                         (symbol-name key-raw)
+                                       key-raw))
+                                    (key
+                                     (if (and emmet-expand-jsx-htmlFor?
+                                              (string= key-str "for"))
+                                         "htmlFor"
+                                       key-str))
+                                    (val (cadr prop))
+                                    (format-string
+                                     (if
+                                         (and (memq major-mode emmet-jsx-major-modes)
+                                              (emmet-jsx-prop-value-var? val))
+                                         "%s=%s"
+                                       "%s=\"%s\"")))
+                               (format format-string key val))))))
           (content-multiline? (and content (string-match "\n" content)))
           (block-tag?         (and settings (gethash "block" settings)))
           (self-closing?      (and (not (or tag-txt content))
