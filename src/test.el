@@ -721,7 +721,7 @@
         (indent-tabs-mode nil)
         (tab-width 2)
         (standard-indent 2)
-        (emmet-expand-jsx-className? t)
+        (emmet-jsx-major-modes '(sgml-mode))
 	(emmet-jsx-className-braces? t))
     (with-temp-buffer
       (emmet-mode 1)
