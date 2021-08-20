@@ -3358,22 +3358,28 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
    (emmet-run
     emmet-name
     (let ((name (cdr expr)))
-      (emmet-pif (emmet-prop-value name input)
-                     it
-                     `((,(read name) "") . ,input))))))
+      (emmet-pif (emmet-parse "\\.\\(.*?\\)" 2 "."
+                              `((,(read name)) . ,input))
+                 it
+                 (emmet-pif (emmet-prop-value name input)
+                            it
+                            `((,(read name) "") . ,input)))))))
 
 (defun emmet-prop-value (name input)
-  (emmet-pif (emmet-parse "=\"\\(.*?\\)\"" 2
-                          "=\"property value\""
-                          (let ((value (elt it 1))
-                                (input (elt it 2)))
-                            `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input)))
+  (emmet-pif (emmet-parse
+              "=\"\\(.*?\\)\"" 2
+              "=\"property value\""
+              (let ((value (elt it 1))
+                    (input (elt it 2)))
+                `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input)))
              it
-             (let ((emmet--prop-value-parse-any (lambda () (emmet-parse "=\\([^\\,\\+\\>\\{\\}\\ )]*\\)" 2
-                                                                         "=property value"
-                                                                         (let ((value (elt it 1))
-                                                                               (input (elt it 2)))
-                                                                           `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input))))))
+             (let ((emmet--prop-value-parse-any
+                    (lambda () (emmet-parse
+                                "=\\([^\\,\\+\\>\\{\\}\\ )]*\\)" 2
+                                "=property value"
+                                (let ((value (elt it 1))
+                                      (input (elt it 2)))
+                                  `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input))))))
                (if (memq major-mode emmet-jsx-major-modes)
                    (emmet-pif
                     (emmet-parse "=\\({.*?}\\)" 2
@@ -3383,9 +3389,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                                    `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input)))
                     it
                     (funcall emmet--prop-value-parse-any))
-                 (funcall emmet--prop-value-parse-any))
-               )
-             ))
+                 (funcall emmet--prop-value-parse-any)))))
 
 (defun emmet-tag-classes (tag input)
   (let ((tag-data (cadr tag)))
@@ -3714,12 +3718,11 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                                        key-str))
                                     (val (cadr prop))
                                     (format-string
-                                     (if
-                                         (and (memq major-mode emmet-jsx-major-modes)
+                                     (if (and (memq major-mode emmet-jsx-major-modes)
                                               (emmet-jsx-prop-value-var? val))
                                          "%s=%s"
                                        "%s=\"%s\"")))
-                               (format format-string key val))))))
+                               (if val (format format-string key val) key))))))
           (content-multiline? (and content (string-match "\n" content)))
           (block-tag?         (and settings (gethash "block" settings)))
           (self-closing?      (and (not (or tag-txt content))
