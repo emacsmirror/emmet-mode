@@ -5,8 +5,10 @@
 
 (emmet-defparameter *emmet-test-cases* nil)
 
+(require 'cl-lib)
+
 (defun emmet-run-test-case (name fn cases)
-  (let ((res (loop for c in cases
+  (let ((res (cl-loop for c in cases
                     for i to (1- (length cases)) do
                     (let ((expected (cdr c))
                           (actual (funcall fn (car c))))
@@ -15,7 +17,7 @@
                          (concat "*** [FAIL] | \"" name "\" " (number-to-string i) "\n\n"
                                  (format "%s" (car c)) "\t=>\n\n"
                                  "Expected\n" (format "%s" expected) "\n\nActual\n" (format "%s" actual) "\n\n"))
-                        (return 'fail))))))
+                        (cl-return 'fail))))))
     (if (not (eql res 'fail))
         (princ (concat "    [PASS] | \"" name "\" "
                        (number-to-string (length cases)) " tests.\n")))))
@@ -32,7 +34,7 @@
                  (setq *emmet-test-cases*
                        (cons (cons name (cons fn defs)) *emmet-test-cases*))))))
           (t
-           (loop for test in (reverse *emmet-test-cases*) do
+           (cl-loop for test in (reverse *emmet-test-cases*) do
                  (let ((name  (symbol-name (car test)))
                        (fn    (cadr test))
                        (cases (cddr test)))
@@ -41,7 +43,7 @@
 (defmacro define-emmet-transform-test-case (name fn &rest tests)
   `(emmet-test-cases 'assign ',name
                          ,fn
-                         ',(loop for x on tests by #'cddr collect
+                         ',(cl-loop for x on tests by #'cddr collect
                                  (cons (car x)
                                        (emmet-join-string (cadr x)
                                                               "\n")))))
@@ -54,7 +56,7 @@
 (defmacro define-emmet-unit-test-case (name fn &rest tests)
   `(emmet-test-cases 'assign ',name
                          ,fn
-                         ',(loop for x on tests by #'cddr collect
+                         ',(cl-loop for x on tests by #'cddr collect
                                  (cons (car x) (cadr x)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
