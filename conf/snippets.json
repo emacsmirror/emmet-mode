@@ -764,6 +764,7 @@
       "det":                  "details",
       "cmd":                  "command",
       "doc":                  "html>(head>meta[charset=UTF-8]+title{Document})+body",
+      "!mvp":                 "html>(head>meta[charset=UTF-8]+meta:vp+title{Document})+body",
       "doc4":                 "html>(head>meta[http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\"]+title{Document})",
 
       "!":                    "html:5",
