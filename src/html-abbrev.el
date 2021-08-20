@@ -9,7 +9,7 @@
 
 (defun emmet-expr (input)
   "Parse a zen coding expression with optional filters."
-  (emmet-pif (emmet-parse "\\(.*?\\)|" 2 "expr|filter" it)
+  (emmet-pif (emmet-extract-expr-filters input)
                  (let ((input (elt it 1))
                        (filters (elt it 2)))
                    (emmet-pif (emmet-extract-filters filters)
@@ -33,6 +33,18 @@
                                                                                             it
                                                                                             '(error "no match, expecting ( or a-zA-Z0-9"))))))))
 
+(defun emmet-extract-expr-filters (input)
+  (cl-flet ((string-match-reverse (str regexp)
+                                  (emmet-aif (string-match regexp (reverse str)) (- (length str) 1 it))))
+    (let ((err '(error "expected expr|filter")))
+      (emmet-aif (string-match-reverse input "|")
+                 (if (string-match "[\"}]" (substring input (+ it 1)))
+                     err
+                     `(,input
+                       ,(substring input 0 it)
+                       ,(substring input (+ it 1))))
+                 err))))
+
 (defun emmet-extract-filters (input)
   "Extract filters from expression."
   (emmet-pif (emmet-parse "\\([^\\|]+?\\)|" 2 "" it)
@@ -42,6 +54,32 @@
                                   (cons filter-name it)
                                   it))
                  (emmet-parse "\\([^\\|]+\\)" 1 "filter name" `(,(elt it 1)))))
+
+(defun emmet-extract-inner-text (input)
+  "Extract inner-text in the form of {inner_text}...
+Right curly braces can be escaped by backslash, i.e. '\\}'
+Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
+`(error ,error-message)"
+  (cl-labels (
+            (string-find-paired-right-curly-brace
+               (str)
+               (cl-labels ((char-at-pos (str pos) (string-to-char (substring str pos)))
+                           (helper (str pos cnt)
+                                   (let ((len (length str)))
+                                     (if (>= pos len) nil
+                                       (let ((c (char-at-pos str pos)))
+                                         (cond ((char-equal c ?{) (setq cnt (+ cnt 1)))
+                                               ((and (char-equal c ?}) (not (char-equal (char-at-pos str (- pos 1)) ?\\))) (setq cnt (- cnt 1))))
+                                         (if (= cnt 0) pos (helper str (+ pos 1) cnt)))))
+                                   ))
+                 (helper str 0 0))))
+    (let ((err '(error "expected inner text")))
+      (if (or (< (length input) 2) (not (char-equal (string-to-char input) ?{))) err
+        (emmet-aif (string-find-paired-right-curly-brace input)
+                   `(,input
+                    ,(substring input 1 it)
+                    ,(substring input (+ it 1)))
+                   err)))))
 
 (defun emmet-filter (input filters)
   "Construct AST with specified filters."
@@ -53,16 +91,18 @@
 
 (defun emmet-default-filter ()
   "Default filter(s) to be used if none is specified."
-  (let* ((file-ext (car (emmet-regex ".*\\(\\..*\\)" (or (buffer-file-name) "") 1)))
-         (defaults '(".html" ("html")
-                     ".htm"  ("html")
-                     ".haml" ("haml")
-                     ".clj"  ("hic")))
-         (default-else      '("html"))
-         (selected-default (member file-ext defaults)))
-    (if selected-default
-        (cadr selected-default)
-      default-else)))
+  (or emmet-file-filter
+      (let* ((file-ext (car (emmet-regex ".*\\(\\..*\\)" (or (buffer-file-name) "") 1)))
+             (defaults '(".html" ("html")
+                         ".htm"  ("html")
+                         ".haml" ("haml")
+                         ".clj"  ("hic")
+                         ".cljs" ("hic")))
+             (default-else emmet-fallback-filter)
+             (selected-default (member file-ext defaults)))
+        (if selected-default
+            (cadr selected-default)
+          default-else))))
 
 (defun emmet-numbering (input)
   (emmet-parse
@@ -264,11 +304,23 @@
                                 (input (elt it 2)))
                             `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input)))
              it
-             (emmet-parse "=\\([^\\,\\+\\>\\{\\}\\ )]*\\)" 2
-                          "=property value"
-                          (let ((value (elt it 1))
-                                (input (elt it 2)))
-                            `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input)))))
+             (let ((emmet--prop-value-parse-any (lambda () (emmet-parse "=\\([^\\,\\+\\>\\{\\}\\ )]*\\)" 2
+                                                                         "=property value"
+                                                                         (let ((value (elt it 1))
+                                                                               (input (elt it 2)))
+                                                                           `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input))))))
+               (if (memq major-mode emmet-jsx-major-modes)
+                   (emmet-pif
+                    (emmet-parse "=\\({.*?}\\)" 2
+                                 "=\"property value\""
+                                 (let ((value (elt it 1))
+                                       (input (elt it 2)))
+                                   `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input)))
+                    it
+                    (funcall emmet--prop-value-parse-any))
+                 (funcall emmet--prop-value-parse-any))
+               )
+             ))
 
 (defun emmet-tag-classes (tag input)
   (let ((tag-data (cadr tag)))
@@ -289,12 +341,23 @@
 
 (defun emmet-text (input)
   "A zen coding expression innertext."
-  (emmet-parse "{\\(\\(?:\\\\.\\|[^\\\\}]\\)*?\\)}" 2 "inner text"
-               (let ((txt (emmet-split-numbering-expressions (elt it 1))))
-                 (if (listp txt)
-                     (setq txt (cons (car txt) (cons (replace-regexp-in-string "\\\\\\(.\\)" "\\1" (cadr txt)) (cddr txt))))
-                   (setq txt (replace-regexp-in-string "\\\\\\(.\\)" "\\1" txt)))
-                 `((text ,txt) . ,input))))
+  (emmet-pif (emmet-extract-inner-text input)
+             (let ((txt (emmet-split-numbering-expressions (elt it 1))))
+               (if (listp txt)
+                   (setq txt (cons (car txt) (cons (replace-regexp-in-string "\\\\\\(.\\)" "\\1" (cadr txt)) (cddr txt))))
+                 (setq txt (replace-regexp-in-string "\\\\\\(.\\)" "\\1" txt)))
+               `((text ,txt) . ,(elt it 2)))
+             '(error "expected inner text")))
+
+;; (defun emmet-text (input)
+;;   "A zen coding expression innertext."
+;;   (emmet-parse "{\\(\\(?:\\\\.\\|[^\\\\}]\\|\\\\}\\)*?\\)}" 2 "inner text"
+;;                (let ((txt (emmet-split-numbering-expressions (elt it 1))))
+;;                  (if (listp txt)
+;;                      (setq txt (cons (car txt) (cons (replace-regexp-in-string "\\\\\\(.\\)" "\\1" (cadr txt)) (cddr txt))))
+;;                    (setq txt (replace-regexp-in-string "\\\\\\(.\\)" "\\1" txt)))
+;;                  `((text ,txt) . ,input))
+;;                '(error "expected inner text")))
 
 (defun emmet-properties (input)
   "A bracketed emmet property expression."
@@ -555,7 +618,7 @@
        (puthash tag-name fn emmet-tag-snippets-table)))
 
    (let* ((id           (emmet-concat-or-empty " id=\"" tag-id "\""))
-          (class-attr  (if emmet-expand-jsx-className? " className=\"" " class=\""))
+          (class-attr   (if (memq major-mode emmet-jsx-major-modes) " className=\"" " class=\""))
           (classes      (emmet-mapconcat-or-empty class-attr tag-classes " " "\""))
           (props        (let* ((tag-props-default
                                 (and settings (gethash "defaultAttr" settings)))
@@ -566,11 +629,24 @@
                           (emmet-mapconcat-or-empty
                            " " merged-tag-props " " nil
                            (lambda (prop)
-                             (let ((key (car prop)))
-                               (concat (if (symbolp key) (symbol-name key)
-                                         (if (and emmet-expand-jsx-htmlFor?
-                                                  (string= key "for")) "htmlFor" key))
-                                       "=\"" (cadr prop) "\""))))))
+                             (let* ((key-raw (car prop))
+                                    (key-str
+                                     (if (symbolp key-raw)
+                                         (symbol-name key-raw)
+                                       key-raw))
+                                    (key
+                                     (if (and emmet-expand-jsx-htmlFor?
+                                              (string= key-str "for"))
+                                         "htmlFor"
+                                       key-str))
+                                    (val (cadr prop))
+                                    (format-string
+                                     (if
+                                         (and (memq major-mode emmet-jsx-major-modes)
+                                              (emmet-jsx-prop-value-var? val))
+                                         "%s=%s"
+                                       "%s=\"%s\"")))
+                               (format format-string key val))))))
           (content-multiline? (and content (string-match "\n" content)))
           (block-tag?         (and settings (gethash "block" settings)))
           (self-closing?      (and (not (or tag-txt content))

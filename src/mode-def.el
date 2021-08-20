@@ -91,6 +91,17 @@ e. g. without semicolons")
     less-css-mode)
   "Major modes that use emmet for CSS, rather than HTML.")
 
+(defvar emmet-fallback-filter '("html")
+  "Fallback filter for `emmet-default-filter', if none is found.")
+
+(defvar emmet-file-filter nil
+  "File local filter used by `emmet-default-filter'.")
+(make-variable-buffer-local 'emmet-file-filter)
+
+(defvar emmet-jsx-major-modes
+  '(rjsx-mode
+    typescript-tsx-mode))
+
 (defun emmet-transform (input)
   (if (or (emmet-detect-style-tag-and-attr) emmet-use-css-transform)
       (emmet-css-transform input)

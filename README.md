@@ -65,16 +65,27 @@ Or if you don't want to move cursor after expanding:
 
     (setq emmet-move-cursor-after-expanding nil) ;; default t
 
-If you want to use emmet with react-js's JSX, you probably want emmet to expand 'className="..."' instead of 'class="..."':
-
-    (setq emmet-expand-jsx-className? t) ;; default nil
-
 If you want to customize Self-closing tags style:
 
     (setq emmet-self-closing-tag-style " /") ;; default "/"
 
     ;; only " /", "/" and "" are valid.
     ;; eg. <meta />, <meta/>, <meta>
+
+### 4. JSX Support
+If current major-mode is in `emmet-jsx-major-modes`, then JSX features will be supported:
+
+- Expand `.class` to `className="..."` instead of `class="..."`
+- Expand value of properties as variables: `div[value={v}]` -> `<div value={v}></div>`
+- Expand variables inside text: `div{{v}}` -> `<div>{v}</div>`  
+**Note**: '}' can be escaped using backslash, i.e. `div{{v\}}}` -> `<div>{v}}</div>`.  
+Please make sure your curly braces(not counting escaped ones) are always balanced.
+
+To enable the JSX support, add your major-mode to `emmet-jsx-major-modes`:
+
+```lisp
+(add-to-list 'emmet-jsx-major-modes 'your-jsx-major-mode)
+```
 
 ## Usage
 
