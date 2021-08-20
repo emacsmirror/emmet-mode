@@ -1,3 +1,4 @@
+__This repository is no longer maintained. I'm looking for someone to take over the maintenance.__
 
 __This is a fork of [zencoding-mode](https://github.com/rooney/zencoding) to support [Emmet](http://emmet.io/)'s feature set.__
 
