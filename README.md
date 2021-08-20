@@ -77,8 +77,8 @@ If current major-mode is in `emmet-jsx-major-modes`, then JSX features will be s
 
 - Expand `.class` to `className="..."` instead of `class="..."`
 - Expand value of properties as variables: `div[value={v}]` -> `<div value={v}></div>`
-- Expand variables inside text: `div{{v}}` -> `<div>{v}</div>`  
-**Note**: '}' can be escaped using backslash, i.e. `div{{v\}}}` -> `<div>{v}}</div>`.  
+- Expand variables inside text: `div{{v}}` -> `<div>{v}</div>`
+**Note**: '}' can be escaped using backslash, i.e. `div{{v\}}}` -> `<div>{v}}</div>`.
 Please make sure your curly braces(not counting escaped ones) are always balanced.
 
 To enable the JSX support, add your major-mode to `emmet-jsx-major-modes`:
@@ -86,6 +86,12 @@ To enable the JSX support, add your major-mode to `emmet-jsx-major-modes`:
 ```lisp
 (add-to-list 'emmet-jsx-major-modes 'your-jsx-major-mode)
 ```
+
+- jsx-mode
+- rjsx-mode
+- js-jsx-mode
+- js2-jsx-mode
+- js-mode
 
 ## Usage
 

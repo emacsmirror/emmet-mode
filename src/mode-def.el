@@ -100,7 +100,12 @@ e. g. without semicolons")
 
 (defvar emmet-jsx-major-modes
   '(rjsx-mode
-    typescript-tsx-mode))
+    typescript-tsx-mode
+    js-jsx-mode
+    js2-jsx-mode
+    jsx-mode
+    js-mode)
+  "Which modes to check before using jsx class expansion")
 
 (defun emmet-transform (input)
   (if (or (emmet-detect-style-tag-and-attr) emmet-use-css-transform)

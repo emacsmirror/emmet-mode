@@ -256,7 +256,12 @@ e. g. without semicolons")
 
 (defvar emmet-jsx-major-modes
   '(rjsx-mode
-    typescript-tsx-mode))
+    typescript-tsx-mode
+    js-jsx-mode
+    js2-jsx-mode
+    jsx-mode
+    js-mode)
+  "Which modes to check before using jsx class expansion")
 
 (defun emmet-transform (input)
   (if (or (emmet-detect-style-tag-and-attr) emmet-use-css-transform)
@@ -3380,7 +3385,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                                 (let ((value (elt it 1))
                                       (input (elt it 2)))
                                   `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input))))))
-               (if (memq major-mode emmet-jsx-major-modes)
+               (if (emmet-jsx-supported-mode?)
                    (emmet-pif
                     (emmet-parse "=\\({.*?}\\)" 2
                                  "=\"property value\""
@@ -3558,10 +3563,6 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
   "Function to execute when expanding a leaf node in the
   Emmet AST.")
 
-(defvar emmet-expand-jsx-className? nil
-  "Wether to use `className' when expanding `.classes'")
-
-
 (defvar emmet-jsx-className-braces? nil
   "Wether to wrap classNames in {} instead of \"\"")
 
@@ -3678,6 +3679,10 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                   contents))))))
       (eval (iter lines 'a nil nil)))))
 
+(defun emmet-jsx-supported-mode? ()
+  "Is the current mode we're on enabled for jsx class attribute expansion?"
+  (member major-mode emmet-jsx-major-modes))
+
 (defun emmet-make-html-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
   "Create HTML markup string"
   (emmet-aif
@@ -3691,9 +3696,11 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
        (puthash tag-name fn emmet-tag-snippets-table)))
 
    (let* ((id           (emmet-concat-or-empty " id=\"" tag-id "\""))
-          (class-attr  (if (memq major-mode emmet-jsx-major-modes)
-			   (if emmet-jsx-className-braces? " className={" " className=\"")
-			 " class=\""))
+          (class-attr   (if (emmet-jsx-supported-mode?)
+                            (if emmet-jsx-className-braces?
+                                " className={"
+                              " className=\"")
+                          " class=\""))
 	  (class-list-closer (if emmet-jsx-className-braces? "}" "\""))
 	  (class-list-delimiter (if emmet-jsx-className-braces? "." " "))
           (classes      (emmet-mapconcat-or-empty class-attr tag-classes class-list-delimiter class-list-closer))
@@ -3718,7 +3725,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                                        key-str))
                                     (val (cadr prop))
                                     (format-string
-                                     (if (and (memq major-mode emmet-jsx-major-modes)
+                                     (if (and (emmet-jsx-supported-mode?)
                                               (emmet-jsx-prop-value-var? val))
                                          "%s=%s"
                                        "%s=\"%s\"")))
