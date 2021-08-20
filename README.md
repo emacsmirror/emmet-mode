@@ -65,26 +65,6 @@ Or if you don't want to move cursor after expanding:
 
     (setq emmet-move-cursor-after-expanding nil) ;; default t
 
-If you want to use emmet with react-js's JSX, you probably want emmet to expand 'className="..."' instead of 'class="..."':
-
-    (setq emmet-expand-jsx-className? t) ;; default nil
-
-This will set the class attribute to className on the following modes:
-
-- jsx-mode
-- rjsx-mode
-- js-jsx-mode
-- js2-jsx-mode
-- js-mode
-
-If you would like to configure which modes to use:
-
-    (setq emmet-expand-jsx-className-modes '(modes...))
-
-For example:
-
-    (setq emmet-expand-jsx-className-modes '(rjsx-mode web-mode))
-
 If you want to customize Self-closing tags style:
 
     (setq emmet-self-closing-tag-style " /") ;; default "/"
@@ -92,9 +72,30 @@ If you want to customize Self-closing tags style:
     ;; only " /", "/" and "" are valid.
     ;; eg. <meta />, <meta/>, <meta>
 
+### 4. JSX Support
+If current major-mode is in `emmet-jsx-major-modes`, then JSX features will be supported:
+
+- Expand `.class` to `className="..."` instead of `class="..."`
+- Expand value of properties as variables: `div[value={v}]` -> `<div value={v}></div>`
+- Expand variables inside text: `div{{v}}` -> `<div>{v}</div>`
+**Note**: '}' can be escaped using backslash, i.e. `div{{v\}}}` -> `<div>{v}}</div>`.
+Please make sure your curly braces(not counting escaped ones) are always balanced.
+
+To enable the JSX support, add your major-mode to `emmet-jsx-major-modes`:
+
+```lisp
+(add-to-list 'emmet-jsx-major-modes 'your-jsx-major-mode)
+```
+
+- jsx-mode
+- rjsx-mode
+- js-jsx-mode
+- js2-jsx-mode
+- js-mode
+
 ## Usage
 
-Place point in a emmet snippet and press C-j to expand it (or alternatively,
+Place point in an emmet snippet and press C-j to expand it (or alternatively,
 alias your preferred keystroke to M-x emmet-expand-line) and
 you'll transform your snippet into the appropriate tag structure.
 
@@ -471,6 +472,14 @@ you'll transform your snippet into the appropriate tag structure.
 
     meta:vp                  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
 
+    !mvp                       <html>
+			        <head>
+				    <meta charset="UTF-8"/>
+				    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
+				     <title>Document</title>
+				     </head>
+				     <body></body>
+				</html>
 
 * See HTML section of [cheat-sheet](http://docs.emmet.io/cheat-sheet/) to find more aliases.
 

@@ -1,12 +1,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Test-cases
 
-(load-file (concat (file-name-directory load-file-name) "../emmet-mode.el"))
+(load-file (concat (file-name-directory (or load-file-name (buffer-file-name))) "../emmet-mode.el"))
 
 (emmet-defparameter *emmet-test-cases* nil)
 
+(require 'cl-lib)
+
 (defun emmet-run-test-case (name fn cases)
-  (let ((res (loop for c in cases
+  (let ((res (cl-loop for c in cases
                     for i to (1- (length cases)) do
                     (let ((expected (cdr c))
                           (actual (funcall fn (car c))))
@@ -15,7 +17,7 @@
                          (concat "*** [FAIL] | \"" name "\" " (number-to-string i) "\n\n"
                                  (format "%s" (car c)) "\t=>\n\n"
                                  "Expected\n" (format "%s" expected) "\n\nActual\n" (format "%s" actual) "\n\n"))
-                        (return 'fail))))))
+                        (cl-return 'fail))))))
     (if (not (eql res 'fail))
         (princ (concat "    [PASS] | \"" name "\" "
                        (number-to-string (length cases)) " tests.\n")))))
@@ -32,7 +34,7 @@
                  (setq *emmet-test-cases*
                        (cons (cons name (cons fn defs)) *emmet-test-cases*))))))
           (t
-           (loop for test in (reverse *emmet-test-cases*) do
+           (cl-loop for test in (reverse *emmet-test-cases*) do
                  (let ((name  (symbol-name (car test)))
                        (fn    (cadr test))
                        (cases (cddr test)))
@@ -41,7 +43,7 @@
 (defmacro define-emmet-transform-test-case (name fn &rest tests)
   `(emmet-test-cases 'assign ',name
                          ,fn
-                         ',(loop for x on tests by #'cddr collect
+                         ',(cl-loop for x on tests by #'cddr collect
                                  (cons (car x)
                                        (emmet-join-string (cadr x)
                                                               "\n")))))
@@ -54,7 +56,7 @@
 (defmacro define-emmet-unit-test-case (name fn &rest tests)
   `(emmet-test-cases 'assign ',name
                          ,fn
-                         ',(loop for x on tests by #'cddr collect
+                         ',(cl-loop for x on tests by #'cddr collect
                                  (cons (car x) (cadr x)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -278,12 +280,16 @@
 
 (define-emmet-transform-html-test-case Properties
   "a[x]"                    ("<a href=\"\" x=\"\"></a>")
+  "a[x.]"                   ("<a href=\"\" x></a>")
   "a[x=]"                   ("<a href=\"\" x=\"\"></a>")
   "a[x=\"\"]"               ("<a href=\"\" x=\"\"></a>")
   "a[x=y]"                  ("<a href=\"\" x=\"y\"></a>")
   "a[x=\"y\"]"              ("<a href=\"\" x=\"y\"></a>")
   "a[x=\"()\"]"             ("<a href=\"\" x=\"()\"></a>")
   "a[x m]"                  ("<a href=\"\" x=\"\" m=\"\"></a>")
+  "a[x. m]"                 ("<a href=\"\" x m=\"\"></a>")
+  "a[x m.]"                 ("<a href=\"\" x=\"\" m></a>")
+  "a[x. m.]"                ("<a href=\"\" x m></a>")
   "a[x= m=\"\"]"            ("<a href=\"\" x=\"\" m=\"\"></a>")
   "a[x=y m=l]"              ("<a href=\"\" x=\"y\" m=\"l\"></a>")
   "a/[x=y m=l]"             ("<a href=\"\" x=\"y\" m=\"l\"/>")
@@ -685,12 +691,12 @@
 (define-emmet-transform-html-test-case regression-61-bracket-escapes
   "div{\\}\\}\\}}" ("<div>}}}</div>"))
 
-(defun emmet-expand-jsx-className?-test (lis)
+(defun emmet-jsx-expand-className-test (lis)
   (let ((es (car lis))
         (indent-tabs-mode nil)
         (tab-width 2)
         (standard-indent 2)
-        (emmet-expand-jsx-className? t))
+        (emmet-jsx-major-modes '(sgml-mode)))
     (with-temp-buffer
       (emmet-mode 1)
       (sgml-mode)
@@ -699,12 +705,52 @@
       (buffer-string))))
 
 (emmet-run-test-case "JSX's className 1"
-  #'emmet-expand-jsx-className?-test
+  #'emmet-jsx-expand-className-test
   '(((".jsx") . "<div className=\"jsx\"></div>")))
 
 (emmet-run-test-case "JSX's className 2"
-  #'emmet-expand-jsx-className?-test
+  #'emmet-jsx-expand-className-test
   '(((".jsx>ul.lis>li.itm{x}*2") . "<div className=\"jsx\">\n  <ul className=\"lis\">\n    <li className=\"itm\">x</li>\n    <li className=\"itm\">x</li>\n  </ul>\n</div>")))
+
+(defun emmet-expand-jsx-classNameBraces?-test (lis)
+  (let ((es (car lis))
+        (indent-tabs-mode nil)
+        (tab-width 2)
+        (standard-indent 2)
+        (emmet-expand-jsx-className? t)
+	(emmet-jsx-className-braces? t))
+    (with-temp-buffer
+      (emmet-mode 1)
+      (sgml-mode)
+      (insert es)
+      (emmet-expand-line nil)
+      (buffer-string))))
+
+(emmet-run-test-case "JSX's classNameBraces 1"
+  #'emmet-expand-jsx-classNameBraces?-test
+  '(((".jsx\.foo") . "<div className={jsx.foo}></div>")))
+
+(emmet-run-test-case "JSX's classNameBraces 2"
+  #'emmet-expand-jsx-classNameBraces?-test
+  '(((".jsx>ul.lis>li.itm.bar{x}*2") . "<div className={jsx}>\n  <ul className={lis}>\n    <li className={itm.bar}>x</li>\n    <li className={itm.bar}>x</li>\n  </ul>\n</div>")))
+
+(defun emmet-jsx-expand-prop-value-var-test (lis)
+  (let ((es (car lis))
+        (indent-tabs-mode nil)
+        (tab-width 2)
+        (standard-indent 2)
+        (emmet-jsx-major-modes '(sgml-mode)))
+    (with-temp-buffer
+      (emmet-mode 1)
+      (sgml-mode)
+      (insert es)
+      (emmet-expand-line nil)
+      (buffer-string))))
+
+(emmet-run-test-case
+ "JSX expand prop value variable 1"
+ #'emmet-jsx-expand-prop-value-var-test
+ '((("div[value={v}]") . "<div value={v}></div>")))
 
 (defun emmet-self-closing-tag-style-test (lis)
   (let ((es (car lis))
@@ -737,3 +783,4 @@
 
 ;; start
 (emmet-test-cases)
+
