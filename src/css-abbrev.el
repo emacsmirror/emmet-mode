@@ -11,7 +11,7 @@
    (cons (list (elt it 1)
                (let ((unit (elt it 2)))
                  (if (= (length unit) 0)
-                     (if (find ?. (elt it 1)) "em" "px")
+                     (if (cl-find ?. (elt it 1)) "em" "px")
                    (gethash unit emmet-css-unit-aliases unit))))
          input)))
 
@@ -38,7 +38,7 @@
              (cond ((= l 1) (concat (make-list 6 (string-to-char n))))
                    ((= l 2) (concat n n n))
                    ((= l 3) (concat
-                             (loop for c in (string-to-list n)
+                             (cl-loop for c in (string-to-list n)
                                    append (list c c))))
                    (t (concat n n)))
              0 6))))
@@ -87,13 +87,13 @@
 (defun emmet-css-parse-args (args)
   (when args
     (let ((rt nil))
-      (loop
+      (cl-loop
        (emmet-pif
         (emmet-css-parse-arg args)
-        (loop for i on it do (push (car i) rt)
+        (cl-loop for i on it do (push (car i) rt)
               while (consp (cdr i))
               finally (setq args (cdr i)))
-        (return (nreverse rt)))))))
+        (cl-return (nreverse rt)))))))
 
 (defun emmet-css-split-args (exp)
   (emmet-aif
@@ -108,14 +108,14 @@
          (let ((vp (elt it 1)))
            (if (not (string= vp ""))
                (if (string= vp "-") 'auto
-                 (string-to-list (subseq vp 1 -1))))))))
+                 (string-to-list (cl-subseq vp 1 -1))))))))
 
 (defun emmet-css-subexpr (exp)
   (let* ((importantp (emmet-css-important-p exp)))
-    (destructuring-bind (exp vp)
+    (cl-destructuring-bind (exp vp)
         (emmet-css-split-vendor-prefixes exp)
-      (destructuring-bind (key args)
-          (emmet-css-split-args (if importantp (subseq exp 0 -1) exp))
+      (cl-destructuring-bind (key args)
+          (emmet-css-split-args (if importantp (cl-subseq exp 0 -1) exp))
         `(,key ,vp
                ,importantp
                ,@(emmet-css-parse-args args))))))
@@ -123,7 +123,7 @@
 (defun emmet-css-toknize (str)
   (let* ((i (split-string str "+"))
          (rt nil))
-    (loop
+    (cl-loop
      (let ((f (first i))
            (s (second i)))
        (if f
@@ -135,7 +135,7 @@
              (progn
                (setf rt (cons f rt))
                (setf i (cdr i))))
-         (return (nreverse rt)))))))
+         (cl-return (nreverse rt)))))))
 
 (defun emmet-css-expr (input)
   (mapcar #'emmet-css-subexpr
@@ -169,10 +169,10 @@
          (split-string-to-body
           (str args-sym)
           (let ((rt '(concat)) (idx-max 0))
-            (loop for i from 0 to 255 do
+            (cl-loop for i from 0 to 255 do
                   (emmet-aif
                    (string-match "\\(?:|\\|${\\(?:\\([0-9]\\)\\|\\)\\(?::\\(.+?\\)\\|\\)}\\)" str)
-                   (destructuring-bind (mat idx def)
+                   (cl-destructuring-bind (mat idx def)
                        (mapcar (lambda (ref) (match-string ref str)) '(0 1 2))
                      (setf rt
                            `((or
@@ -184,10 +184,10 @@
                              ,@rt))
                      (setf str (substring str (+ it (length mat)))))
                    ;; don't use nreverse. cause bug in emacs-lisp.
-                   (return (cons idx-max (reverse (cons str rt)))))))))
+                   (cl-return (cons idx-max (reverse (cons str rt)))))))))
     (let ((args (gensym))
           (str  (insert-space-between-name-and-body str)))
-      (destructuring-bind (idx-max . body) (split-string-to-body str args)
+      (cl-destructuring-bind (idx-max . body) (split-string-to-body str args)
         (eval
          `(lambda (&rest ,args)
             (progn
@@ -204,7 +204,7 @@
  emmet-vendor-prefixes-default
  (list "webkit" "moz" "ms" "o"))
 (defun emmet-css-transform-vendor-prefixes (line vp)
-  (let ((key (subseq line 0 (or (position ?: line) (length line)))))
+  (let ((key (cl-subseq line 0 (or (cl-position ?: line) (length line)))))
     (let ((vps (if (eql vp 'auto)
                    (gethash key
                             emmet-vendor-prefixes-properties
@@ -261,11 +261,11 @@
 		       ";"))))
           (let ((line
                  (if (caddr expr)
-                     (concat (subseq basement 0 -1) " !important;")
+                     (concat (cl-subseq basement 0 -1) " !important;")
                    basement)))
 	    ;; remove trailing semicolon while editing Sass files
-	    (if (and emmet-use-sass-syntax (equal ";" (subseq line -1)))
-		(setq line (subseq line 0 -1)))
+	    (if (and emmet-use-sass-syntax (equal ";" (cl-subseq line -1)))
+		(setq line (cl-subseq line 0 -1)))
             (emmet-aif
              (cadr expr)
              (emmet-css-transform-vendor-prefixes line it)

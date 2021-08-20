@@ -217,7 +217,7 @@ See also `emmet-expand-line'."
   (let* ((leaf-count 0)
          (emmet-leaf-function
           (lambda ()
-            (format "$%d" (incf leaf-count)))))
+            (format "$%d" (cl-incf leaf-count)))))
     (emmet-transform input)))
 
 ;;;###autoload
@@ -402,7 +402,7 @@ or enable `emmet-preview-mode'."
            (text (nth 0 expr))
            (beg (nth 1 expr))
            (end (nth 2 expr)))
-      (let ((wap (word-at-point)))
+      (let ((wap (thing-at-point 'word 'no-properties)))
         (when (and (not (equal wap text))
                    (emmet-transform text))
           (emmet-preview beg end))))))
@@ -548,7 +548,7 @@ See `emmet-preview-online'."
                            to-wrap
                            "+")))
          (markup
-          (reduce
+          (cl-reduce
            (lambda (result text)
              (replace-regexp-in-string
               (concat "!!!" (secure-hash 'sha1 text) "!!!")

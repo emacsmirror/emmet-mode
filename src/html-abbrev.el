@@ -131,39 +131,39 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                       `(,prefix ,(car res) ,@(iter (cdr res))))))
                 (list input))))
     (let ((res (iter input)))
-      (if (every #'stringp res)
+      (if (cl-every #'stringp res)
           (apply #'concat res)
         `(numberings ,@res)))))
 
 (defun emmet-instantiate-numbering-expression (i lim exp)
   (cl-labels ((instantiate
-            (i lim exps)
-            (apply #'concat
-                   (mapcar
-                    (lambda (exp)
-                      (if (listp exp)
-                          (let ((digits (second exp))
-                                (direction (third exp))
-                                (base (fourth exp)))
-                            (let ((num (if direction (+ base i)
-                                         (- (+ lim (- base 1)) i))))
-                              (format (concat "%0" (format "%d" digits) "d") num)))
-                        exp)) exps)))
-           (search
-            (i lim exp)
-            (if (listp exp)
-                (if (eql (car exp) 'numberings)
-                    (instantiate i lim (cdr exp))
-                  ;; Should do like this for real searching.
-                  ;; But stack overflow occurs.
-                  ;; (cons (search-numberings i lim (car exp))
-                  ;;       (search-numberings i lim (cdr exp)))
-                  (mapcar (lambda (exp) (search i lim exp)) exp))
-              exp)))
-    (search i lim exp)))
+               (i lim exps)
+               (apply #'concat
+                      (mapcar
+                       (lambda (exp)
+                         (if (listp exp)
+                             (let ((digits (second exp))
+                                   (direction (third exp))
+                                   (base (fourth exp)))
+                               (let ((num (if direction (+ base i)
+                                            (- (+ lim (- base 1)) i))))
+                                 (format (concat "%0" (format "%d" digits) "d") num)))
+                           exp)) exps)))
+              (cl-search
+               (i lim exp)
+               (if (listp exp)
+                   (if (eql (car exp) 'numberings)
+                       (instantiate i lim (cdr exp))
+                     ;; Should do like this for real searching.
+                     ;; But stack overflow occurs.
+                     ;; (cons (search-numberings i lim (car exp))
+                     ;;       (search-numberings i lim (cdr exp)))
+                     (mapcar (lambda (exp) (cl-search i lim exp)) exp))
+                 exp)))
+    (cl-search i lim exp)))
 
 (defun emmet-multiply-expression (multiplicand exp)
-  (loop for i to (- multiplicand 1) collect
+  (cl-loop for i to (- multiplicand 1) collect
         (emmet-instantiate-numbering-expression i multiplicand exp)))
 
 (defun emmet-multiplier (input)
@@ -201,7 +201,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                           `((tag ,(append tag-data (list props))) . ,input))
                         `((tag ,(append tag-data '(nil))) . ,input))
                        (let ((expr (car it)) (input (cdr it)))
-                         (destructuring-bind (expr . input)
+                         (cl-destructuring-bind (expr . input)
                              (emmet-tag-text expr input)
                            (or
                             (emmet-expand-lorem expr input)
@@ -228,9 +228,9 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
   (let ((tag-data (cadr tag)))
     (let ((tag-name (car tag-data)))
       (emmet-aif (emmet-lorem tag-name)
-                 (if (equalp (cdr tag-data) '(t nil nil nil nil))
+                 (if (cl-equalp (cdr tag-data) '(t nil nil nil nil))
                      `((text (lorem ,it)) . ,input)
-                   `((tag ("div" ,@(subseq tag-data 1 -1) (lorem ,it))) . ,input))))))
+                   `((tag ("div" ,@(cl-subseq tag-data 1 -1) (lorem ,it))) . ,input))))))
 
 (defun emmet-expand-tag-alias (tag input)
   (let ((tag-data (cadr tag)))
@@ -246,11 +246,11 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                  (setf (second first-tag-data) (second tag-data))
                  (setf (third first-tag-data)  (third tag-data))
                  (setf (fourth first-tag-data)
-                       (remove-duplicates
+                       (cl-remove-duplicates
                         (append (fourth first-tag-data)
                                 (fourth tag-data)) :test #'string=))
                  (setf (fifth first-tag-data)
-                       (remove-duplicates
+                       (cl-remove-duplicates
                         (append (fifth first-tag-data)
                                 (fifth tag-data))
                         :test #'(lambda (p1 p2)
@@ -388,7 +388,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                           `(parent-child ,parent
                                          ,(emmet-instantiate-numbering-expression i len child)))
                         parents
-                        (loop for i to (- len 1) collect i))) . ,input))))
+                        (cl-loop for i to (- len 1) collect i))) . ,input))))
     (emmet-run
      emmet-multiplier
      (let* ((items (cadr expr))
@@ -453,7 +453,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
   "Parse an e+ expression, where e is an expandable tag"
   (let* ((parent-tag (car (cadr parent))))
     (setf (caadr parent) (concat parent-tag "+"))
-    (destructuring-bind (parent . input)
+    (cl-destructuring-bind (parent . input)
         (emmet-expand-tag-alias parent input)
       (emmet-pif (emmet-parse "+\\(.*\\)" 1 "+expr"
                                       (emmet-subexpr (elt it 1)))
@@ -562,13 +562,13 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
 
 (defun emmet-hash-to-list (hash &optional proc)
   (unless proc (setq proc #'cons))
-  (loop for key being the hash-keys of hash using (hash-values val)
+  (cl-loop for key being the hash-keys of hash using (hash-values val)
         collect (funcall proc key val)))
 
 (defun emmet-merge-tag-props (default-table tag-props)
   (if default-table
       (let ((tbl (copy-hash-table default-table)))
-        (loop for prop in tag-props do
+        (cl-loop for prop in tag-props do
               (puthash (symbol-name (car prop)) (cadr prop) tbl))
         (emmet-hash-to-list tbl 'list))
     tag-props))

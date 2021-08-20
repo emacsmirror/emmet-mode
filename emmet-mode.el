@@ -373,7 +373,7 @@ See also `emmet-expand-line'."
   (let* ((leaf-count 0)
          (emmet-leaf-function
           (lambda ()
-            (format "$%d" (incf leaf-count)))))
+            (format "$%d" (cl-incf leaf-count)))))
     (emmet-transform input)))
 
 ;;;###autoload
@@ -558,7 +558,7 @@ or enable `emmet-preview-mode'."
            (text (nth 0 expr))
            (beg (nth 1 expr))
            (end (nth 2 expr)))
-      (let ((wap (word-at-point)))
+      (let ((wap (thing-at-point 'word 'no-properties)))
         (when (and (not (equal wap text))
                    (emmet-transform text))
           (emmet-preview beg end))))))
@@ -704,7 +704,7 @@ See `emmet-preview-online'."
                            to-wrap
                            "+")))
          (markup
-          (reduce
+          (cl-reduce
            (lambda (result text)
              (replace-regexp-in-string
               (concat "!!!" (secure-hash 'sha1 text) "!!!")
@@ -3201,39 +3201,39 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                       `(,prefix ,(car res) ,@(iter (cdr res))))))
                 (list input))))
     (let ((res (iter input)))
-      (if (every #'stringp res)
+      (if (cl-every #'stringp res)
           (apply #'concat res)
         `(numberings ,@res)))))
 
 (defun emmet-instantiate-numbering-expression (i lim exp)
   (cl-labels ((instantiate
-            (i lim exps)
-            (apply #'concat
-                   (mapcar
-                    (lambda (exp)
-                      (if (listp exp)
-                          (let ((digits (second exp))
-                                (direction (third exp))
-                                (base (fourth exp)))
-                            (let ((num (if direction (+ base i)
-                                         (- (+ lim (- base 1)) i))))
-                              (format (concat "%0" (format "%d" digits) "d") num)))
-                        exp)) exps)))
-           (search
-            (i lim exp)
-            (if (listp exp)
-                (if (eql (car exp) 'numberings)
-                    (instantiate i lim (cdr exp))
-                  ;; Should do like this for real searching.
-                  ;; But stack overflow occurs.
-                  ;; (cons (search-numberings i lim (car exp))
-                  ;;       (search-numberings i lim (cdr exp)))
-                  (mapcar (lambda (exp) (search i lim exp)) exp))
-              exp)))
-    (search i lim exp)))
+               (i lim exps)
+               (apply #'concat
+                      (mapcar
+                       (lambda (exp)
+                         (if (listp exp)
+                             (let ((digits (second exp))
+                                   (direction (third exp))
+                                   (base (fourth exp)))
+                               (let ((num (if direction (+ base i)
+                                            (- (+ lim (- base 1)) i))))
+                                 (format (concat "%0" (format "%d" digits) "d") num)))
+                           exp)) exps)))
+              (cl-search
+               (i lim exp)
+               (if (listp exp)
+                   (if (eql (car exp) 'numberings)
+                       (instantiate i lim (cdr exp))
+                     ;; Should do like this for real searching.
+                     ;; But stack overflow occurs.
+                     ;; (cons (search-numberings i lim (car exp))
+                     ;;       (search-numberings i lim (cdr exp)))
+                     (mapcar (lambda (exp) (cl-search i lim exp)) exp))
+                 exp)))
+    (cl-search i lim exp)))
 
 (defun emmet-multiply-expression (multiplicand exp)
-  (loop for i to (- multiplicand 1) collect
+  (cl-loop for i to (- multiplicand 1) collect
         (emmet-instantiate-numbering-expression i multiplicand exp)))
 
 (defun emmet-multiplier (input)
@@ -3271,7 +3271,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                           `((tag ,(append tag-data (list props))) . ,input))
                         `((tag ,(append tag-data '(nil))) . ,input))
                        (let ((expr (car it)) (input (cdr it)))
-                         (destructuring-bind (expr . input)
+                         (cl-destructuring-bind (expr . input)
                              (emmet-tag-text expr input)
                            (or
                             (emmet-expand-lorem expr input)
@@ -3298,9 +3298,9 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
   (let ((tag-data (cadr tag)))
     (let ((tag-name (car tag-data)))
       (emmet-aif (emmet-lorem tag-name)
-                 (if (equalp (cdr tag-data) '(t nil nil nil nil))
+                 (if (cl-equalp (cdr tag-data) '(t nil nil nil nil))
                      `((text (lorem ,it)) . ,input)
-                   `((tag ("div" ,@(subseq tag-data 1 -1) (lorem ,it))) . ,input))))))
+                   `((tag ("div" ,@(cl-subseq tag-data 1 -1) (lorem ,it))) . ,input))))))
 
 (defun emmet-expand-tag-alias (tag input)
   (let ((tag-data (cadr tag)))
@@ -3316,11 +3316,11 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                  (setf (second first-tag-data) (second tag-data))
                  (setf (third first-tag-data)  (third tag-data))
                  (setf (fourth first-tag-data)
-                       (remove-duplicates
+                       (cl-remove-duplicates
                         (append (fourth first-tag-data)
                                 (fourth tag-data)) :test #'string=))
                  (setf (fifth first-tag-data)
-                       (remove-duplicates
+                       (cl-remove-duplicates
                         (append (fifth first-tag-data)
                                 (fifth tag-data))
                         :test #'(lambda (p1 p2)
@@ -3458,7 +3458,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                           `(parent-child ,parent
                                          ,(emmet-instantiate-numbering-expression i len child)))
                         parents
-                        (loop for i to (- len 1) collect i))) . ,input))))
+                        (cl-loop for i to (- len 1) collect i))) . ,input))))
     (emmet-run
      emmet-multiplier
      (let* ((items (cadr expr))
@@ -3523,7 +3523,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
   "Parse an e+ expression, where e is an expandable tag"
   (let* ((parent-tag (car (cadr parent))))
     (setf (caadr parent) (concat parent-tag "+"))
-    (destructuring-bind (parent . input)
+    (cl-destructuring-bind (parent . input)
         (emmet-expand-tag-alias parent input)
       (emmet-pif (emmet-parse "+\\(.*\\)" 1 "+expr"
                                       (emmet-subexpr (elt it 1)))
@@ -3632,13 +3632,13 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
 
 (defun emmet-hash-to-list (hash &optional proc)
   (unless proc (setq proc #'cons))
-  (loop for key being the hash-keys of hash using (hash-values val)
+  (cl-loop for key being the hash-keys of hash using (hash-values val)
         collect (funcall proc key val)))
 
 (defun emmet-merge-tag-props (default-table tag-props)
   (if default-table
       (let ((tbl (copy-hash-table default-table)))
-        (loop for prop in tag-props do
+        (cl-loop for prop in tag-props do
               (puthash (symbol-name (car prop)) (cadr prop) tbl))
         (emmet-hash-to-list tbl 'list))
     tag-props))
@@ -3962,7 +3962,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
          (f (+ s count))
          (e (if (< l f) l f)))
     (append
-     (subseq emmet-lorem-words s e)
+     (cl-subseq emmet-lorem-words s e)
      (if (= e l) (emmet-lorem-choice-words (- f l) 0)))))
 
 (defvar emmet-lorem-min-sentence 5)
@@ -3970,7 +3970,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
 (defvar emmet-lorem-max-sentence 30)
 
 (defun emmet-upcase-first (s)
-  (concat (upcase (subseq s 0 1)) (subseq s 1)))
+  (concat (upcase (cl-subseq s 0 1)) (cl-subseq s 1)))
 
 (defun emmet-lorem-generate (count)
   (if (<= count 0) ""
@@ -3984,7 +3984,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
       (let ((words (let ((w (emmet-lorem-choice-words sl)))
                      (let ((l (car (last w))))
                        (if (string-equal (substring l -1) ",")
-                           (append (subseq w 0 -1) (list (substring l 0 -1)))
+                           (append (cl-subseq w 0 -1) (list (substring l 0 -1)))
                          w)))))
         (concat (emmet-upcase-first (emmet-join-string words " ")) last
                 (let ((next (emmet-lorem-generate (- count sl))))
@@ -4004,7 +4004,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
    (cons (list (elt it 1)
                (let ((unit (elt it 2)))
                  (if (= (length unit) 0)
-                     (if (find ?. (elt it 1)) "em" "px")
+                     (if (cl-find ?. (elt it 1)) "em" "px")
                    (gethash unit emmet-css-unit-aliases unit))))
          input)))
 
@@ -4031,7 +4031,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
              (cond ((= l 1) (concat (make-list 6 (string-to-char n))))
                    ((= l 2) (concat n n n))
                    ((= l 3) (concat
-                             (loop for c in (string-to-list n)
+                             (cl-loop for c in (string-to-list n)
                                    append (list c c))))
                    (t (concat n n)))
              0 6))))
@@ -4080,13 +4080,13 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
 (defun emmet-css-parse-args (args)
   (when args
     (let ((rt nil))
-      (loop
+      (cl-loop
        (emmet-pif
         (emmet-css-parse-arg args)
-        (loop for i on it do (push (car i) rt)
+        (cl-loop for i on it do (push (car i) rt)
               while (consp (cdr i))
               finally (setq args (cdr i)))
-        (return (nreverse rt)))))))
+        (cl-return (nreverse rt)))))))
 
 (defun emmet-css-split-args (exp)
   (emmet-aif
@@ -4101,14 +4101,14 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
          (let ((vp (elt it 1)))
            (if (not (string= vp ""))
                (if (string= vp "-") 'auto
-                 (string-to-list (subseq vp 1 -1))))))))
+                 (string-to-list (cl-subseq vp 1 -1))))))))
 
 (defun emmet-css-subexpr (exp)
   (let* ((importantp (emmet-css-important-p exp)))
-    (destructuring-bind (exp vp)
+    (cl-destructuring-bind (exp vp)
         (emmet-css-split-vendor-prefixes exp)
-      (destructuring-bind (key args)
-          (emmet-css-split-args (if importantp (subseq exp 0 -1) exp))
+      (cl-destructuring-bind (key args)
+          (emmet-css-split-args (if importantp (cl-subseq exp 0 -1) exp))
         `(,key ,vp
                ,importantp
                ,@(emmet-css-parse-args args))))))
@@ -4116,7 +4116,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
 (defun emmet-css-toknize (str)
   (let* ((i (split-string str "+"))
          (rt nil))
-    (loop
+    (cl-loop
      (let ((f (first i))
            (s (second i)))
        (if f
@@ -4128,7 +4128,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
              (progn
                (setf rt (cons f rt))
                (setf i (cdr i))))
-         (return (nreverse rt)))))))
+         (cl-return (nreverse rt)))))))
 
 (defun emmet-css-expr (input)
   (mapcar #'emmet-css-subexpr
@@ -4162,10 +4162,10 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
          (split-string-to-body
           (str args-sym)
           (let ((rt '(concat)) (idx-max 0))
-            (loop for i from 0 to 255 do
+            (cl-loop for i from 0 to 255 do
                   (emmet-aif
                    (string-match "\\(?:|\\|${\\(?:\\([0-9]\\)\\|\\)\\(?::\\(.+?\\)\\|\\)}\\)" str)
-                   (destructuring-bind (mat idx def)
+                   (cl-destructuring-bind (mat idx def)
                        (mapcar (lambda (ref) (match-string ref str)) '(0 1 2))
                      (setf rt
                            `((or
@@ -4177,10 +4177,10 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                              ,@rt))
                      (setf str (substring str (+ it (length mat)))))
                    ;; don't use nreverse. cause bug in emacs-lisp.
-                   (return (cons idx-max (reverse (cons str rt)))))))))
+                   (cl-return (cons idx-max (reverse (cons str rt)))))))))
     (let ((args (gensym))
           (str  (insert-space-between-name-and-body str)))
-      (destructuring-bind (idx-max . body) (split-string-to-body str args)
+      (cl-destructuring-bind (idx-max . body) (split-string-to-body str args)
         (eval
          `(lambda (&rest ,args)
             (progn
@@ -4197,7 +4197,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
  emmet-vendor-prefixes-default
  (list "webkit" "moz" "ms" "o"))
 (defun emmet-css-transform-vendor-prefixes (line vp)
-  (let ((key (subseq line 0 (or (position ?: line) (length line)))))
+  (let ((key (cl-subseq line 0 (or (cl-position ?: line) (length line)))))
     (let ((vps (if (eql vp 'auto)
                    (gethash key
                             emmet-vendor-prefixes-properties
@@ -4254,11 +4254,11 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
 		       ";"))))
           (let ((line
                  (if (caddr expr)
-                     (concat (subseq basement 0 -1) " !important;")
+                     (concat (cl-subseq basement 0 -1) " !important;")
                    basement)))
 	    ;; remove trailing semicolon while editing Sass files
-	    (if (and emmet-use-sass-syntax (equal ";" (subseq line -1)))
-		(setq line (subseq line 0 -1)))
+	    (if (and emmet-use-sass-syntax (equal ";" (cl-subseq line -1)))
+		(setq line (cl-subseq line 0 -1)))
             (emmet-aif
              (cadr expr)
              (emmet-css-transform-vendor-prefixes line it)

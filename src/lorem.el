@@ -86,7 +86,7 @@
          (f (+ s count))
          (e (if (< l f) l f)))
     (append
-     (subseq emmet-lorem-words s e)
+     (cl-subseq emmet-lorem-words s e)
      (if (= e l) (emmet-lorem-choice-words (- f l) 0)))))
 
 (defvar emmet-lorem-min-sentence 5)
@@ -94,7 +94,7 @@
 (defvar emmet-lorem-max-sentence 30)
 
 (defun emmet-upcase-first (s)
-  (concat (upcase (subseq s 0 1)) (subseq s 1)))
+  (concat (upcase (cl-subseq s 0 1)) (cl-subseq s 1)))
 
 (defun emmet-lorem-generate (count)
   (if (<= count 0) ""
@@ -108,7 +108,7 @@
       (let ((words (let ((w (emmet-lorem-choice-words sl)))
                      (let ((l (car (last w))))
                        (if (string-equal (substring l -1) ",")
-                           (append (subseq w 0 -1) (list (substring l 0 -1)))
+                           (append (cl-subseq w 0 -1) (list (substring l 0 -1)))
                          w)))))
         (concat (emmet-upcase-first (emmet-join-string words " ")) last
                 (let ((next (emmet-lorem-generate (- count sl))))
