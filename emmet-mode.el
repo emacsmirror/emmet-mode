@@ -272,7 +272,7 @@ e. g. without semicolons")
   (let* ((style-attr-end "[^=][\"']")
          (style-attr-begin "style=[\"']")
          (style-tag-end "</style>")
-         (style-tag-begin "<style>"))
+         (style-tag-begin "<style.*>"))
     (and emmet-use-style-tag-and-attr-detection
          (or
           (emmet-check-if-between style-attr-begin style-attr-end) ; style attr
