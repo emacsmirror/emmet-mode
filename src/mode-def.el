@@ -12,8 +12,8 @@
          (start (emmet-find-left-bound))
          (line (buffer-substring-no-properties start end))
          (expr (emmet-regex "\\([ \t]*\\)\\([^\n]+\\)" line 2)))
-    (if (first expr)
-        (list (first expr) start end))))
+    (if (cl-first expr)
+        (list (cl-first expr) start end))))
 
 (defun emmet-find-left-bound ()
   "Find the left bound of an emmet expr"
@@ -116,7 +116,7 @@ e. g. without semicolons")
   (let* ((style-attr-end "[^=][\"']")
          (style-attr-begin "style=[\"']")
          (style-tag-end "</style>")
-         (style-tag-begin "<style>"))
+         (style-tag-begin "<style.*>"))
     (and emmet-use-style-tag-and-attr-detection
          (or
           (emmet-check-if-between style-attr-begin style-attr-end) ; style attr
@@ -161,9 +161,9 @@ For more information see `emmet-mode'."
           (emmet-preview beg end))
       (let ((expr (emmet-expr-on-line)))
         (if expr
-            (let ((markup (emmet-transform (first expr))))
+            (let ((markup (emmet-transform (cl-first expr))))
               (when markup
-                (delete-region (second expr) (third expr))
+                (delete-region (cl-second expr) (cl-third expr))
                 (emmet-insert-and-flash markup)
                 (emmet-reposition-cursor expr))))))))
 
@@ -225,15 +225,15 @@ See also `emmet-expand-line'."
   (interactive)
   (let ((expr (emmet-expr-on-line)))
     (if expr
-        (let* ((markup (emmet-transform-yas (first expr)))
+        (let* ((markup (emmet-transform-yas (cl-first expr)))
                (filled (replace-regexp-in-string "><" ">\n<" markup)))
-          (delete-region (second expr) (third expr))
+          (delete-region (cl-second expr) (cl-third expr))
           (insert filled)
-          (indent-region (second expr) (point))
+          (indent-region (cl-second expr) (point))
           (if (fboundp 'yas/expand-snippet)
               (yas/expand-snippet
-               (buffer-substring (second expr) (point))
-               (second expr) (point)))))))
+               (buffer-substring (cl-second expr) (point))
+               (cl-second expr) (point)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Real-time preview
@@ -329,7 +329,7 @@ cursor position will be moved to after the first quote."
   :group 'emmet)
 
 (defun emmet-reposition-cursor (expr)
-  (let ((output-markup (buffer-substring-no-properties (second expr) (point))))
+  (let ((output-markup (buffer-substring-no-properties (cl-second expr) (point))))
     (when emmet-move-cursor-after-expanding
       (let ((p (point))
             (new-pos (if (emmet-html-text-p output-markup)
