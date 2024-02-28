@@ -1,4 +1,4 @@
-;;; emmet-mode.el --- Unofficial Emmet's support for emacs
+;;; emmet-mode.el --- Unofficial Emmet's support for emacs -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2014-     Dmitry Mukhutdinov (@flyingleafe  https://github.com/flyingleafe)
 ;; Copyright (C) 2014-     William David Mayo (@pbocks       https://github.com/pobocks)
@@ -3849,7 +3849,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
   (let ((type (car ast)))
     (cond
      ((eq type 'list)
-      (mapconcat (lexical-let ((make-tag-fun tag-maker))
+      (mapconcat (let ((make-tag-fun tag-maker))
                    #'(lambda (sub-ast)
                        (emmet-transform-ast sub-ast make-tag-fun)))
                  (cadr ast)

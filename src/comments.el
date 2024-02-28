@@ -1,4 +1,4 @@
-;;; emmet-mode.el --- Unofficial Emmet's support for emacs
+;;; emmet-mode.el --- Unofficial Emmet's support for emacs -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2014-     Dmitry Mukhutdinov (@flyingleafe  https://github.com/flyingleafe)
 ;; Copyright (C) 2014-     William David Mayo (@pbocks       https://github.com/pobocks)

@@ -779,7 +779,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
   (let ((type (car ast)))
     (cond
      ((eq type 'list)
-      (mapconcat (lexical-let ((make-tag-fun tag-maker))
+      (mapconcat (let ((make-tag-fun tag-maker))
                    #'(lambda (sub-ast)
                        (emmet-transform-ast sub-ast make-tag-fun)))
                  (cadr ast)
