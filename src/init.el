@@ -5,7 +5,7 @@
 (defconst emmet-mode:version "1.0.10")
 
 (with-no-warnings
-  (require 'cl))
+  (require 'cl-lib))
 
 ;; for portability with < 24.3 EMACS
 (unless (fboundp 'cl-labels) (fset 'cl-labels 'labels))

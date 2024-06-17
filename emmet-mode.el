@@ -1,4 +1,4 @@
-;;; emmet-mode.el --- Unofficial Emmet's support for emacs
+;;; emmet-mode.el --- Unofficial Emmet's support for emacs -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2014-     Dmitry Mukhutdinov (@flyingleafe  https://github.com/flyingleafe)
 ;; Copyright (C) 2014-     William David Mayo (@pbocks       https://github.com/pobocks)
@@ -70,7 +70,7 @@
 (defconst emmet-mode:version "1.0.10")
 
 (with-no-warnings
-  (require 'cl))
+  (require 'cl-lib))
 
 ;; for portability with < 24.3 EMACS
 (unless (fboundp 'cl-labels) (fset 'cl-labels 'labels))
@@ -168,8 +168,8 @@ and leaving the point in place."
          (start (emmet-find-left-bound))
          (line (buffer-substring-no-properties start end))
          (expr (emmet-regex "\\([ \t]*\\)\\([^\n]+\\)" line 2)))
-    (if (first expr)
-        (list (first expr) start end))))
+    (if (cl-first expr)
+        (list (cl-first expr) start end))))
 
 (defun emmet-find-left-bound ()
   "Find the left bound of an emmet expr"
@@ -317,9 +317,9 @@ For more information see `emmet-mode'."
           (emmet-preview beg end))
       (let ((expr (emmet-expr-on-line)))
         (if expr
-            (let ((markup (emmet-transform (first expr))))
+            (let ((markup (emmet-transform (cl-first expr))))
               (when markup
-                (delete-region (second expr) (third expr))
+                (delete-region (cl-second expr) (cl-third expr))
                 (emmet-insert-and-flash markup)
                 (emmet-reposition-cursor expr))))))))
 
@@ -381,15 +381,15 @@ See also `emmet-expand-line'."
   (interactive)
   (let ((expr (emmet-expr-on-line)))
     (if expr
-        (let* ((markup (emmet-transform-yas (first expr)))
+        (let* ((markup (emmet-transform-yas (cl-first expr)))
                (filled (replace-regexp-in-string "><" ">\n<" markup)))
-          (delete-region (second expr) (third expr))
+          (delete-region (cl-second expr) (cl-third expr))
           (insert filled)
-          (indent-region (second expr) (point))
+          (indent-region (cl-second expr) (point))
           (if (fboundp 'yas/expand-snippet)
               (yas/expand-snippet
-               (buffer-substring (second expr) (point))
-               (second expr) (point)))))))
+               (buffer-substring (cl-second expr) (point))
+               (cl-second expr) (point)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Real-time preview
@@ -485,7 +485,7 @@ cursor position will be moved to after the first quote."
   :group 'emmet)
 
 (defun emmet-reposition-cursor (expr)
-  (let ((output-markup (buffer-substring-no-properties (second expr) (point))))
+  (let ((output-markup (buffer-substring-no-properties (cl-second expr) (point))))
     (when emmet-move-cursor-after-expanding
       (let ((p (point))
             (new-pos (if (emmet-html-text-p output-markup)
@@ -3181,7 +3181,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
      (emmet-pif (emmet-parse
                      "@\\([0-9-][0-9]*\\)" 2 "numbering args"
                      (let* ((args (read (elt it 1)))
-                            (direction  (not (or (eq '- args) (minusp args))))
+                            (direction  (not (or (eq '- args) (cl-minusp args))))
                             (base       (if (eq '- args) 1 (abs args))))
                        `((n ,(length doller) ,direction ,base) . ,input)))
                     it
@@ -3212,9 +3212,9 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
                       (mapcar
                        (lambda (exp)
                          (if (listp exp)
-                             (let ((digits (second exp))
-                                   (direction (third exp))
-                                   (base (fourth exp)))
+                             (let ((digits (cl-second exp))
+                                   (direction (cl-third exp))
+                                   (base (cl-fourth exp)))
                                (let ((num (if direction (+ base i)
                                             (- (+ lim (- base 1)) i))))
                                  (format (concat "%0" (format "%d" digits) "d") num)))
@@ -3313,16 +3313,16 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
          (prog1
              (let ((rt (copy-tree expr)))
                (let ((first-tag-data (cadr (emmet-get-first-tag rt))))
-                 (setf (second first-tag-data) (second tag-data))
-                 (setf (third first-tag-data)  (third tag-data))
-                 (setf (fourth first-tag-data)
+                 (setf (cl-second first-tag-data) (cl-second tag-data))
+                 (setf (cl-third first-tag-data)  (cl-third tag-data))
+                 (setf (cl-fourth first-tag-data)
                        (cl-remove-duplicates
-                        (append (fourth first-tag-data)
-                                (fourth tag-data)) :test #'string=))
-                 (setf (fifth first-tag-data)
+                        (append (cl-fourth first-tag-data)
+                                (cl-fourth tag-data)) :test #'string=))
+                 (setf (cl-fifth first-tag-data)
                        (cl-remove-duplicates
-                        (append (fifth first-tag-data)
-                                (fifth tag-data))
+                        (append (cl-fifth first-tag-data)
+                                (cl-fifth tag-data))
                         :test #'(lambda (p1 p2)
                                   (eql (car p1) (car p2)))))
                  (setf (cl-sixth first-tag-data) (cl-sixth tag-data))
@@ -3453,7 +3453,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
   (cl-labels
     ((listing (parents child input)
         (let ((len (length parents)))
-          `((list ,(map 'list
+          `((list ,(cl-map 'list
                         (lambda (parent i)
                           `(parent-child ,parent
                                          ,(emmet-instantiate-numbering-expression i len child)))
@@ -3849,7 +3849,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
   (let ((type (car ast)))
     (cond
      ((eq type 'list)
-      (mapconcat (lexical-let ((make-tag-fun tag-maker))
+      (mapconcat (let ((make-tag-fun tag-maker))
                    #'(lambda (sub-ast)
                        (emmet-transform-ast sub-ast make-tag-fun)))
                  (cadr ast)
@@ -4117,8 +4117,8 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
   (let* ((i (split-string str "+"))
          (rt nil))
     (cl-loop
-     (let ((f (first i))
-           (s (second i)))
+     (let ((f (cl-first i))
+           (s (cl-second i)))
        (if f
            (if (and s (or (string= s "")
                           (string-match "^\\(?:[ #0-9$]\\|-[0-9]\\)" s)))

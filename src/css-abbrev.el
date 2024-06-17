@@ -124,8 +124,8 @@
   (let* ((i (split-string str "+"))
          (rt nil))
     (cl-loop
-     (let ((f (first i))
-           (s (second i)))
+     (let ((f (cl-first i))
+           (s (cl-second i)))
        (if f
            (if (and s (or (string= s "")
                           (string-match "^\\(?:[ #0-9$]\\|-[0-9]\\)" s)))

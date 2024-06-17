@@ -20,7 +20,7 @@ Zen Coding has been renamed to [Emmet](http://emmet.io/) and includes an expande
 
 ## Supported Emacs
 
-`emmet-mode` is supported by GNU Emacs versions from 23 onward.
+`emmet-mode` is supported by GNU Emacs versions from 24.3 onward.
 
 ## Installation
 
